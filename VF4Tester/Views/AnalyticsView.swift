@@ -1,319 +1,312 @@
 import SwiftUI
 import Charts
-import UniformTypeIdentifiers
 
-// MARK: - Export & Chart Types
-
-enum ExportFormat: String, CaseIterable, Identifiable {
-    case csv = "CSV"
-    case json = "JSON"
-    case pdf = "PDF"
-    
-    var id: Self { self }
-}
-
-enum ChartType: String, CaseIterable, Identifiable {
-    case bar = "Bar"
-    case line = "Line"
-    
-    var id: Self { self }
-}
-
-// MARK: - Share Sheet
-
-struct ShareSheet: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems,
-                                 applicationActivities: applicationActivities)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-// MARK: - Analytics Export Document
-
-struct AnalyticsExportDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.commaSeparatedText] }
-    var data: Data
-
-    init(data: Data) {
-        self.data = data
-    }
-
-    init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents else {
-            throw CocoaError(.fileReadCorruptFile)
-        }
-        self.data = data
-    }
-
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        FileWrapper(regularFileWithContents: data)
-    }
-}
-
-// MARK: - AnalyticsView
-
+// MARK: - Analytics View
 struct AnalyticsView: View {
     @EnvironmentObject var viewModel: TestViewModel
-
-    enum FilterOption: String, CaseIterable, Identifiable {
-        case all = "All"
-        case lowFlow = "Low Flow"
-        case highFlow = "High Flow"
-
-        var id: Self { self }
-    }
-
     @State private var selectedFilter: FilterOption = .all
     @State private var selectedChartType: ChartType = .bar
     @State private var showTrendLine: Bool = false
-    @State private var selectedExportFormat: ExportFormat = .csv
-    @State private var showShareSheet: Bool = false
+    @State private var showExportSheet: Bool = false
+    @State private var exportData: Data? = nil
 
+    // MARK: - Filter Options
+    enum FilterOption: String, CaseIterable, Identifiable {
+        case all = "All Tests"
+        case lowFlow = "Low Flow"
+        case highFlow = "High Flow"
+        var id: Self { self }
+    }
+
+    enum ChartType: String, CaseIterable, Identifiable {
+        case bar = "Bar"
+        case line = "Line"
+        var id: Self { self }
+    }
+
+    // MARK: - Computed Properties
     var filteredResults: [TestResult] {
         switch selectedFilter {
-        case .all:
-            return viewModel.testResults
-        case .lowFlow:
-            return viewModel.testResults.filter { $0.testType == .lowFlow }
-        case .highFlow:
-            return viewModel.testResults.filter { $0.testType == .highFlow }
+        case .all: return viewModel.testResults
+        case .lowFlow: return viewModel.testResults.filter { $0.testType == .lowFlow }
+        case .highFlow: return viewModel.testResults.filter { $0.testType == .highFlow }
         }
     }
 
-    var averageAccuracy: Double? {
-        let results = filteredResults
-        guard !results.isEmpty else { return nil }
-        let total = results.reduce(0.0) { $0 + $1.reading.accuracy }
-        return total / Double(results.count)
+    var passRate: Double {
+        guard !filteredResults.isEmpty else { return 0 }
+        let passingTests = filteredResults.filter { $0.isPassing }.count
+        return Double(passingTests) / Double(filteredResults.count) * 100
     }
 
-    // Use the ChartContentBuilder to build chart marks
-    @ChartContentBuilder
-    var chartContent: some ChartContent {
-        if selectedChartType == .bar {
+    var averageAccuracy: Double {
+        guard !filteredResults.isEmpty else { return 0 }
+        let total = filteredResults.reduce(0.0) { $0 + $1.reading.accuracy }
+        return total / Double(filteredResults.count)
+    }
+
+    // MARK: - Chart Content
+    @ViewBuilder
+    var chartContent: some View {
+        Chart {
+            // Pass/Fail Threshold Zones - Using RectangleMark without zIndex
             ForEach(filteredResults) { result in
-                BarMark(
-                    x: .value("Date", result.date, unit: .day),
-                    y: .value("Accuracy", result.reading.accuracy)
+                // Draw the threshold zones first
+                RectangleMark(
+                    xStart: .value("Start", result.date),
+                    xEnd: .value("End", result.date),
+                    yStart: .value("Lower", 95),
+                    yEnd: .value("Upper", 101)
                 )
-                .foregroundStyle(result.isPassing ? Color.green : Color.red)
-                .annotation(position: .top) {
-                    Text(String(format: "%.1f%%", result.reading.accuracy))
-                        .font(.caption)
-                        .foregroundColor(.primary)
+                .foregroundStyle(Color.green.opacity(0.1))
+
+                RectangleMark(
+                    xStart: .value("Start", result.date),
+                    xEnd: .value("End", result.date),
+                    yStart: .value("Lower", 98.5),
+                    yEnd: .value("Upper", 101.5)
+                )
+                .foregroundStyle(Color.blue.opacity(0.1))
+
+                // Then draw the data points on top
+                if selectedChartType == .bar {
+                    BarMark(
+                        x: .value("Date", result.date),
+                        y: .value("Accuracy", result.reading.accuracy)
+                    )
+                    .foregroundStyle(result.isPassing ? Color.green : Color.red)
+                } else {
+                    LineMark(
+                        x: .value("Date", result.date),
+                        y: .value("Accuracy", result.reading.accuracy)
+                    )
+                    .foregroundStyle(result.isPassing ? Color.green : Color.red)
+                    .symbol {
+                        Circle()
+                            .fill(result.isPassing ? Color.green : Color.red)
+                            .frame(width: 8, height: 8)
+                    }
                 }
             }
-        } else {
-            ForEach(filteredResults) { result in
-                LineMark(
-                    x: .value("Date", result.date, unit: .day),
-                    y: .value("Accuracy", result.reading.accuracy)
-                )
-                .foregroundStyle(result.isPassing ? Color.green : Color.red)
+
+            if showTrendLine {
+                RuleMark(y: .value("Average", averageAccuracy))
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                    .foregroundStyle(.blue.opacity(0.5))
+                    .annotation(position: .leading) {
+                        Text(String(format: "Avg: %.1f%%", averageAccuracy))
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+            }
+        }
+        .chartYScale(domain: 90...105)
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day)) { value in
+                if let date = value.as(Date.self) {
+                    AxisValueLabel {
+                        Text(date.formatted(.dateTime.month().day()))
+                            .font(.caption2)
+                    }
+                }
+            }
+        }
+        .frame(height: 300)
+        .padding()
+    }
+
+    // MARK: - Body
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                // Controls Card
+                DetailCard(title: "Chart Options") {
+                    VStack(spacing: 12) {
+                        Picker("Test Type", selection: $selectedFilter) {
+                            ForEach(FilterOption.allCases) { option in
+                                Text(option.rawValue).tag(option)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+
+                        Divider()
+
+                        Picker("Chart Type", selection: $selectedChartType) {
+                            ForEach(ChartType.allCases) { type in
+                                Text(type.rawValue).tag(type)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+
+                        Toggle("Show Trend Line", isOn: $showTrendLine)
+                    }
+                }
+
+                // Stats Grid
+                HStack(spacing: 16) {
+                    StatCard(
+                        title: "Pass Rate",
+                        value: String(format: "%.1f%%", passRate),
+                        color: .green,
+                        icon: "checkmark.circle.fill"
+                    )
+
+                    StatCard(
+                        title: "Average Accuracy",
+                        value: String(format: "%.1f%%", averageAccuracy),
+                        color: .blue,
+                        icon: "gauge.with.dots.needle.bottom.50percent"
+                    )
+
+                    StatCard(
+                        title: "Total Tests",
+                        value: "\(filteredResults.count)",
+                        color: .purple,
+                        icon: "number.circle.fill"
+                    )
+                }
+
+                // Chart Card
+                DetailCard(title: "Test Results") {
+                    if filteredResults.isEmpty {
+                        Text("No test results available")
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding()
+                    } else {
+                        chartContent
+                    }
+                }
+
+                // Recent Results
+                DetailCard(title: "Recent Tests") {
+                    ForEach(filteredResults.prefix(5)) { result in
+                        VStack(spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(result.testType.rawValue)
+                                        .font(.headline)
+                                    Text(result.date.formatted())
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Text(String(format: "%.1f%%", result.reading.accuracy))
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundColor(result.isPassing ? .green : .red)
+                            }
+                            Divider()
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Analytics")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showExportSheet = true }) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
+        .sheet(isPresented: $showExportSheet) {
+            if let data = generateExportData() {
+                ShareSheet(activityItems: [data])
             }
         }
     }
 
-    @ChartContentBuilder
-    var trendLineContent: some ChartContent {
-        if showTrendLine {
-            ForEach(trendLineData, id: \.date) { dataPoint in
-                LineMark(
-                    x: .value("Date", dataPoint.date, unit: .day),
-                    y: .value("Trend", dataPoint.average)
-                )
-                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
-                .foregroundStyle(Color.blue)
-            }
-        }
-    }
-
-    var trendLineData: [(date: Date, average: Double)] {
-        let sortedResults = filteredResults.sorted { $0.date < $1.date }
-        guard !sortedResults.isEmpty else { return [] }
-        let average = sortedResults.reduce(0.0) { $0 + $1.reading.accuracy } / Double(sortedResults.count)
-        return sortedResults.map { ($0.date, average) }
-    }
-
-    func generateCSVData() -> Data? {
-        var csvString = "Date,Test Type,Accuracy,Status\n"
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
-
+    // MARK: - Helper Functions
+    private func generateExportData() -> Data? {
+        var csvString = "Date,Test Type,Accuracy,Status,Meter Size,Meter Type,Job Number\n"
+        let df = DateFormatter()
+        df.dateStyle = .short
+        df.timeStyle = .short
+        
         for result in filteredResults {
-            let dateStr = dateFormatter.string(from: result.date)
-            let type = result.testType.rawValue
-            let accuracy = String(format: "%.1f", result.reading.accuracy)
-            let status = result.isPassing ? "PASS" : "FAIL"
-            csvString += "\(dateStr),\(type),\(accuracy),\(status)\n"
+            let line = "\(df.string(from: result.date)),\(result.testType.rawValue),\(String(format: "%.1f", result.reading.accuracy)),\(result.isPassing ? "PASS" : "FAIL"),\(result.meterSize),\(result.meterType),\(result.jobNumber)\n"
+            csvString += line
         }
         return csvString.data(using: .utf8)
     }
+}
 
-    func generateJSONData() -> Data? {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return try? encoder.encode(filteredResults)
-    }
-
-    func generatePDFData() -> Data? {
-        let pdfMetaData = [
-            kCGPDFContextCreator: "VEROflow-4 Field Tester",
-            kCGPDFContextAuthor: "MARS Company",
-            kCGPDFContextTitle: "Test Analytics"
-        ]
-        let format = UIGraphicsPDFRendererFormat()
-        format.documentInfo = pdfMetaData as [String: Any]
-
-        let pageWidth = 8.5 * 72.0
-        let pageHeight = 11 * 72.0
-        let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
-        let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
-
-        let data = renderer.pdfData { context in
-            context.beginPage()
-            let title = "Test Analytics Summary"
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 24, weight: .bold)
-            ]
-            let titleSize = title.size(withAttributes: attributes)
-            let titleRect = CGRect(x: (pageRect.width - titleSize.width) / 2,
-                                   y: 50,
-                                   width: titleSize.width,
-                                   height: titleSize.height)
-            title.draw(in: titleRect, withAttributes: attributes)
-        }
-        return data
-    }
-
-    func exportData() -> Data? {
-        switch selectedExportFormat {
-        case .csv:
-            return generateCSVData()
-        case .json:
-            return generateJSONData()
-        case .pdf:
-            return generatePDFData()
-        }
-    }
+// MARK: - Supporting Views
+struct StatCard: View {
+    let title: String
+    let value: String
+    let color: Color
+    let icon: String
 
     var body: some View {
-        NavigationView {
-            VStack(alignment: .leading) {
-                Text("Test Accuracy Over Time")
-                    .font(.title)
-                    .padding(.horizontal)
-                Text("Visualize and analyze your test accuracy with interactive charts and trend lines. Customize your view and export data in multiple formats.")
-                    .font(.subheadline)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                Text(title)
+                    .font(.caption)
                     .foregroundColor(.secondary)
-                    .padding(.horizontal)
-
-                HStack {
-                    Text("Chart Type:")
-                    Picker("Chart Type", selection: $selectedChartType) {
-                        ForEach(ChartType.allCases) { type in
-                            Text(type.rawValue).tag(type)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding(.horizontal)
-
-                Toggle("Show Trend Line", isOn: $showTrendLine)
-                    .padding(.horizontal)
-
-                Picker("Filter", selection: $selectedFilter) {
-                    ForEach(FilterOption.allCases) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
-
-                HStack {
-                    Text("Tests: \(filteredResults.count)")
-                    if let avg = averageAccuracy {
-                        Text(String(format: "Avg Accuracy: %.1f%%", avg))
-                    }
-                }
-                .font(.subheadline)
-                .padding(.horizontal)
-                .padding(.top, 4)
-
-                if filteredResults.isEmpty {
-                    Spacer()
-                    Text("No test results available for the selected filter.")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .padding()
-                    Spacer()
-                } else {
-                    Chart {
-                        chartContent
-                        trendLineContent
-                    }
-                    .frame(height: 300)
-                    .padding()
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                Spacer()
             }
-            .navigationTitle("Analytics")
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Menu {
-                        Picker("Export Format", selection: $selectedExportFormat) {
-                            ForEach(ExportFormat.allCases) { format in
-                                Text(format.rawValue).tag(format)
-                            }
-                        }
-                        Button(action: { showShareSheet = true }) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-            }
-            .sheet(isPresented: $showShareSheet) {
-                if let dataToShare = exportData() {
-                    ShareSheet(activityItems: [dataToShare])
-                } else {
-                    Text("Export data not available.")
-                }
-            }
+            Text(value)
+                .font(.title2)
+                .bold()
+                .foregroundColor(color)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(UIColor.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
     }
 }
 
+// MARK: - Preview
 struct AnalyticsView_Previews: PreviewProvider {
     static var previews: some View {
         let vm = TestViewModel()
         vm.testResults = [
             TestResult(
-                id: UUID(), // Added id parameter
+                id: UUID(),
                 testType: .lowFlow,
-                reading: MeterReading(smallMeterStart: 10, smallMeterEnd: 20, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 10, flowRate: 5),
-                notes: "",
+                reading: MeterReading(
+                    smallMeterStart: 10,
+                    smallMeterEnd: 20,
+                    largeMeterStart: 0,
+                    largeMeterEnd: 0,
+                    totalVolume: 10,
+                    flowRate: 5
+                ),
+                notes: "Test LowFlow",
                 date: Date().addingTimeInterval(-86400),
-                meterImageData: nil
+                meterImageData: nil,
+                meterSize: "2\"",
+                meterType: "Neptune",
+                jobNumber: "JOB-001"
             ),
             TestResult(
-                id: UUID(), // Added id parameter
+                id: UUID(),
                 testType: .highFlow,
-                reading: MeterReading(smallMeterStart: 15, smallMeterEnd: 25, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 50, flowRate: 30),
-                notes: "",
+                reading: MeterReading(
+                    smallMeterStart: 15,
+                    smallMeterEnd: 25,
+                    largeMeterStart: 0,
+                    largeMeterEnd: 0,
+                    totalVolume: 50,
+                    flowRate: 30
+                ),
+                notes: "Test HighFlow",
                 date: Date(),
-                meterImageData: nil
+                meterImageData: nil,
+                meterSize: "3\"",
+                meterType: "Sensus",
+                jobNumber: "JOB-002"
             )
         ]
-        return AnalyticsView().environmentObject(vm)
+        return NavigationView {
+            AnalyticsView()
+                .environmentObject(vm)
+        }
     }
 }

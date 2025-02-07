@@ -1,199 +1,129 @@
 import SwiftUI
-import UIKit
-import CoreGraphics
-
-// Note: We don't need an explicit import for TestViewModel, MeterReading, or TestResult
-// since they're in the same module, but we're importing UIKit for UIActivityViewController
-// and CoreGraphics for PDF generation
-
-// MARK: - Export Options
-
-enum ExportOption: String, CaseIterable {
-    case csv = "Export as CSV"
-    case pdf = "Export as PDF"
-    case icloud = "Export to iCloud"
-}
-
-// MARK: - Components
-
-struct DetailCard<Content: View>: View {
-    let title: String
-    let content: Content
-    
-    init(title: String, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.content = content()
-    }
-    
-    var body: some View {
-        GroupBox(label: 
-            Text(title)
-                .font(.headline)
-                .textCase(.uppercase)
-                .foregroundColor(.secondary)
-        ) {
-            content
-                .padding(.top, 8)
-        }
-        .groupBoxStyle(CardGroupBoxStyle())
-    }
-}
-
-struct CardGroupBoxStyle: GroupBoxStyle {
-    func makeBody(configuration: GroupBoxStyleConfiguration) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            configuration.label
-            configuration.content
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color(uiColor: .systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-    }
-}
-
-struct MeterReadingRow: View {
-    let label: String
-    let value: Double
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .foregroundColor(.secondary)
-            Spacer()
-            Text(String(format: "%.1f", value))
-                .font(.system(.body, design: .monospaced))
-                .fontWeight(.medium)
-        }
-    }
-}
+import UniformTypeIdentifiers
+import PDFKit
 
 struct TestHistoryView: View {
     @EnvironmentObject var viewModel: TestViewModel
-    @State private var searchText: String = ""
-    @State private var showExportActionSheet: Bool = false
-    @State private var showShareSheet: Bool = false
-    @State private var exportData: Data? = nil
-
-    private let dateFormatter: DateFormatter = {
-         let formatter = DateFormatter()
-         formatter.dateStyle = .short
-         formatter.timeStyle = .short
-         return formatter
-    }()
-
+    @State private var searchText = ""
+    @State private var selectedFilter: FilterOption = .all
+    @State private var showingDeleteAlert = false
+    @State private var selectedResult: TestResult? = nil
+    @State private var showingExportSheet = false
+    @State private var showingShareSheet = false
+    @State private var exportData: Data?
+    @State private var exportFileType: UTType = .pdf
+    
+    enum FilterOption: String, CaseIterable {
+        case all = "All Tests"
+        case lowFlow = "Low Flow"
+        case highFlow = "High Flow"
+        case passing = "Passing"
+        case failing = "Failing"
+    }
+    
     var filteredResults: [TestResult] {
-        if searchText.isEmpty {
-            return viewModel.testResults
-        } else {
-            return viewModel.testResults.filter { result in
-                result.testType.rawValue.localizedCaseInsensitiveContains(searchText) ||
-                result.notes.localizedCaseInsensitiveContains(searchText)
-            }
+        let results = viewModel.testResults
+        
+        let filtered = results.filter { result in
+            if searchText.isEmpty { return true }
+            return result.jobNumber.localizedCaseInsensitiveContains(searchText) ||
+                   result.meterType.localizedCaseInsensitiveContains(searchText) ||
+                   result.meterSize.localizedCaseInsensitiveContains(searchText)
+        }
+        
+        switch selectedFilter {
+        case .all:
+            return filtered
+        case .lowFlow:
+            return filtered.filter { $0.testType == .lowFlow }
+        case .highFlow:
+            return filtered.filter { $0.testType == .highFlow }
+        case .passing:
+            return filtered.filter { $0.isPassing }
+        case .failing:
+            return filtered.filter { !$0.isPassing }
         }
     }
     
     var body: some View {
         List {
-            if filteredResults.isEmpty {
-                Text("No test results available.")
-                    .foregroundColor(.secondary)
-            } else {
-                ForEach(filteredResults) { result in
-                    NavigationLink(destination: TestDetailView(testResult: result)) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(result.testType.rawValue)
-                                .font(.headline)
-                            Text("Accuracy: \(String(format: "%.1f%%", result.reading.accuracy))")
-                                .font(.subheadline)
-                                .foregroundColor(result.isPassing ? .green : .red)
-                            HStack {
-                                Text("Volume: \(result.reading.totalVolume, specifier: "%.1f")")
-                                Spacer()
-                                Text("Flow Rate: \(result.reading.flowRate, specifier: "%.1f") GPM")
-                            }
-                            .font(.caption)
-                            Text("Date: \(result.date, formatter: dateFormatter)")
-                                .font(.caption)
-                        }
-                        .padding(.vertical, 5)
+            Section {
+                Picker("Filter", selection: $selectedFilter) {
+                    ForEach(FilterOption.allCases, id: \.self) { option in
+                        Text(option.rawValue).tag(option)
                     }
                 }
-                .onDelete { indexSet in
-                    let sourceIndices = indexSet.map { filteredResults[$0] }
-                        .compactMap { result in
-                            viewModel.testResults.firstIndex(where: { $0.id == result.id })
-                        }
-                    viewModel.deleteTest(at: IndexSet(sourceIndices))
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.vertical, 4)
+            }
+            
+            ForEach(filteredResults) { result in
+                TestResultRow(result: result)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedResult = result
+                    }
+            }
+            .onDelete { indexSet in
+                let resultsToDelete = indexSet.map { filteredResults[$0] }
+                for result in resultsToDelete {
+                    if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
+                        viewModel.testResults.remove(at: index)
+                    }
                 }
             }
         }
-        .listStyle(InsetGroupedListStyle())
-        .searchable(text: $searchText, prompt: "Search tests")
+        .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
         .navigationTitle("Test History")
-        .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $selectedResult) { result in
+            TestDetailView(result: result)
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showExportActionSheet = true
-                }) {
+                Button(action: { showingExportSheet = true }) {
                     Image(systemName: "square.and.arrow.up")
                 }
             }
         }
-        .alert("Export Options", isPresented: $showExportActionSheet) {
-            Button("CSV") { exportAndShare(.csv) }
-            Button("PDF") { exportAndShare(.pdf) }
-            Button("iCloud") { exportAndShare(.icloud) }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Choose an export format")
+        .actionSheet(isPresented: $showingExportSheet) {
+            ActionSheet(
+                title: Text("Export Test History"),
+                buttons: [
+                    .default(Text("Export as PDF")) {
+                        exportFileType = .pdf
+                        exportData = generatePDF()
+                        showingShareSheet = true
+                    },
+                    .default(Text("Export as CSV")) {
+                        exportFileType = .commaSeparatedText
+                        exportData = generateCSV().data(using: .utf8)
+                        showingShareSheet = true
+                    },
+                    .default(Text("Save to iCloud")) {
+                        saveToiCloud()
+                    },
+                    .cancel()
+                ]
+            )
         }
-        .sheet(isPresented: $showShareSheet) {
+        .sheet(isPresented: $showingShareSheet) {
             if let data = exportData {
-                CustomShareSheet(activityItems: [data])
-            } else {
-                VStack {
-                    Text("Export data not available.")
-                    Button("Dismiss") { showShareSheet = false }
-                }
+                ShareSheet(
+                    activityItems: [
+                        data,
+                        UTType.pdf.identifier
+                    ]
+                )
             }
         }
     }
     
-    private func exportAndShare(_ format: ExportOption) {
-        switch format {
-        case .csv:
-            exportData = generateCSVForResults(filteredResults)
-        case .pdf:
-            exportData = generatePDFForResults(filteredResults)
-        case .icloud:
-            exportData = generateCSVForResults(filteredResults)
-        }
-        if exportData != nil {
-            showShareSheet = true
-        }
-    }
+    // MARK: - Export Functions
     
-    func generateCSVForResults(_ results: [TestResult]) -> Data? {
-        var csvString = "Test Type,Small Start,Small End,Large Start,Large End,Total Volume,Flow Rate,Accuracy,Notes,Date\n"
-        let df = DateFormatter()
-        df.dateStyle = .short
-        df.timeStyle = .short
-        for result in results {
-            let dateStr = df.string(from: result.date)
-            let line = "\(result.testType.rawValue),\(result.reading.smallMeterStart),\(result.reading.smallMeterEnd),\(result.reading.largeMeterStart),\(result.reading.largeMeterEnd),\(result.reading.totalVolume),\(result.reading.flowRate),\(String(format: "%.1f", result.reading.accuracy)),\(result.notes),\(dateStr)\n"
-            csvString += line
-        }
-        return csvString.data(using: .utf8)
-    }
-    
-    func generatePDFForResults(_ results: [TestResult]) -> Data? {
+    private func generatePDF() -> Data {
         let pdfMetaData = [
-            kCGPDFContextCreator: "VEROflow-4 Field Tester",
-            kCGPDFContextAuthor: "MARS Company",
-            kCGPDFContextTitle: "Test History"
+            kCGPDFContextCreator: "VEROflow-4",
+            kCGPDFContextAuthor: "VEROflow-4 Test History"
         ]
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
@@ -201,165 +131,219 @@ struct TestHistoryView: View {
         let pageWidth = 8.5 * 72.0
         let pageHeight = 11 * 72.0
         let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
+        
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
         
         let data = renderer.pdfData { context in
             context.beginPage()
-            let title = "Test History"
+            
+            let titleFont = UIFont.boldSystemFont(ofSize: 24.0)
             let titleAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 24, weight: .bold)
-            ]
-            let titleSize = title.size(withAttributes: titleAttributes)
-            let titleRect = CGRect(x: (pageRect.width - titleSize.width) / 2,
-                                   y: 50,
-                                   width: titleSize.width,
-                                   height: titleSize.height)
-            title.draw(in: titleRect, withAttributes: titleAttributes)
-            
-            var yPosition = titleRect.maxY + 20
-            let textAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 12)
+                .font: titleFont
             ]
             
-            for result in results {
-                let line = "\(result.testType.rawValue) | \(String(format: "%.1f", result.reading.accuracy))% | \(result.date)"
-                let lineSize = line.size(withAttributes: textAttributes)
-                if yPosition + lineSize.height > pageRect.height - 40 {
+            let title = "VEROflow-4 Test History"
+            title.draw(at: CGPoint(x: 50, y: 50), withAttributes: titleAttributes)
+            
+            let contentFont = UIFont.systemFont(ofSize: 12.0)
+            let contentAttributes: [NSAttributedString.Key: Any] = [
+                .font: contentFont
+            ]
+            
+            var yPosition: CGFloat = 100
+            
+            for result in filteredResults {
+                let resultText = """
+                Date: \(result.date.formatted())
+                Test Type: \(result.testType.rawValue)
+                Job Number: \(result.jobNumber)
+                Meter Size: \(result.meterSize)
+                Meter Type: \(result.meterType)
+                Accuracy: \(String(format: "%.1f%%", result.reading.accuracy))
+                Status: \(result.isPassing ? "PASS" : "FAIL")
+                Flow Rate: \(String(format: "%.1f GPM", result.reading.flowRate))
+                Total Volume: \(String(format: "%.1f Gallons", result.reading.totalVolume))
+                Notes: \(result.notes)
+                
+                """
+                
+                resultText.draw(at: CGPoint(x: 50, y: yPosition), withAttributes: contentAttributes)
+                yPosition += 150
+                
+                if yPosition > pageHeight - 100 {
                     context.beginPage()
-                    yPosition = 40
+                    yPosition = 50
                 }
-                let lineRect = CGRect(x: 40, y: yPosition, width: pageRect.width - 80, height: lineSize.height)
-                line.draw(in: lineRect, withAttributes: textAttributes)
-                yPosition += lineSize.height + 10
             }
         }
+        
         return data
+    }
+    
+    private func generateCSV() -> String {
+        var csv = "Date,Test Type,Job Number,Meter Size,Meter Type,Accuracy,Status,Flow Rate,Total Volume,Notes\n"
+        
+        for result in filteredResults {
+            let row = [
+                result.date.formatted(),
+                result.testType.rawValue,
+                result.jobNumber,
+                result.meterSize,
+                result.meterType,
+                String(format: "%.1f", result.reading.accuracy),
+                result.isPassing ? "PASS" : "FAIL",
+                String(format: "%.1f", result.reading.flowRate),
+                String(format: "%.1f", result.reading.totalVolume),
+                result.notes.replacingOccurrences(of: ",", with: ";")
+            ].joined(separator: ",")
+            
+            csv += row + "\n"
+        }
+        
+        return csv
+    }
+    
+    private func saveToiCloud() {
+        guard let containerURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents") else {
+            print("iCloud not available")
+            return
+        }
+        
+        do {
+            try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+            
+            // Save PDF
+            let pdfData = generatePDF()
+            let pdfURL = containerURL.appendingPathComponent("VEROflow_Test_History_\(Date().formatted()).pdf")
+            try pdfData.write(to: pdfURL)
+            
+            // Save CSV
+            let csvString = generateCSV()
+            let csvURL = containerURL.appendingPathComponent("VEROflow_Test_History_\(Date().formatted()).csv")
+            try csvString.write(to: csvURL, atomically: true, encoding: .utf8)
+            
+        } catch {
+            print("Error saving to iCloud: \(error)")
+        }
+    }
+}
+
+// Rest of the code remains the same...
+
+
+struct TestResultRow: View {
+    let result: TestResult
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text(result.testType.rawValue)
+                        .font(.headline)
+                    Text(result.date.formatted(date: .abbreviated, time: .shortened))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                StatusBadge(isPassing: result.isPassing)
+            }
+            
+            HStack {
+                Label("Job: \(result.jobNumber)", systemImage: "number")
+                Spacer()
+                Label("\(result.meterSize)", systemImage: "ruler")
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+            
+            HStack {
+                Label(result.meterType, systemImage: "gauge")
+                Spacer()
+                Text(String(format: "%.1f%%", result.reading.accuracy))
+                    .bold()
+                    .foregroundColor(result.isPassing ? .green : .red)
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct StatusBadge: View {
+    let isPassing: Bool
+    
+    var body: some View {
+        Text(isPassing ? "PASS" : "FAIL")
+            .font(.caption)
+            .bold()
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(isPassing ? Color.green : Color.red)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
     }
 }
 
 struct TestDetailView: View {
-    var testResult: TestResult
-    @State private var showShareSheet: Bool = false
-    @State private var exportData: Data? = nil
-
-    private let df: DateFormatter = {
-         let formatter = DateFormatter()
-         formatter.dateStyle = .long
-         formatter.timeStyle = .short
-         return formatter
-    }()
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Header Card
-                DetailCard(title: "Test Information") {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text(testResult.testType.rawValue)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            Spacer()
-                            Text(testResult.isPassing ? "PASS" : "FAIL")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(testResult.isPassing ? Color.green : Color.red)
-                                .clipShape(Capsule())
-                        }
-                        
-                        Text(df.string(from: testResult.date))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                // Accuracy Card
-                DetailCard(title: "Results") {
-                    VStack(spacing: 8) {
-                        Text("\(String(format: "%.1f%%", testResult.reading.accuracy))")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundColor(testResult.isPassing ? .green : .red)
-                        Text("Accuracy")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                }
-                
-                // Meter Readings Card
-                DetailCard(title: "Meter Readings") {
-                    VStack(spacing: 12) {
-                        Group {
-                            MeterReadingRow(label: "Small Meter Start:", value: testResult.reading.smallMeterStart)
-                            MeterReadingRow(label: "Small Meter End:", value: testResult.reading.smallMeterEnd)
-                            Divider()
-                            MeterReadingRow(label: "Large Meter Start:", value: testResult.reading.largeMeterStart)
-                            MeterReadingRow(label: "Large Meter End:", value: testResult.reading.largeMeterEnd)
-                            Divider()
-                            MeterReadingRow(label: "Total Volume:", value: testResult.reading.totalVolume)
-                            MeterReadingRow(label: "Flow Rate (GPM):", value: testResult.reading.flowRate)
-                        }
-                    }
-                }
-                
-                // Notes Card
-                if !testResult.notes.isEmpty {
-                    DetailCard(title: "Notes") {
-                        Text(testResult.notes)
-                            .font(.body)
-                    }
-                }
-            }
-            .padding()
-        }
-        .background(Color(uiColor: .systemGroupedBackground))
-        .navigationTitle("Test Details")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    exportData = generateCSVForResult(testResult)
-                    showShareSheet = true
-                }) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
-        }
-        .sheet(isPresented: $showShareSheet) {
-            if let data = exportData {
-                CustomShareSheet(activityItems: [data])
-            } else {
-                VStack {
-                    Text("Export data not available.")
-                    Button("Dismiss") { showShareSheet = false }
-                }
-            }
-        }
-    }
+    let result: TestResult
+    @Environment(\.dismiss) var dismiss
     
-    func generateCSVForResult(_ result: TestResult) -> Data? {
-        var csvString = "Test Type,Small Start,Small End,Large Start,Large End,Total Volume,Flow Rate,Accuracy,Notes,Date\n"
-        let dateStr = df.string(from: result.date)
-        let line = "\(result.testType.rawValue),\(result.reading.smallMeterStart),\(result.reading.smallMeterEnd),\(result.reading.largeMeterStart),\(result.reading.largeMeterEnd),\(result.reading.totalVolume),\(result.reading.flowRate),\(String(format: "%.1f", result.reading.accuracy)),\(result.notes),\(dateStr)\n"
-        csvString += line
-        return csvString.data(using: .utf8)
+    var body: some View {
+        NavigationView {
+            List {
+                Section("Test Information") {
+                    LabeledContent("Test Type", value: result.testType.rawValue)
+                    LabeledContent("Date", value: result.date.formatted())
+                    LabeledContent("Job Number", value: result.jobNumber)
+                }
+                
+                Section("Meter Details") {
+                    LabeledContent("Size", value: result.meterSize)
+                    LabeledContent("Type", value: result.meterType)
+                }
+                
+                Section("Results") {
+                    LabeledContent("Accuracy", value: String(format: "%.1f%%", result.reading.accuracy))
+                    LabeledContent("Status", value: result.isPassing ? "PASS" : "FAIL")
+                }
+                
+                Section("Readings") {
+                    LabeledContent("Flow Rate", value: String(format: "%.1f GPM", result.reading.flowRate))
+                    LabeledContent("Total Volume", value: String(format: "%.1f Gallons", result.reading.totalVolume))
+                }
+                
+                if !result.notes.isEmpty {
+                    Section("Notes") {
+                        Text(result.notes)
+                    }
+                }
+                
+                if let imageData = result.meterImageData,
+                   let uiImage = UIImage(data: imageData) {
+                    Section("Meter Image") {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+            }
+            .navigationTitle("Test Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 
-struct CustomShareSheet: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems,
-                                 applicationActivities: applicationActivities)
-    }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
+// MARK: - Preview Provider
 struct TestHistoryView_Previews: PreviewProvider {
     static var previews: some View {
         let vm = TestViewModel()
@@ -367,20 +351,44 @@ struct TestHistoryView_Previews: PreviewProvider {
             TestResult(
                 id: UUID(),
                 testType: .lowFlow,
-                reading: MeterReading(smallMeterStart: 10, smallMeterEnd: 20, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 10, flowRate: 5),
+                reading: MeterReading(
+                    smallMeterStart: 10,
+                    smallMeterEnd: 20,
+                    largeMeterStart: 0,
+                    largeMeterEnd: 0,
+                    totalVolume: 10,
+                    flowRate: 5
+                ),
                 notes: "Test LowFlow",
                 date: Date().addingTimeInterval(-86400),
-                meterImageData: nil
+                meterImageData: nil,
+                meterSize: "2\"",
+                meterType: "Neptune",
+                jobNumber: "JOB-001"
             ),
             TestResult(
                 id: UUID(),
                 testType: .highFlow,
-                reading: MeterReading(smallMeterStart: 15, smallMeterEnd: 25, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 50, flowRate: 30),
+                reading: MeterReading(
+                    smallMeterStart: 15,
+                    smallMeterEnd: 25,
+                    largeMeterStart: 0,
+                    largeMeterEnd: 0,
+                    totalVolume: 50,
+                    flowRate: 30
+                ),
                 notes: "Test HighFlow",
                 date: Date(),
-                meterImageData: nil
+                meterImageData: nil,
+                meterSize: "3\"",
+                meterType: "Sensus",
+                jobNumber: "JOB-002"
             )
         ]
-        return TestHistoryView().environmentObject(vm)
+        
+        return NavigationView {
+            TestHistoryView()
+                .environmentObject(vm)
+        }
     }
 }

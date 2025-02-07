@@ -1,25 +1,26 @@
 import SwiftUI
-import UIKit
 
-// MARK: - TestView
-// This file assumes that the following are defined in SharedComponents.swift:
-//   - MarsReadingField, Field enum
-//   - Custom view modifiers: .marsSectionStyle(), .marsSectionHeaderStyle(), .placeholder(when:alignment:placeholder:)
+#if os(iOS)
+import UIKit
+#endif
 
 struct TestView: View {
     @EnvironmentObject var viewModel: TestViewModel
     @FocusState private var focusedField: Field?
+    @State private var showingClearConfirmation = false
     
-    // Removed photo-related state since the feature is removed.
-    // @State private var showImagePicker: Bool = false
-    // @State private var meterPhoto: UIImage? = nil
-    
-    // Local state for input fields.
+    // Local state for input fields with empty defaults
     @State private var totalVolumeText: String = ""
     @State private var flowRateText: String = ""
-    @State private var meterSizeText: String = ""
+    @State private var selectedMeterSize: MeterSize = .one
+    @State private var selectedMeterType: MeterType = .neptune
     @State private var jobNumberText: String = ""
     @State private var additionalRemarksText: String = ""
+    
+    // Custom colors
+    private let primaryColor = Color.blue
+    private let accentColor = Color.purple
+    private let sectionHeaderColor = Color.white
     
     var isLowFlowTest: Bool {
         viewModel.currentTest == .lowFlow
@@ -29,55 +30,87 @@ struct TestView: View {
         isLowFlowTest ? "95% - 101%" : "98.5% - 101.5%"
     }
     
+    private func clearAllFields() {
+        // Clear all text fields
+        totalVolumeText = ""
+        flowRateText = ""
+        jobNumberText = ""
+        additionalRemarksText = ""
+        
+        // Clear meter readings
+        viewModel.smallMeterStart = ""
+        viewModel.smallMeterEnd = ""
+        viewModel.largeMeterStart = ""
+        viewModel.largeMeterEnd = ""
+        
+        // Reset view model values
+        viewModel.totalVolume = 0.0
+        viewModel.flowRate = 0.0
+        viewModel.notes = ""
+        
+        // Reset selections to defaults
+        selectedMeterSize = .one
+        selectedMeterType = .neptune
+        
+        // Dismiss keyboard if active
+        dismissKeyboard()
+    }
+    
     var body: some View {
         Form {
-            // Test Type Section
             testTypeSection
-            
-            // Meter Readings Section
             meterReadingsSection
-            
-            // Test Parameters Section
             testParametersSection
-            
-            // Additional Details Section
             additionalDetailsSection
-            
-            // Notes Section
             notesSection
-            
-            // (Meter Photo Section Removed)
-            
-            // Record Test Section (modified to pass nil for meter photo)
             recordTestSection
-            
-            // Latest Result Section
             latestResultSection
         }
-        .navigationTitle("VEROflow‑4 Field Test")
+        .navigationTitle("VEROflow‐4 Field Test")
+        .tint(primaryColor)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button(action: { dismissKeyboard() }) {
                     Image(systemName: "keyboard.chevron.compact.down")
+                        .foregroundColor(primaryColor)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showingClearConfirmation = true
+                }) {
+                    Label("Clear All", systemImage: "trash")
+                        .foregroundColor(primaryColor)
                 }
             }
         }
-        // Sheet for ImagePicker removed since the feature is removed.
         .onAppear {
-            totalVolumeText = String(viewModel.totalVolume)
-            flowRateText = String(viewModel.flowRate)
             viewModel.loadData()
         }
-        .alert(item: Binding(get: {
-            viewModel.errorMessage.map { SimpleError(message: $0) }
-        }, set: { _ in viewModel.errorMessage = nil })) { error in
-            Alert(title: Text("Error"), message: Text(error.message), dismissButton: .default(Text("OK")))
+        .alert(
+            item: Binding(
+                get: { viewModel.errorMessage.map { SimpleError(message: $0) } },
+                set: { _ in viewModel.errorMessage = nil }
+            )
+        ) { error in
+            Alert(
+                title: Text("Error"),
+                message: Text(error.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        .alert("Clear All Fields", isPresented: $showingClearConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Clear", role: .destructive) {
+                clearAllFields()
+            }
+        } message: {
+            Text("Are you sure you want to clear all fields? This action cannot be undone.")
         }
     }
     
-    // MARK: - Computed Subviews
-    
+    // MARK: - Form Sections
     private var testTypeSection: some View {
         Section {
             Picker("Test Type", selection: $viewModel.currentTest) {
@@ -86,85 +119,101 @@ struct TestView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
         }
-        .marsSectionStyle()
+        .listRowBackground(Color(UIColor.systemGray6))
     }
     
     private var meterReadingsSection: some View {
-        Section(header: Text("Meter Readings").marsSectionHeaderStyle()) {
+        Section {
             VStack(spacing: 16) {
                 smallMeterReadings
                 Divider()
                 largeMeterReadings
             }
+        } header: {
+            Label("Meter Readings", systemImage: "gauge")
+                .foregroundColor(sectionHeaderColor)
+                .font(.headline)
         }
     }
     
     private var smallMeterReadings: some View {
         VStack(alignment: .leading) {
-            Text("Small Meter Readings")
+            Label("Small Meter Readings", systemImage: "speedometer")
                 .font(.subheadline)
                 .bold()
+                .foregroundColor(primaryColor)
             HStack {
-                MarsReadingField(title: "Start",
-                                 text: $viewModel.smallMeterStart,
-                                 focusField: $focusedField,
-                                 field: .smallStart)
+                MarsReadingField(
+                    title: "Start",
+                    text: $viewModel.smallMeterStart,
+                    focusField: _focusedField.projectedValue,
+                    field: .smallStart
+                )
                 Spacer()
-                MarsReadingField(title: "End",
-                                 text: $viewModel.smallMeterEnd,
-                                 focusField: $focusedField,
-                                 field: .smallEnd)
-                    .onSubmit {
-                        if let start = Double(viewModel.smallMeterStart),
-                           let end = Double(viewModel.smallMeterEnd),
-                           end < start {
-                            viewModel.errorMessage = "Small meter: End reading must be ≥ start reading."
-                        } else {
-                            viewModel.errorMessage = nil
-                        }
+                MarsReadingField(
+                    title: "End",
+                    text: $viewModel.smallMeterEnd,
+                    focusField: _focusedField.projectedValue,
+                    field: .smallEnd
+                )
+                .onSubmit {
+                    if let start = Double(viewModel.smallMeterStart),
+                       let end = Double(viewModel.smallMeterEnd),
+                       end < start {
+                        viewModel.errorMessage = "Small meter: End reading must be ≥ start reading."
+                    } else {
+                        viewModel.errorMessage = nil
                     }
+                }
             }
         }
     }
-    
+
     private var largeMeterReadings: some View {
         VStack(alignment: .leading) {
-            Text("Large Meter Readings")
+            Label("Large Meter Readings", systemImage: "dial.max")
                 .font(.subheadline)
                 .bold()
+                .foregroundColor(primaryColor)
             HStack {
-                MarsReadingField(title: "Start",
-                                 text: $viewModel.largeMeterStart,
-                                 focusField: $focusedField,
-                                 field: .largeStart)
+                MarsReadingField(
+                    title: "Start",
+                    text: $viewModel.largeMeterStart,
+                    focusField: _focusedField.projectedValue,
+                    field: .largeStart
+                )
                 Spacer()
-                MarsReadingField(title: "End",
-                                 text: $viewModel.largeMeterEnd,
-                                 focusField: $focusedField,
-                                 field: .largeEnd)
-                    .onSubmit {
-                        if let start = Double(viewModel.largeMeterStart),
-                           let end = Double(viewModel.largeMeterEnd),
-                           end < start {
-                            viewModel.errorMessage = "Large meter: End reading must be ≥ start reading."
-                        } else {
-                            viewModel.errorMessage = nil
-                        }
+                MarsReadingField(
+                    title: "End",
+                    text: $viewModel.largeMeterEnd,
+                    focusField: _focusedField.projectedValue,
+                    field: .largeEnd
+                )
+                .onSubmit {
+                    if let start = Double(viewModel.largeMeterStart),
+                       let end = Double(viewModel.largeMeterEnd),
+                       end < start {
+                        viewModel.errorMessage = "Large meter: End reading must be ≥ start reading."
+                    } else {
+                        viewModel.errorMessage = nil
                     }
+                }
             }
         }
     }
     
     private var testParametersSection: some View {
-        Section(header: Text("Test Parameters").marsSectionHeaderStyle()) {
+        Section {
             HStack {
-                Text("Total Volume")
+                Label("Total Volume", systemImage: "drop")
+                    .foregroundColor(primaryColor)
                 Spacer()
                 TextField("Volume", text: $totalVolumeText)
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 100)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .totalVolume)
                     .onChange(of: totalVolumeText) { newValue in
                         if let newVolume = Double(newValue) {
                             viewModel.totalVolume = newVolume
@@ -172,44 +221,85 @@ struct TestView: View {
                     }
             }
             HStack {
-                Text("Flow Rate")
+                Label("Flow Rate", systemImage: "water.waves")
+                    .foregroundColor(primaryColor)
                 Spacer()
                 TextField("GPM", text: $flowRateText)
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 100)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .flowRate)
                     .onChange(of: flowRateText) { newValue in
                         if let newFlowRate = Double(newValue) {
                             viewModel.flowRate = newFlowRate
                         }
                     }
                 Text("GPM")
+                    .foregroundColor(.secondary)
             }
+            
+            HStack {
+                Label("Meter Size", systemImage: "ruler")
+                    .foregroundColor(primaryColor)
+                Picker("", selection: $selectedMeterSize) {
+                    ForEach(MeterSize.allCases, id: \.self) { size in
+                        Text(size.rawValue).tag(size)
+                    }
+                }
+            }
+            
+            HStack {
+                Label("Meter Type", systemImage: "dial.medium")
+                    .foregroundColor(primaryColor)
+                Picker("", selection: $selectedMeterType) {
+                    ForEach(MeterType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+            }
+        } header: {
+            Label("Test Parameters", systemImage: "slider.horizontal.3")
+                .foregroundColor(sectionHeaderColor)
+                .font(.headline)
         }
     }
     
     private var additionalDetailsSection: some View {
-        Section(header: Text("Additional Details").marsSectionHeaderStyle()) {
-            VStack(alignment: .leading) {
-                TextField("Meter Size", text: $meterSizeText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                TextField("Job #", text: $jobNumberText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                TextField("Remarks", text: $additionalRemarksText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+        Section {
+            HStack {
+                Label("Job Number", systemImage: "number")
+                    .foregroundColor(primaryColor)
+                TextField("Enter job number", text: $jobNumberText)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .jobNumber)
             }
+            HStack {
+                Label("Remarks", systemImage: "text.bubble")
+                    .foregroundColor(primaryColor)
+                TextField("Add remarks", text: $additionalRemarksText)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .additionalRemarks)
+            }
+        } header: {
+            Label("Additional Details", systemImage: "doc.text")
+                .foregroundColor(sectionHeaderColor)
+                .font(.headline)
         }
     }
     
     private var notesSection: some View {
-        Section(header: Text("Notes").marsSectionHeaderStyle()) {
+        Section {
             TextEditor(text: $viewModel.notes)
                 .frame(minHeight: 100)
                 .placeholder(when: viewModel.notes.isEmpty) {
                     Text("Enter additional notes here...")
                         .foregroundColor(.gray)
                 }
+        } header: {
+            Label("Notes", systemImage: "note.text")
+                .foregroundColor(sectionHeaderColor)
+                .font(.headline)
         }
     }
     
@@ -219,12 +309,17 @@ struct TestView: View {
                 dismissKeyboard()
                 viewModel.isCalculatingResults = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let additionalInfo = "\n\nMeter Size: \(meterSizeText)\nJob #: \(jobNumberText)\nRemarks: \(additionalRemarksText)"
+                    let additionalInfo = """
+                        
+                        Meter Size: \(selectedMeterSize.rawValue)
+                        Meter Type: \(selectedMeterType.rawValue)
+                        Job #: \(jobNumberText)
+                        Remarks: \(additionalRemarksText)
+                        """
                     viewModel.notes += additionalInfo
-                    // Since the photo feature is removed, pass nil
                     viewModel.calculateResults(with: nil)
                     
-                    // Clear input fields (preserve testResults)
+                    // Clear input fields
                     viewModel.smallMeterStart = ""
                     viewModel.smallMeterEnd = ""
                     viewModel.largeMeterStart = ""
@@ -234,22 +329,23 @@ struct TestView: View {
                     viewModel.notes = ""
                     totalVolumeText = ""
                     flowRateText = ""
-                    meterSizeText = ""
                     jobNumberText = ""
                     additionalRemarksText = ""
                     
                     viewModel.isCalculatingResults = false
                 }
             }) {
-                Text("Record Test")
+                Label("Record Test", systemImage: "square.and.arrow.down")
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(
-                        LinearGradient(gradient: Gradient(colors: [.blue, .purple]),
-                                       startPoint: .leading,
-                                       endPoint: .trailing)
+                        LinearGradient(
+                            gradient: Gradient(colors: [primaryColor, accentColor]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
                     .cornerRadius(10)
                     .shadow(radius: 5)
@@ -261,18 +357,25 @@ struct TestView: View {
     private var latestResultSection: some View {
         Group {
             if viewModel.showingResults, let result = viewModel.testResults.last {
-                Section(header: Text("Latest Result").marsSectionHeaderStyle()) {
+                Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Test Type: \(result.testType.rawValue)")
+                        Label("Test Type: \(result.testType.rawValue)", systemImage: "checkmark.circle")
                             .font(.headline)
-                        Text("Accuracy: \(String(format: "%.1f%%", result.reading.accuracy))")
+                            .foregroundColor(primaryColor)
+                        Label("Accuracy: \(String(format: "%.1f%%", result.reading.accuracy))",
+                              systemImage: "percent")
                             .foregroundColor(result.isPassing ? .green : .red)
-                        Text("Status: \(result.isPassing ? "PASS" : "FAIL")")
+                        Label("Status: \(result.isPassing ? "PASS" : "FAIL")",
+                              systemImage: result.isPassing ? "checkmark.seal" : "xmark.seal")
                             .foregroundColor(result.isPassing ? .green : .red)
-                        Text("Pass Range: \(passRangeText)")
+                        Label("Pass Range: \(passRangeText)", systemImage: "ruler.fill")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
+                } header: {
+                    Label("Latest Result", systemImage: "chart.bar")
+                        .foregroundColor(sectionHeaderColor)
+                        .font(.headline)
                 }
             }
         }
@@ -280,8 +383,10 @@ struct TestView: View {
     
     private func dismissKeyboard() {
         focusedField = nil
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                        to: nil, from: nil, for: nil)
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil, from: nil, for: nil
+        )
     }
 }
 
@@ -293,8 +398,8 @@ struct SimpleError: Identifiable {
 struct TestView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TestView().environmentObject(TestViewModel())
+            TestView()
+                .environmentObject(TestViewModel())
         }
     }
 }
-

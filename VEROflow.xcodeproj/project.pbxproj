@@ -70,8 +70,8 @@
 		CF1A0F42B69D8F500123456 = {
 			isa = PBXGroup;
 			children = (
-				CF1A0FF2B69D8F500123456 /* VF4Tester */,
 				CF1A0FE2B69D8F500123456 /* Products */,
+				CF1A0FF2B69D8F500123456 /* VF4Tester */,
 			);
 			sourceTree = "<group>";
 		};
@@ -107,13 +107,13 @@
 		CF1A1122B69D91200123456 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2D1963A42D4ED511009839D7 /* AnalyticsView.swift */,
 				CF1A1152B69D93000123456 /* TestView.swift */,
 				CF1A1162B69D93B00123456 /* TestHistoryView.swift */,
 				CF1A1172B69D94500123456 /* HelpView.swift */,
 				CF1A1182B69D94F00123456 /* SettingsView.swift */,
 				CF1A1192B69D95A00123456 /* SharedComponents.swift */,
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
-				2D1963A42D4ED511009839D7 /* AnalyticsView.swift */,
 				2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */,
 				2D3B753E2D512D07002285C9 /* ImagePicker.swift */,
 			);

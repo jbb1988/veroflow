@@ -59,7 +59,6 @@ class TestViewModel: ObservableObject {
     }
     
     // MARK: - Initialization & Data Loading
-    
     init() {
         loadData()
     }
@@ -84,6 +83,33 @@ class TestViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Test Recording
+    func recordTest(_ testData: TestData) {
+        let reading = MeterReading(
+            smallMeterStart: Double(smallMeterStart) ?? 0,
+            smallMeterEnd: Double(smallMeterEnd) ?? 0,
+            largeMeterStart: Double(largeMeterStart) ?? 0,
+            largeMeterEnd: Double(largeMeterEnd) ?? 0,
+            totalVolume: testData.totalVolume,
+            flowRate: testData.flowRate
+        )
+        
+        let result = TestResult(
+            id: UUID(),
+            testType: testData.testType,
+            reading: reading,
+            notes: testData.additionalRemarks,
+            date: Date(),
+            meterImageData: nil,
+            meterSize: testData.meterSize.rawValue,
+            meterType: testData.meterType.rawValue,
+            jobNumber: testData.jobNumber
+        )
+        
+        testResults.append(result)
+        showingResults = true
+    }
+    
     func calculateResults(with image: Data?) {
         let reading = MeterReading(
             smallMeterStart: Double(smallMeterStart) ?? 0,
@@ -94,21 +120,23 @@ class TestViewModel: ObservableObject {
             flowRate: flowRate
         )
         
-        let newResult = TestResult(
+        let result = TestResult(
             id: UUID(),
             testType: currentTest,
             reading: reading,
             notes: notes,
             date: Date(),
-            meterImageData: image
+            meterImageData: image,
+            meterSize: "", // Add default values for new fields
+            meterType: "",
+            jobNumber: ""
         )
         
-        testResults.append(newResult)
+        testResults.append(result)
         showingResults = true
     }
     
     // MARK: - Test Management
-    
     func deleteTest(at indexSet: IndexSet) {
         testResults.remove(atOffsets: indexSet)
     }
