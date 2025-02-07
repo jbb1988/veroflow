@@ -6,6 +6,7 @@ class TestViewModel: ObservableObject {
     private let testResultsKey = "storedTestResults"
     private let configurationKey = "storedConfiguration"
     private let appearanceKey = "storedAppearance"
+    private let selectedHistoryFilterKey = "storedHistoryFilter"
     
     @Published var currentTest: TestType = .lowFlow
     @Published var smallMeterStart: String = ""
@@ -32,6 +33,13 @@ class TestViewModel: ObservableObject {
             if let encoded = try? JSONEncoder().encode(configuration) {
                 UserDefaults.standard.set(encoded, forKey: configurationKey)
             }
+        }
+    }
+    
+    // MARK: - History Filter
+    @Published var selectedHistoryFilter: TestHistoryView.FilterOption = .all {
+        didSet {
+            UserDefaults.standard.set(selectedHistoryFilter.rawValue, forKey: selectedHistoryFilterKey)
         }
     }
     
@@ -80,6 +88,12 @@ class TestViewModel: ObservableObject {
         if let storedAppearance = UserDefaults.standard.string(forKey: appearanceKey),
            let decodedAppearance = AppearanceOption(rawValue: storedAppearance) {
             appearance = decodedAppearance
+        }
+        
+        // Load history filter
+        if let storedFilter = UserDefaults.standard.string(forKey: selectedHistoryFilterKey),
+           let decodedFilter = TestHistoryView.FilterOption(rawValue: storedFilter) {
+            selectedHistoryFilter = decodedFilter
         }
     }
     

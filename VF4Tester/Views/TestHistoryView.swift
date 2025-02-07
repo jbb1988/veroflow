@@ -5,7 +5,6 @@ import PDFKit
 struct TestHistoryView: View {
     @EnvironmentObject var viewModel: TestViewModel
     @State private var searchText = ""
-    @State private var selectedFilter: FilterOption = .all
     @State private var showingDeleteAlert = false
     @State private var selectedResult: TestResult? = nil
     @State private var showingExportSheet = false
@@ -15,46 +14,61 @@ struct TestHistoryView: View {
     
     enum FilterOption: String, CaseIterable {
         case all = "All Tests"
-        case lowFlow = "Low Flow"
-        case highFlow = "High Flow"
-        case passing = "Passing"
-        case failing = "Failing"
+        case lowFlow = "Low Flow Tests"
+        case highFlow = "High Flow Tests"
+        case passing = "Passing Tests"
+        case failing = "Failed Tests"
     }
     
     var filteredResults: [TestResult] {
         let results = viewModel.testResults
         
-        let filtered = results.filter { result in
+        let searchFiltered = results.filter { result in
             if searchText.isEmpty { return true }
             return result.jobNumber.localizedCaseInsensitiveContains(searchText) ||
                    result.meterType.localizedCaseInsensitiveContains(searchText) ||
                    result.meterSize.localizedCaseInsensitiveContains(searchText)
         }
         
-        switch selectedFilter {
+        switch viewModel.selectedHistoryFilter {
         case .all:
-            return filtered
+            return searchFiltered
         case .lowFlow:
-            return filtered.filter { $0.testType == .lowFlow }
+            return searchFiltered.filter { $0.testType == .lowFlow }
         case .highFlow:
-            return filtered.filter { $0.testType == .highFlow }
+            return searchFiltered.filter { $0.testType == .highFlow }
         case .passing:
-            return filtered.filter { $0.isPassing }
+            return searchFiltered.filter { $0.isPassing }
         case .failing:
-            return filtered.filter { !$0.isPassing }
+            return searchFiltered.filter { !$0.isPassing }
         }
     }
     
     var body: some View {
         List {
+            // Filter Section with grid layout
             Section {
-                Picker("Filter", selection: $selectedFilter) {
-                    ForEach(FilterOption.allCases, id: \.self) { option in
-                        Text(option.rawValue).tag(option)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Filter Tests")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 4)
+                    
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: 12) {
+                        ForEach(FilterOption.allCases, id: \.self) { option in
+                            FilterButton(
+                                title: option.rawValue,
+                                icon: iconFor(option),
+                                isSelected: viewModel.selectedHistoryFilter == option,
+                                action: { viewModel.selectedHistoryFilter = option }
+                            )
+                        }
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.vertical, 4)
+                .padding(.vertical, 12)
             }
             
             ForEach(filteredResults) { result in
@@ -115,6 +129,21 @@ struct TestHistoryView: View {
                     ]
                 )
             }
+        }
+    }
+    
+    private func iconFor(_ option: FilterOption) -> String {
+        switch option {
+        case .all:
+            return "list.bullet.circle.fill"
+        case .lowFlow:
+            return "arrow.down.circle.fill"
+        case .highFlow:
+            return "arrow.up.circle.fill"
+        case .passing:
+            return "checkmark.circle.fill"
+        case .failing:
+            return "xmark.circle.fill"
         }
     }
     
@@ -228,8 +257,34 @@ struct TestHistoryView: View {
     }
 }
 
-// Rest of the code remains the same...
-
+// MARK: - Filter Button Component
+struct FilterButton: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                Text(title)
+                    .font(.caption)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+            .background(isSelected ? Color.blue : Color(UIColor.secondarySystemBackground))
+            .foregroundColor(isSelected ? .white : .primary)
+            .cornerRadius(12)
+            .shadow(color: isSelected ? Color.blue.opacity(0.3) : Color.clear, radius: 4)
+            .animation(.easeInOut(duration: 0.2), value: isSelected)
+        }
+    }
+}
 
 struct TestResultRow: View {
     let result: TestResult
