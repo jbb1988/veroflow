@@ -298,6 +298,7 @@ struct AnalyticsView_Previews: PreviewProvider {
         let vm = TestViewModel()
         vm.testResults = [
             TestResult(
+                id: UUID(), // Added id parameter
                 testType: .lowFlow,
                 reading: MeterReading(smallMeterStart: 10, smallMeterEnd: 20, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 10, flowRate: 5),
                 notes: "",
@@ -305,6 +306,7 @@ struct AnalyticsView_Previews: PreviewProvider {
                 meterImageData: nil
             ),
             TestResult(
+                id: UUID(), // Added id parameter
                 testType: .highFlow,
                 reading: MeterReading(smallMeterStart: 15, smallMeterEnd: 25, largeMeterStart: 0, largeMeterEnd: 0, totalVolume: 50, flowRate: 30),
                 notes: "",
@@ -315,4 +317,3 @@ struct AnalyticsView_Previews: PreviewProvider {
         return AnalyticsView().environmentObject(vm)
     }
 }
-

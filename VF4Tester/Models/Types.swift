@@ -1,7 +1,6 @@
 import Foundation
 
-// MARK: - VolumeUnit
-
+// MARK: - Volume Unit
 enum VolumeUnit: String, CaseIterable, Codable, Identifiable {
     case gallons = "Gallons"
     case liters = "Liters"
@@ -10,37 +9,30 @@ enum VolumeUnit: String, CaseIterable, Codable, Identifiable {
     var id: Self { self }
 }
 
-// MARK: - TestType
-
-enum TestType: String, CaseIterable, Codable, Identifiable {
+// MARK: - Test Type
+enum TestType: String, CaseIterable, Codable {
     case lowFlow = "Low Flow"
     case highFlow = "High Flow"
-    
-    var id: Self { self }
 }
 
-// MARK: - MeterReading
-
+// MARK: - Meter Reading
 struct MeterReading: Codable {
-    var smallMeterStart: Double
-    var smallMeterEnd: Double
-    var largeMeterStart: Double
-    var largeMeterEnd: Double
-    var totalVolume: Double
-    var flowRate: Double
+    let smallMeterStart: Double
+    let smallMeterEnd: Double
+    let largeMeterStart: Double
+    let largeMeterEnd: Double
+    let totalVolume: Double
+    let flowRate: Double
     
     var accuracy: Double {
-        let smallDiff = smallMeterEnd - smallMeterStart
-        let largeDiff = largeMeterEnd - largeMeterStart
-        let totalMeterVolume = smallDiff + largeDiff
-        guard totalVolume != 0 else { return 0 }
-        let rawAccuracy = (totalMeterVolume / totalVolume) * 100
-        return (rawAccuracy * 100).rounded() / 100
+        let smallMeterDiff = smallMeterEnd - smallMeterStart
+        let largeMeterDiff = largeMeterEnd - largeMeterStart
+        let totalMeterVolume = smallMeterDiff + largeMeterDiff
+        return (totalMeterVolume / totalVolume) * 100
     }
 }
 
-// MARK: - TestResult
-
+// MARK: - Test Result
 struct TestResult: Identifiable, Codable {
     let id: UUID
     let testType: TestType
@@ -57,25 +49,9 @@ struct TestResult: Identifiable, Codable {
             return reading.accuracy >= 98.5 && reading.accuracy <= 101.5
         }
     }
-    
-    init(id: UUID = UUID(),
-         testType: TestType,
-         reading: MeterReading,
-         notes: String = "",
-         date: Date = Date(),
-         meterImageData: Data? = nil) {
-        self.id = id
-        self.testType = testType
-        self.reading = reading
-        self.notes = notes
-        self.date = date
-        self.meterImageData = meterImageData
-    }
 }
 
 // MARK: - Configuration
-
 struct Configuration: Codable {
     var preferredVolumeUnit: VolumeUnit = .gallons
 }
-
