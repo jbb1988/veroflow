@@ -1,17 +1,14 @@
 import SwiftUI
 import Charts
 
-// MARK: - Analytics View
 struct AnalyticsView: View {
     @EnvironmentObject var viewModel: TestViewModel
     @State private var selectedFilter: FilterOption = .all
-    @State private var selectedChartType: ChartType = .bar
     @State private var showTrendLine: Bool = false
     @State private var showingExportSheet: Bool = false
     @State private var exportData: Data? = nil
     @State private var showFailedTests = false
 
-    // MARK: - Filter Options
     enum FilterOption: String, CaseIterable, Identifiable {
         case all = "All Tests"
         case lowFlow = "Low Flow"
@@ -19,13 +16,6 @@ struct AnalyticsView: View {
         var id: Self { self }
     }
 
-    enum ChartType: String, CaseIterable, Identifiable {
-        case bar = "Bar"
-        case line = "Line"
-        var id: Self { self }
-    }
-
-    // MARK: - Computed Properties
     var filteredResults: [TestResult] {
         switch selectedFilter {
         case .all: return viewModel.testResults
@@ -50,13 +40,10 @@ struct AnalyticsView: View {
         filteredResults.filter { !$0.isPassing }.count
     }
 
-    // MARK: - Chart Content
-    @ViewBuilder
     var chartContent: some View {
         Chart {
-            // Pass/Fail Threshold Zones - Using RectangleMark without zIndex
-            ForEach(filteredResults) { result in
-                // Draw the threshold zones first
+            // Add pass/fail zones
+            ForEach(filteredResults.sorted(by: { $0.date < $1.date })) { result in
                 RectangleMark(
                     xStart: .value("Start", result.date),
                     xEnd: .value("End", result.date),
@@ -64,33 +51,19 @@ struct AnalyticsView: View {
                     yEnd: .value("Upper", 101)
                 )
                 .foregroundStyle(Color.green.opacity(0.1))
+            }
 
-                RectangleMark(
-                    xStart: .value("Start", result.date),
-                    xEnd: .value("End", result.date),
-                    yStart: .value("Lower", 98.5),
-                    yEnd: .value("Upper", 101.5)
+            // Add data points
+            ForEach(filteredResults.sorted(by: { $0.date < $1.date })) { result in
+                LineMark(
+                    x: .value("Date", result.date),
+                    y: .value("Accuracy", result.reading.accuracy)
                 )
-                .foregroundStyle(Color.blue.opacity(0.1))
-
-                // Then draw the data points on top
-                if selectedChartType == .bar {
-                    BarMark(
-                        x: .value("Date", result.date),
-                        y: .value("Accuracy", result.reading.accuracy)
-                    )
-                    .foregroundStyle(result.isPassing ? Color.green : Color.red)
-                } else {
-                    LineMark(
-                        x: .value("Date", result.date),
-                        y: .value("Accuracy", result.reading.accuracy)
-                    )
-                    .foregroundStyle(result.isPassing ? Color.green : Color.red)
-                    .symbol {
-                        Circle()
-                            .fill(result.isPassing ? Color.green : Color.red)
-                            .frame(width: 8, height: 8)
-                    }
+                .foregroundStyle(result.isPassing ? Color.green : Color.red)
+                .symbol {
+                    Circle()
+                        .fill(result.isPassing ? Color.green : Color.red)
+                        .frame(width: 8, height: 8)
                 }
             }
 
@@ -104,8 +77,21 @@ struct AnalyticsView: View {
                             .foregroundColor(.blue)
                     }
             }
+
+            // Add threshold lines
+            RuleMark(y: .value("Low Flow Min", 95))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .foregroundStyle(.yellow.opacity(0.5))
+            
+            RuleMark(y: .value("High Flow Min", 98.5))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .foregroundStyle(.green.opacity(0.5))
+            
+            RuleMark(y: .value("Max", 101.5))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .foregroundStyle(.red.opacity(0.5))
         }
-        .chartYScale(domain: 90...105)
+        .chartYScale(domain: 0...120)
         .chartXAxis {
             AxisMarks(values: .stride(by: .day)) { value in
                 if let date = value.as(Date.self) {
@@ -116,15 +102,24 @@ struct AnalyticsView: View {
                 }
             }
         }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .stride(by: 20)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let accuracy = value.as(Double.self) {
+                        Text("\(Int(accuracy))%")
+                            .font(.caption2)
+                    }
+                }
+            }
+        }
         .frame(height: 300)
         .padding()
     }
 
-    // MARK: - Body
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Controls Card
                 DetailCard(title: "Chart Options") {
                     VStack(spacing: 12) {
                         Picker("Test Type", selection: $selectedFilter) {
@@ -136,20 +131,11 @@ struct AnalyticsView: View {
 
                         Divider()
 
-                        Picker("Chart Type", selection: $selectedChartType) {
-                            ForEach(ChartType.allCases) { type in
-                                Text(type.rawValue).tag(type)
-                            }
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-
                         Toggle("Show Trend Line", isOn: $showTrendLine)
                     }
                 }
 
-                // Stats Grid
                 VStack(spacing: 16) {
-                    // First row: Pass Rate and Average Accuracy
                     HStack(spacing: 16) {
                         StatCard(
                             title: "Pass Rate",
@@ -166,7 +152,6 @@ struct AnalyticsView: View {
                         )
                     }
                     
-                    // Second row: Total Tests and Failed Tests
                     HStack(spacing: 16) {
                         StatCard(
                             title: "Total Tests",
@@ -192,7 +177,6 @@ struct AnalyticsView: View {
                     }
                 }
 
-                // Chart Card
                 DetailCard(title: "Test Results") {
                     if filteredResults.isEmpty {
                         Text("No test results available")
@@ -204,7 +188,6 @@ struct AnalyticsView: View {
                     }
                 }
 
-                // Recent Results
                 DetailCard(title: "Recent Tests") {
                     ForEach(filteredResults.prefix(5)) { result in
                         VStack(spacing: 8) {
@@ -244,7 +227,6 @@ struct AnalyticsView: View {
         }
     }
 
-    // MARK: - Helper Functions
     private func generateExportData() -> Data? {
         var csvString = "Date,Test Type,Accuracy,Status,Meter Size,Meter Type,Job Number\n"
         let df = DateFormatter()
@@ -259,7 +241,6 @@ struct AnalyticsView: View {
     }
 }
 
-// MARK: - Supporting Views
 struct StatCard: View {
     let title: String
     let value: String
@@ -282,13 +263,15 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(UIColor.systemBackground))
+        .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
-        .shadow(radius: 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(color.opacity(0.3), lineWidth: 1)
+        )
     }
 }
 
-// MARK: - Preview
 struct AnalyticsView_Previews: PreviewProvider {
     static var previews: some View {
         let vm = TestViewModel()

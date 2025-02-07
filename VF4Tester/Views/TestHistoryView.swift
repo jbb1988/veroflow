@@ -46,29 +46,25 @@ struct TestHistoryView: View {
     
     var body: some View {
         List {
-            // Filter Section with grid layout
+            // Compact Filter Section
             Section {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Filter Tests")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 4)
-                    
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 12) {
-                        ForEach(FilterOption.allCases, id: \.self) { option in
-                            FilterButton(
-                                title: option.rawValue,
-                                icon: iconFor(option),
-                                isSelected: viewModel.selectedHistoryFilter == option,
-                                action: { viewModel.selectedHistoryFilter = option }
-                            )
+                VStack(alignment: .leading, spacing: 8) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(FilterOption.allCases, id: \.self) { option in
+                                FilterChip(
+                                    title: option.rawValue.replacingOccurrences(of: " Tests", with: ""),
+                                    icon: iconFor(option),
+                                    isSelected: viewModel.selectedHistoryFilter == option
+                                ) {
+                                    viewModel.selectedHistoryFilter = option
+                                }
+                            }
                         }
+                        .padding(.horizontal, 4)
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
             }
             
             ForEach(filteredResults) { result in
@@ -135,15 +131,15 @@ struct TestHistoryView: View {
     private func iconFor(_ option: FilterOption) -> String {
         switch option {
         case .all:
-            return "list.bullet.circle.fill"
+            return "list.bullet"
         case .lowFlow:
-            return "arrow.down.circle.fill"
+            return "arrow.down"
         case .highFlow:
-            return "arrow.up.circle.fill"
+            return "arrow.up"
         case .passing:
-            return "checkmark.circle.fill"
+            return "checkmark"
         case .failing:
-            return "xmark.circle.fill"
+            return "xmark"
         }
     }
     
@@ -257,8 +253,8 @@ struct TestHistoryView: View {
     }
 }
 
-// MARK: - Filter Button Component
-struct FilterButton: View {
+// MARK: - FilterChip Component
+struct FilterChip: View {
     let title: String
     let icon: String
     let isSelected: Bool
@@ -266,22 +262,17 @@ struct FilterButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            HStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: 12))
                 Text(title)
-                    .font(.caption)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .font(.subheadline)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
             .background(isSelected ? Color.blue : Color(UIColor.secondarySystemBackground))
             .foregroundColor(isSelected ? .white : .primary)
-            .cornerRadius(12)
-            .shadow(color: isSelected ? Color.blue.opacity(0.3) : Color.clear, radius: 4)
-            .animation(.easeInOut(duration: 0.2), value: isSelected)
+            .cornerRadius(16)
         }
     }
 }
