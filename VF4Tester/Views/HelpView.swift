@@ -165,14 +165,14 @@ let glossaryTerms = [
 struct HelpView: View {
     @State private var selectedSection: HelpSection = .testing
     @State private var searchQuery = ""
-    
+
     enum HelpSection: String, CaseIterable {
         case testing = "Guide"
         case faq = "FAQ"
         case glossary = "Glossary"
         case support = "Support"
     }
-    
+
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -184,13 +184,13 @@ struct HelpView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
-                
+
                 // Search Bar (for FAQ and Glossary sections)
                 if selectedSection == .faq || selectedSection == .glossary {
                     SearchBar(text: $searchQuery)
                         .padding(.horizontal)
                 }
-                
+
                 // Content
                 ScrollView {
                     VStack(spacing: 20) {
@@ -217,15 +217,15 @@ struct HelpView: View {
 // MARK: - Search Bar
 struct SearchBar: View {
     @Binding var text: String
-    
+
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
-            
+
             TextField("Search", text: $text)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-            
+
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
@@ -240,14 +240,14 @@ struct SearchBar: View {
 struct InteractiveTestingGuide: View {
     @State private var expandedSections: Set<String> = []
     @State private var completedSteps: Set<String> = []
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Interactive Testing Guide")
                 .font(.title2)
                 .bold()
                 .padding(.bottom, 8)
-            
+
             ForEach(testingSteps) { section in
                 TestingSection(
                     section: section,
@@ -273,7 +273,7 @@ struct TestingSection: View {
     let isExpanded: Bool
     @Binding var completedSteps: Set<String>
     let onToggle: () -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             Button(action: onToggle) {
@@ -281,18 +281,18 @@ struct TestingSection: View {
                     Image(systemName: section.icon)
                         .foregroundColor(.blue)
                         .frame(width: 24)
-                    
+
                     Text(section.title)
                         .font(.headline)
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(section.steps, id: \.self) { step in
@@ -323,17 +323,19 @@ struct StepRow: View {
     let step: String
     let isCompleted: Bool
     let onToggle: () -> Void
-    
+
     var body: some View {
         Button(action: onToggle) {
-            HStack {
+            HStack(alignment: .top) {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(isCompleted ? .green : .secondary)
-                
+
                 Text(step)
                     .strikethrough(isCompleted)
                     .foregroundColor(isCompleted ? .secondary : .primary)
-                
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+
                 Spacer()
             }
         }
@@ -345,7 +347,7 @@ struct EnhancedFAQView: View {
     let searchQuery: String
     @State private var expandedQuestions: Set<UUID> = []
     @State private var helpfulResponses: Set<UUID> = []
-    
+
     var filteredFAQs: [FAQItem] {
         if searchQuery.isEmpty {
             return faqItems
@@ -355,7 +357,7 @@ struct EnhancedFAQView: View {
             item.answer.localizedCaseInsensitiveContains(searchQuery)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if filteredFAQs.isEmpty {
@@ -397,7 +399,7 @@ struct FAQItemView: View {
     let isHelpful: Bool
     let onToggle: () -> Void
     let onHelpfulTap: () -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: onToggle) {
@@ -405,24 +407,24 @@ struct FAQItemView: View {
                     Image(systemName: item.icon)
                         .foregroundColor(.blue)
                         .frame(width: 24)
-                    
+
                     Text(item.question)
                         .font(.headline)
                         .multilineTextAlignment(.leading)
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(item.answer)
                         .padding(.leading, 32)
-                    
+
                     HStack {
                         Spacer()
                         Button(action: onHelpfulTap) {
@@ -445,7 +447,7 @@ struct FAQItemView: View {
 // MARK: - Glossary View
 struct GlossaryView: View {
     let searchQuery: String
-    
+
     var filteredTerms: [GlossaryTerm] {
         if searchQuery.isEmpty {
             return glossaryTerms
@@ -455,7 +457,7 @@ struct GlossaryView: View {
             term.definition.localizedCaseInsensitiveContains(searchQuery)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if filteredTerms.isEmpty {
@@ -473,12 +475,12 @@ struct GlossaryView: View {
 
 struct GlossaryTermView: View {
     let term: GlossaryTerm
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(term.term)
                 .font(.headline)
-            
+
             Text(term.definition)
                 .foregroundColor(.secondary)
         }
@@ -492,7 +494,7 @@ struct GlossaryTermView: View {
 // MARK: - Enhanced Support View
 struct EnhancedSupportView: View {
     @Environment(\.openURL) var openURL
-    
+
     var body: some View {
         VStack(spacing: 24) {
             ContactSupportView()
@@ -502,7 +504,7 @@ struct EnhancedSupportView: View {
 
 struct ContactSupportView: View {
     @Environment(\.openURL) var openURL
-    
+
     var body: some View {
         VStack(spacing: 16) {
             HStack {
@@ -515,10 +517,10 @@ struct ContactSupportView: View {
                     .foregroundColor(.primary)
                 Spacer()
             }
-            
+
             Divider()
                 .padding(.vertical, 4)
-            
+
             VStack(spacing: 8) {
                 HStack {
                     Image(systemName: "building.2.fill")
@@ -526,7 +528,7 @@ struct ContactSupportView: View {
                     Text("MARS Company")
                         .font(.headline)
                 }
-                
+
                 HStack {
                     Image(systemName: "location.fill")
                         .foregroundColor(.blue)
@@ -536,7 +538,7 @@ struct ContactSupportView: View {
                     }
                     .font(.subheadline)
                 }
-                
+
                 Link(destination: URL(string: "https://marswater.com")!) {
                     HStack {
                         Image(systemName: "globe")
@@ -547,7 +549,7 @@ struct ContactSupportView: View {
                 }
                 .padding(.top, 4)
             }
-            
+
             HStack(spacing: 20) {
                 Button(action: {
                     if let phoneURL = URL(string: "tel://8777MYMARS") {
@@ -561,7 +563,7 @@ struct ContactSupportView: View {
                         .background(Color.blue.opacity(0.15))
                         .cornerRadius(12)
                 }
-                
+
                 Button(action: {
                     if let emailURL = URL(string: "mailto:support@marswater.com") {
                         openURL(emailURL)
@@ -589,7 +591,7 @@ struct HelpView_Previews: PreviewProvider {
     static var previews: some View {
         HelpView()
             .preferredColorScheme(.light)
-        
+
         HelpView()
             .preferredColorScheme(.dark)
     }

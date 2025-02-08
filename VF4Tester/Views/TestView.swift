@@ -6,6 +6,7 @@ import UIKit
 
 struct TestView: View {
     @EnvironmentObject var viewModel: TestViewModel
+    @Environment(\.colorScheme) var colorScheme
     @FocusState private var focusedField: Field?
     @State private var showingClearConfirmation = false
     
@@ -66,9 +67,22 @@ struct TestView: View {
             recordTestSection
             latestResultSection
         }
-        .navigationTitle("VEROflow‐4 Field Test")
-        .tint(primaryColor)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(colorScheme == .dark ? Color.white : Color(UIColor.systemBackground))
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    )
+            }
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button(action: { dismissKeyboard() }) {
