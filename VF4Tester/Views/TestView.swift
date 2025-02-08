@@ -21,7 +21,11 @@ struct TestView: View {
     // Custom colors
     private let primaryColor = Color.blue
     private let accentColor = Color.purple
-    private let sectionHeaderColor = Color.white
+    
+    // Dynamic section header color based on color scheme
+    private var sectionHeaderColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
     
     var isLowFlowTest: Bool {
         viewModel.currentTest == .lowFlow
@@ -79,7 +83,7 @@ struct TestView: View {
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(colorScheme == .dark ? Color.white : Color(UIColor.systemBackground))
+                            .fill(colorScheme == .light ? Color.black : Color.blue)
                             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                     )
             }
