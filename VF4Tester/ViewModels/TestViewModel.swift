@@ -7,7 +7,9 @@ class TestViewModel: ObservableObject {
     private let configurationKey = "storedConfiguration"
     private let appearanceKey = "storedAppearance"
     private let selectedHistoryFilterKey = "storedHistoryFilter"
+    private let hasCompletedOnboardingKey = "hasCompletedOnboarding"
     
+    @Published var hasCompletedOnboarding = false
     @Published var currentTest: TestType = .lowFlow
     @Published var smallMeterStart: String = ""
     @Published var smallMeterEnd: String = ""
@@ -68,6 +70,8 @@ class TestViewModel: ObservableObject {
     
     // MARK: - Initialization & Data Loading
     init() {
+        // Load onboarding status first
+        self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: hasCompletedOnboardingKey)
         loadData()
     }
     
@@ -95,6 +99,12 @@ class TestViewModel: ObservableObject {
            let decodedFilter = TestHistoryView.FilterOption(rawValue: storedFilter) {
             selectedHistoryFilter = decodedFilter
         }
+    }
+    
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+        UserDefaults.standard.set(true, forKey: hasCompletedOnboardingKey)
+        UserDefaults.standard.synchronize()
     }
     
     // MARK: - Test Recording
