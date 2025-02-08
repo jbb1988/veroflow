@@ -504,85 +504,160 @@ struct EnhancedSupportView: View {
 
 struct ContactSupportView: View {
     @Environment(\.openURL) var openURL
-
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "headphones.circle.fill")
-                    .font(.system(size: 36))
-                    .foregroundColor(.blue)
-                Text("Contact Support")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                Spacer()
-            }
-
-            Divider()
-                .padding(.vertical, 4)
-
-            VStack(spacing: 8) {
+        VStack(spacing: 24) {
+            // Logo Section
+            Image("MARS Company")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 60)
+                .padding(.vertical)
+                .background(
+                    Group {
+                        if colorScheme == .light {
+                            Color.black
+                        }
+                    }
+                )
+                .cornerRadius(12)
+                .padding(.horizontal, colorScheme == .light ? 20 : 0)
+            
+            // Contact Information Card
+            VStack(spacing: 16) {
+                // Header
                 HStack {
-                    Image(systemName: "building.2.fill")
+                    Image(systemName: "headphones.circle.fill")
+                        .font(.system(size: 36))
                         .foregroundColor(.blue)
-                    Text("MARS Company")
-                        .font(.headline)
+                    Text("Contact Support")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
                 }
-
-                HStack {
-                    Image(systemName: "location.fill")
-                        .foregroundColor(.blue)
-                    VStack {
-                        Text("3925 SW 13th Street")
-                        Text("Ocala, FL 34474")
+                
+                Divider()
+                
+                // Company Information
+                VStack(spacing: 16) {
+                    // Address Section
+                    HStack(alignment: .top) {
+                        Image(systemName: "building.2.fill")
+                            .foregroundColor(.blue)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("MARS Company")
+                                .font(.headline)
+                            Text("3925 SW 13th Street")
+                            Text("Ocala, FL 34474")
+                        }
+                        .font(.subheadline)
+                        Spacer()
                     }
-                    .font(.subheadline)
+                    
+                    // Hours Section
+                    HStack(alignment: .top) {
+                        Image(systemName: "clock.fill")
+                            .foregroundColor(.blue)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Business Hours")
+                                .font(.headline)
+                            Text("Monday - Friday")
+                            Text("8:00 AM - 5:00 PM EST")
+                        }
+                        .font(.subheadline)
+                        Spacer()
+                    }
                 }
-
-                Link(destination: URL(string: "https://marswater.com")!) {
-                    HStack {
-                        Image(systemName: "globe")
-                        Text("Visit our website")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.blue)
-                }
-                .padding(.top, 4)
-            }
-
-            HStack(spacing: 20) {
-                Button(action: {
-                    if let phoneURL = URL(string: "tel://8777MYMARS") {
-                        openURL(phoneURL)
-                    }
-                }) {
-                    Label("Call Support", systemImage: "phone.circle.fill")
-                        .font(.headline)
+                .padding(.vertical, 8)
+                
+                // Contact Buttons
+                VStack(spacing: 12) {
+                    // Phone Button
+                    Button(action: {
+                        if let phoneURL = URL(string: "tel://8777MYMARS") {
+                            openURL(phoneURL)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "phone.circle.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Call Support")
+                                    .font(.headline)
+                                Text("1-877-7MY-MARS")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue.opacity(0.15))
+                        .background(Color.blue.opacity(0.1))
                         .cornerRadius(12)
-                }
-
-                Button(action: {
-                    if let emailURL = URL(string: "mailto:support@marswater.com") {
-                        openURL(emailURL)
                     }
-                }) {
-                    Label("Email Support", systemImage: "envelope.circle.fill")
-                        .font(.headline)
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Email Button
+                    Button(action: {
+                        if let emailURL = URL(string: "mailto:support@marswater.com") {
+                            openURL(emailURL)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "envelope.circle.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Email Support")
+                                    .font(.headline)
+                                Text("support@marswater.com")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.green.opacity(0.15))
+                        .background(Color.green.opacity(0.1))
                         .cornerRadius(12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Website Button
+                    Link(destination: URL(string: "https://marswater.com")!) {
+                        HStack {
+                            Image(systemName: "globe.americas.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Visit Website")
+                                    .font(.headline)
+                                Text("www.marswater.com")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.purple.opacity(0.1))
+                        .cornerRadius(12)
+                    }
                 }
             }
+            .padding()
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         }
         .padding()
-        .background(Color(UIColor.tertiarySystemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-        .padding(.horizontal)
     }
 }
 

@@ -10,6 +10,7 @@
 		2D19639F2D4ED394009839D7 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */; };
 		2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */; };
 		2D2604D42D5786DA009B55D9 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2604D32D5786DA009B55D9 /* TestView.swift */; };
+		2D2604D82D578928009B55D9 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2604D72D578928009B55D9 /* HelpView.swift */; };
 		2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3B753E2D512D07002285C9 /* ImagePicker.swift */; };
 		2D626E262D56CAF300E30CCB /* TestHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D626E252D56CAF300E30CCB /* TestHistoryView.swift */; };
 		2D626E302D56D05F00E30CCB /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D626E2F2D56D05F00E30CCB /* AnalyticsView.swift */; };
@@ -17,7 +18,6 @@
 		2D626E422D56E00A00E30CCB /* VF4TesterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D626E412D56E00A00E30CCB /* VF4TesterApp.swift */; };
 		2D626E442D56E01200E30CCB /* EnhancedOnboardingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D626E432D56E01200E30CCB /* EnhancedOnboardingOverlayView.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
-		2DF320712D577D8300253CB4 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF320702D577D8300253CB4 /* HelpView.swift */; };
 		CF1A1052B69D8F600123456 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CF1A1042B69D8F600123456 /* Assets.xcassets */; };
 		CF1A1152B69D92500123456 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1A1142B69D92500123456 /* Types.swift */; };
 		CF1A1192B69D94F00123456 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1A1182B69D94F00123456 /* SettingsView.swift */; };
@@ -28,6 +28,7 @@
 		2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineBannerView.swift; sourceTree = "<group>"; };
 		2D2604D32D5786DA009B55D9 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
+		2D2604D72D578928009B55D9 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		2D3B753E2D512D07002285C9 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		2D626E252D56CAF300E30CCB /* TestHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHistoryView.swift; sourceTree = "<group>"; };
 		2D626E2F2D56D05F00E30CCB /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
@@ -35,7 +36,6 @@
 		2D626E412D56E00A00E30CCB /* VF4TesterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VF4TesterApp.swift; sourceTree = "<group>"; };
 		2D626E432D56E01200E30CCB /* EnhancedOnboardingOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedOnboardingOverlayView.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
-		2DF320702D577D8300253CB4 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		CF1A1042B69D8F600123456 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CF1A1142B69D92500123456 /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		CF1A1182B69D94F00123456 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -113,7 +113,7 @@
 				2D626E2F2D56D05F00E30CCB /* AnalyticsView.swift */,
 				2D2604D32D5786DA009B55D9 /* TestView.swift */,
 				2D626E252D56CAF300E30CCB /* TestHistoryView.swift */,
-				2DF320702D577D8300253CB4 /* HelpView.swift */,
+				2D2604D72D578928009B55D9 /* HelpView.swift */,
 				CF1A1182B69D94F00123456 /* SettingsView.swift */,
 				CF1A1192B69D95A00123456 /* SharedComponents.swift */,
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
@@ -208,7 +208,7 @@
 				2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */,
 				2D626E302D56D05F00E30CCB /* AnalyticsView.swift in Sources */,
 				2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */,
-				2DF320712D577D8300253CB4 /* HelpView.swift in Sources */,
+				2D2604D82D578928009B55D9 /* HelpView.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D626E422D56E00A00E30CCB /* VF4TesterApp.swift in Sources */,
 				CF1A1192B69D94F00123456 /* SettingsView.swift in Sources */,
