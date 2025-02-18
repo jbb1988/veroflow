@@ -290,6 +290,19 @@ struct AnalyticsView: View {
         }
         .navigationTitle("Analytics")
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    .frame(maxHeight: 44)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showingExportSheet = true

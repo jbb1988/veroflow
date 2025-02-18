@@ -87,7 +87,7 @@ let testingSteps = [
     TestingStep(
         id: "lowflow",
         title: "4. Low-Flow Test",
-        icon: "arrow.down.right.circle.fill", // restored icon
+        icon: "arrow.down.right.circle.fill",
         steps: [
             "Determine low-flow GPM from chart",
             "Reset VF4 totalizer to zero",
@@ -113,7 +113,7 @@ let testingSteps = [
     TestingStep(
         id: "highflow",
         title: "6. High-Flow Test",
-        icon: "arrow.up.right.circle.fill", // restored icon
+        icon: "arrow.up.right.circle.fill",
         steps: [
             "Reset VF4 totalizer & meter start read",
             "Open 3\" flow control valve to max achievable GPM",
@@ -187,6 +187,19 @@ struct HelpView: View {
             }
             .navigationTitle("Help & Support")
             .background(Color(UIColor.systemGroupedBackground))
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Image("veroflowLogo")
+                        .resizable()
+                        .renderingMode(.original)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 40)
+                        .padding(.horizontal)
+                        .padding(.vertical, 10)
+                        .frame(maxHeight: 44)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
@@ -632,4 +645,3 @@ struct HelpView_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
     }
 }
-

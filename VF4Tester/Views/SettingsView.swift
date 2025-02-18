@@ -53,6 +53,19 @@ struct SettingsView: View {
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    .frame(maxHeight: 44)
+            }
+        }
         .preferredColorScheme(.dark)
         .onAppear {
             viewModel.appearance = .dark
