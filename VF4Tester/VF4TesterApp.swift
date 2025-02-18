@@ -9,17 +9,31 @@ struct VF4TesterApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                MainTabView()
-                    .environmentObject(viewModel)
-                    .onAppear { viewModel.loadData() }
+            ContentView()
+                .environmentObject(viewModel)
+        }
+    }
+}
 
-                if showOnboarding {
-                    EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
-                        .transition(.opacity)
-                }
+// MARK: - Content View
+struct ContentView: View {
+    @EnvironmentObject var viewModel: TestViewModel
+    @State private var showOnboarding: Bool = !UserDefaults.standard.bool(forKey: "hasOpened")
+    
+    var body: some View {
+        ZStack {
+            MainTabView()
+                .environmentObject(viewModel)
+                .onAppear { viewModel.loadData() }
+                .ignoresSafeArea(.keyboard, edges: .all)
+
+            if showOnboarding {
+                EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
+                    .transition(.opacity)
+                    .animation(.spring(), value: showOnboarding)
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: showOnboarding)
     }
 }
 
@@ -86,12 +100,8 @@ struct EnhancedOnboardingOverlayView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [Color.black, Color.gray.opacity(0.85)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            Color.black.opacity(0.85)
+                .edgesIgnoringSafeArea(.all)
 
             VStack {
                 TabView(selection: $currentPage) {
@@ -160,10 +170,10 @@ struct EnhancedOnboardingOverlayView: View {
                 Spacer()
 
                 Button(action: {
-                    if currentPage < pages.count - 1 {
-                        withAnimation { currentPage += 1 }
-                    } else {
-                        withAnimation {
+                    withAnimation(.easeInOut) {
+                        if currentPage < pages.count - 1 {
+                            currentPage += 1
+                        } else {
                             isShowing = false
                             UserDefaults.standard.set(true, forKey: "hasOpened")
                             UserDefaults.standard.synchronize()
@@ -187,4 +197,3 @@ struct EnhancedOnboardingOverlayView: View {
         .animation(.easeInOut, value: currentPage)
     }
 }
-

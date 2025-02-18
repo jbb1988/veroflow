@@ -207,22 +207,36 @@ struct HelpView: View {
 // MARK: - Search Bar
 struct SearchBar: View {
     @Binding var text: String
-
+    @FocusState private var isFocused: Bool
+    
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
-
+            
             TextField("Search", text: $text)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                .focused($isFocused)
+                .submitLabel(.search)
+                .onSubmit {
+                    isFocused = false
+                }
+            
             if !text.isEmpty {
-                Button(action: { text = "" }) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3)) {
+                        text = ""
+                        isFocused = false
+                    }
+                }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary)
                 }
+                .transition(.scale.combined(with: .opacity))
             }
         }
+        .padding(.horizontal, 8)
+        .animation(.spring(response: 0.3), value: text)
     }
 }
 

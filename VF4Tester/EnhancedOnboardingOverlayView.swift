@@ -5,7 +5,6 @@
 //  Created by Jeff Butt on 2/7/25.
 //
 
-
 import SwiftUI
 import Charts
 
@@ -61,21 +60,21 @@ struct EnhancedOnboardingOverlayView: View {
     
     var body: some View {
         ZStack {
-            // Dark gradient background.
-            LinearGradient(
-                gradient: Gradient(colors: [Color.black, Color.gray.opacity(0.85)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
+            Color.black.opacity(0.85)
+                .edgesIgnoringSafeArea(.all)
+
             VStack {
                 // Skip button
                 HStack {
                     Spacer()
-                    Button("Skip", action: dismissOnboarding)
-                        .foregroundColor(.white)
-                        .padding()
+                    Button("Skip") {
+                        withAnimation(.easeInOut) {
+                            isShowing = false
+                            UserDefaults.standard.set(true, forKey: "hasOpened")
+                        }
+                    }
+                    .foregroundColor(.white)
+                    .padding()
                 }
                 
                 TabView(selection: $currentPage) {
@@ -148,10 +147,13 @@ struct EnhancedOnboardingOverlayView: View {
                 Spacer()
                 
                 Button(action: {
-                    if currentPage < pages.count - 1 {
-                        withAnimation { currentPage += 1 }
-                    } else {
-                        dismissOnboarding()
+                    withAnimation(.easeInOut) {
+                        if currentPage < pages.count - 1 {
+                            currentPage += 1
+                        } else {
+                            isShowing = false
+                            UserDefaults.standard.set(true, forKey: "hasOpened")
+                        }
                     }
                 }) {
                     Text(currentPage < pages.count - 1 ? "Next" : "Get Started")
@@ -168,7 +170,7 @@ struct EnhancedOnboardingOverlayView: View {
             }
             .padding(.top, 20)
         }
-        .animation(.easeInOut, value: currentPage)
+        .transition(.opacity)
     }
 }
 
