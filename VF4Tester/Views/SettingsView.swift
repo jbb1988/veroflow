@@ -4,7 +4,6 @@ struct SettingsView: View {
     typealias Appearance = TestViewModel.AppearanceOption
 
     @EnvironmentObject private var viewModel: TestViewModel
-    @AppStorage("isDarkMode") private var isDarkMode = false
     @AppStorage("showMeterMfgInput") var showMeterMfgInput: Bool = true
     @AppStorage("showMeterModelInput") var showMeterModelInput: Bool = true
     @State private var selectedUnit = VolumeUnit.gallons
@@ -36,39 +35,6 @@ struct SettingsView: View {
                 }
             }
 
-            // Appearance Section
-            Section {
-                Toggle(isOn: $isDarkMode) {
-                    HStack {
-                        Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
-                            .foregroundColor(isDarkMode ? .purple : .orange)
-                            .font(.system(size: 20))
-                        VStack(alignment: .leading) {
-                            Text("Dark Mode")
-                                .font(.headline)
-                            Text(isDarkMode ? "Easier on the eyes" : "Classic light theme")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                .onChange(of: isDarkMode) { newValue in
-                    withAnimation {
-                        viewModel.appearance = newValue ? .dark : .light
-                    }
-                }
-            } header: {
-                HStack {
-                    Image(systemName: "paintbrush.pointed.fill")
-                        .foregroundColor(.purple)
-                        .font(.system(size: 20))
-                    Text("Appearance")
-                        .textCase(nil)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                }
-            }
-
             // Test Input Options Section
             Section {
                 Toggle("Show Meter Manufacturer Input", isOn: $showMeterMfgInput)
@@ -87,10 +53,9 @@ struct SettingsView: View {
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle("Settings")
-        .preferredColorScheme(isDarkMode ? .dark : .light)
+        .preferredColorScheme(.dark)
         .onAppear {
-            isDarkMode = viewModel.appearance == .dark
+            viewModel.appearance = .dark
         }
     }
 }
-

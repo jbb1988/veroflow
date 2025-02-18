@@ -450,6 +450,8 @@ struct TestView: View {
     
     @State private var showValidationOutlines = false
     @State private var rawInputs: [String: String] = [:]
+    @State private var logoSize: CGSize = .zero
+    @State private var containerSize: CGSize = .zero
     
     private func clearAllFields() {
         totalVolumeText = ""
@@ -568,15 +570,12 @@ struct TestView: View {
                     .resizable()
                     .renderingMode(.original)
                     .aspectRatio(contentMode: .fit)
-                    .frame(height: 40)
+                    .frame(height: 40)  
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(colorScheme == .light ? Color.black : Color.blue)
-                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-                    )
+                    .padding(.vertical, 10)
+                    .frame(maxHeight: 44)
             }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingClearConfirmation = true }) {
                     Label("Clear All", systemImage: "trash")
