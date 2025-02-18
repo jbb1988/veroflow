@@ -29,8 +29,8 @@ struct TestDetailView: View {
                 LabeledContent("Model", value: result.meterModel)
             }
             Section(header: Text("Results")) {
-                LabeledContent("Start Reading", value: String(describing: result.reading.smallMeterStart))
-                LabeledContent("End Reading", value: String(describing: result.reading.smallMeterEnd))
+                LabeledContent("Start Read", value: String(describing: result.reading.smallMeterStart))
+                LabeledContent("End Read", value: String(describing: result.reading.smallMeterEnd))
                 LabeledContent("Total Volume", value: viewModel.configuration.formatVolume(result.reading.totalVolume))
                 LabeledContent("Flow Rate", value: "\(String(describing: result.reading.flowRate)) GPM")
                 LabeledContent("Accuracy", value: "\(String(format: "%.2f", result.reading.accuracy))%")

@@ -165,28 +165,28 @@ struct TestView: View {
     
     private var smallMeterReadings: some View {
         VStack(alignment: .leading) {
-            Label("Small Meter Readings", systemImage: "speedometer")
+            Label("Small Meter Reading", systemImage: "speedometer")
                 .font(.subheadline)
                 .bold()
                 .foregroundColor(primaryColor)
             HStack {
-                MarsReadingField(title: "Start Reading", text: $viewModel.smallMeterStart, field: .smallStart)
+                MarsReadingField(title: "Start Read", text: $viewModel.smallMeterStart, field: .smallStart)
                 Spacer()
-                MarsReadingField(title: "End Reading", text: $viewModel.smallMeterEnd, field: .smallEnd)
+                MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
             }
         }
     }
     
     private var largeMeterReadings: some View {
         VStack(alignment: .leading) {
-            Label("Large Meter Readings", systemImage: "dial.max")
+            Label("Large Meter Reading", systemImage: "dial.max")
                 .font(.subheadline)
                 .bold()
                 .foregroundColor(primaryColor)
             HStack {
-                MarsReadingField(title: "Start Reading", text: $viewModel.largeMeterStart, field: .largeStart)
+                MarsReadingField(title: "Start Read", text: $viewModel.largeMeterStart, field: .largeStart)
                 Spacer()
-                MarsReadingField(title: "End Reading", text: $viewModel.largeMeterEnd, field: .largeEnd)
+                MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
             }
         }
     }
@@ -316,7 +316,7 @@ struct TestView: View {
                 
                 if showMeterModelInput {
                     HStack {
-                        Label("Meter Model", systemImage: "gear")
+                        Label("Meter Type", systemImage: "gear")
                             .foregroundColor(primaryColor)
                         Picker("", selection: $selectedMeterModel) {
                             ForEach(MeterModel.allCases, id: \.self) { model in
