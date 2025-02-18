@@ -51,7 +51,13 @@ struct TestView: View {
     @State private var totalVolumeText: String = ""
     @State private var flowRateText: String = ""
     @State private var selectedMeterSize: MeterSize = .one
-    @State private var selectedMeterType: MeterType = .neptune
+    @State private var selectedMeterType: MeterType = {
+        if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer"),
+           let meterType = MeterType(rawValue: defaultMfg) {
+            return meterType
+        }
+        return .neptune
+    }()
     @State private var selectedMeterModel: MeterModel = .positiveDisplacement
     @State private var jobNumberText: String = ""
     @State private var additionalRemarksText: String = ""
@@ -311,6 +317,11 @@ struct TestView: View {
                                 Text(type.rawValue).tag(type)
                             }
                         }
+                        .onChange(of: viewModel.configuration.defaultMeterManufacturer) { newValue in
+                            if let meterType = MeterType(rawValue: newValue) {
+                                selectedMeterType = meterType
+                            }
+                        }
                     }
                 }
                 
@@ -334,7 +345,7 @@ struct TestView: View {
     private var additionalDetailsSection: some View {
         DetailCard(title: "Additional Details") {
             HStack {
-                Label("Job Number", systemImage: "number")
+                Label("Serial Number", systemImage: "number")
                     .foregroundColor(primaryColor)
                 TextField("Optional", text: $jobNumberText)
                     .textFieldStyle(.roundedBorder)
@@ -466,7 +477,13 @@ struct TestView: View {
         viewModel.flowRate = 0
         viewModel.notes = ""
         selectedMeterSize = .one
-        selectedMeterType = .neptune
+        selectedMeterType = {
+            if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer"),
+               let meterType = MeterType(rawValue: defaultMfg) {
+                return meterType
+            }
+            return .neptune
+        }()
         selectedMeterModel = .positiveDisplacement
         dismissKeyboard()
         showValidationOutlines = false

@@ -21,7 +21,7 @@ struct TestDetailView: View {
             Section(header: Text("Test Information")) {
                 LabeledContent("Test Type", value: result.testType.rawValue)
                 LabeledContent("Date", value: result.date.formatted())
-                LabeledContent("Job Number", value: result.jobNumber)
+                LabeledContent("Serial Number", value: result.jobNumber)
             }
             Section(header: Text("Meter Details")) {
                 LabeledContent("Size", value: result.meterSize)

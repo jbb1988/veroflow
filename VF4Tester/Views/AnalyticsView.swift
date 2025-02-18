@@ -52,12 +52,16 @@ struct AnalyticsView: View {
     // Dynamic y-axis domain.
     var accuracyDomain: ClosedRange<Double> {
         let accuracies = chartFilteredResults.map { $0.reading.accuracy }
-        if let maxAcc = accuracies.max(), maxAcc < 95 {
-            return 0...120
-        }
-        guard !accuracies.isEmpty else { return 0...120 }
-        let minAcc = accuracies.min() ?? 0
-        return max(0, minAcc - 5)...(accuracies.max()! + 5)
+        guard !accuracies.isEmpty else { return 90...105 } // Default passing scale range
+        
+        let minAcc = accuracies.min() ?? 90
+        let maxAcc = accuracies.max() ?? 105
+        
+        // Ensure we always show the critical threshold lines
+        let lowerBound = min(minAcc - 5, 90) // Show at least down to 90%
+        let upperBound = max(maxAcc + 5, 105) // Show at least up to 105%
+        
+        return lowerBound...upperBound
     }
     
     var passRate: Double {
@@ -139,7 +143,7 @@ struct AnalyticsView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading, values: .stride(by: 20)) { value in
+            AxisMarks(position: .leading, values: .stride(by: 5)) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let accuracy = value.as(Double.self) {

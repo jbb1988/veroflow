@@ -31,6 +31,15 @@ class TestViewModel: ObservableObject {
     @Published var showingResults: Bool = false
 
     // MARK: - Configuration
+    struct Configuration: Codable {
+        var preferredVolumeUnit: VolumeUnit = .gallons
+        var defaultMeterManufacturer: String = "Neptune"
+        
+        func formatVolume(_ volume: Double) -> String {
+            String(format: "%.1f %@", volume, preferredVolumeUnit.rawValue)
+        }
+    }
+
     @Published var configuration: Configuration = Configuration() {
         didSet {
             if let encoded = try? JSONEncoder().encode(configuration) {
@@ -73,6 +82,10 @@ class TestViewModel: ObservableObject {
     init() {
         self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: hasCompletedOnboardingKey)
         loadData()
+        
+        if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer") {
+            self.configuration.defaultMeterManufacturer = defaultMfg
+        }
     }
 
     func loadData() {
@@ -167,4 +180,3 @@ class TestViewModel: ObservableObject {
         testResults.remove(atOffsets: indexSet)
     }
 }
-
