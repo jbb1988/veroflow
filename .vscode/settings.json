@@ -1,0 +1,20 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/xcuserdata": true,
+        "**/build": true,
+        "**/DerivedData": true,
+        "**/*.xcodeproj/*": true,
+        "!**/*.xcodeproj/project.pbxproj": false,
+        "!**/*.xcodeproj/xcshareddata/**": false,
+        "**/*.xcworkspace/*": true,
+        "!**/*.xcworkspace/contents.xcworkspacedata": false,
+        "!**/*.xcworkspace/xcshareddata/**": false
+    },
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "swift.swiftformat.enable": true,
+    "swift.enableServiceInWorkspace": true
+}
