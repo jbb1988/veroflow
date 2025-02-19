@@ -148,19 +148,48 @@ struct HelpView: View {
         case faq = "FAQ"
         case demo = "Demo"
         case support = "Support"
+        case testChart = "Chart"
+        
+        var icon: String {
+            switch self {
+            case .testing: return "book.fill"
+            case .faq: return "questionmark.circle.fill"
+            case .demo: return "play.circle.fill"
+            case .support: return "headphones.circle.fill"
+            case .testChart: return "chart.bar.fill"
+            }
+        }
     }
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Section Picker
-                Picker("Section", selection: $selectedSection) {
-                    ForEach(HelpSection.allCases, id: \.self) { section in
-                        Text(section.rawValue).tag(section)
+                // Section Picker with improved centering
+                HStack {
+                    Spacer()
+                    HStack(spacing: 0) {
+                        ForEach(HelpSection.allCases, id: \.self) { section in
+                            Button(action: { selectedSection = section }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: section.icon)
+                                        .font(.system(size: 18))
+                                    Text(section.rawValue)
+                                        .font(.subheadline)
+                                        .minimumScaleFactor(0.8)
+                                }
+                                .frame(width: UIScreen.main.bounds.width / CGFloat(HelpSection.allCases.count) - 12)
+                                .frame(height: 52)
+                                .background(selectedSection == section ? Color.blue : Color(UIColor.secondarySystemBackground))
+                                .foregroundColor(selectedSection == section ? .white : .primary)
+                                .cornerRadius(10)
+                                .shadow(color: selectedSection == section ? Color.blue.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
+                            }
+                        }
                     }
+                    Spacer()
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
+                .padding(.vertical, 8)
+                .background(Color(UIColor.systemBackground))
 
                 // Search Bar (only for FAQ section)
                 if selectedSection == .faq {
@@ -180,6 +209,8 @@ struct HelpView: View {
                             DemoView()
                         case .support:
                             EnhancedSupportView()
+                        case .testChart:
+                            TestChartView()
                         }
                     }
                     .padding()
@@ -646,6 +677,115 @@ struct ContactSupportView: View {
             .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         }
         .padding()
+    }
+}
+
+// MARK: - Test Chart View
+struct TestChartView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                Text("Meter Accuracy Tolerances")
+                    .font(.title2)
+                    .bold()
+
+                // Large Meters Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Large Meters (3″ and Larger)")
+                        .font(.headline)
+                    
+                    ToleranceTable(rows: [
+                        ("Positive Displacement & Single-Jet", "95% – 101.5%", "98.5% – 101.5%"),
+                        ("Multi-Jet", "97% – 103%", "98.5% – 101.5%"),
+                        ("Turbine (Class II)", "98.5% – 101.5%", "98.5% – 101.5%"),
+                        ("Electromagnetic/Ultrasonic", "95% – 105%", "98.5% – 101.5%"),
+                        ("Fire Service", "95% – 101.5%", "98.5% – 101.5%"),
+                        ("Compound", "95% – 101%", "98.5% – 101.5% (Mid),\n97% – 103% (High)")
+                    ])
+                }
+                .padding(16)
+                .background(Color(UIColor.tertiarySystemBackground))
+                .cornerRadius(16)
+
+                // Small Meters Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Small Meters (5/8″ to 2″)")
+                        .font(.headline)
+                    
+                    ToleranceTable(rows: [
+                        ("Positive Displacement & Single-Jet", "95% – 101.5%", "98.5% – 101.5%"),
+                        ("Multi-Jet", "97% – 103%", "98.5% – 101.5%"),
+                        ("Turbine", "98.5% – 101.5%", "98.5% – 101.5%"),
+                        ("Electromagnetic/Ultrasonic", "95% – 105%", "98.5% – 101.5%"),
+                        ("Fire Service", "95% – 101.5%", "98.5% – 101.5%"),
+                        ("Compound", "95% – 101%", "98.5% – 101.5% (Mid),\n97% – 103% (High)")
+                    ])
+                }
+                .padding(16)
+                .background(Color(UIColor.tertiarySystemBackground))
+                .cornerRadius(16)
+
+                // Calculation Overview
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Calculation Overview")
+                        .font(.headline)
+                    
+                    Text("The app automatically selects the appropriate tolerance range based on the meter type and test flow (low, mid, or high). It calculates the meter's accuracy as the ratio of the combined meter reading to the test volume (expressed as a percentage).")
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 8)
+                    
+                    Text("A test passes only if the calculated accuracy falls within the designated tolerance range. For example, for a Multi-Jet meter at low flow, the accuracy must be between 97% and 103% for the test to pass.")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(16)
+                .background(Color(UIColor.tertiarySystemBackground))
+                .cornerRadius(16)
+            }
+            .padding()
+        }
+        .background(Color(UIColor.systemGroupedBackground))
+    }
+}
+
+// MARK: - Tolerance Table
+struct ToleranceTable: View {
+    let rows: [(String, String, String)]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Table Header
+            HStack(spacing: 16) {
+                Text("Meter Type")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Low Flow")
+                    .frame(width: 100, alignment: .leading)
+                Text("Mid-Flow /\nHigh Flow")
+                    .frame(width: 100, alignment: .leading)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color.blue.opacity(0.1))
+            .font(.footnote.bold())
+            
+            // Table Rows
+            ForEach(rows, id: \.0) { row in
+                Divider()
+                HStack(spacing: 16) {
+                    Text(row.0)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(row.1)
+                        .frame(width: 100, alignment: .leading)
+                    Text(row.2)
+                        .frame(width: 100, alignment: .leading)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .font(.footnote)
+            }
+        }
+        .background(Color(UIColor.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
 
