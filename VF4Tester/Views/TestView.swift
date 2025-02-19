@@ -267,7 +267,7 @@ struct TestView: View {
                     HStack(spacing: 8) {
                         TextField("", text: $totalVolumeText)
                             .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
+                            .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding(8)
@@ -302,7 +302,7 @@ struct TestView: View {
                     HStack(spacing: 8) {
                         TextField("", text: $flowRateText)
                             .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
+                            .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding(8)
@@ -762,4 +762,3 @@ struct TestView_Previews: PreviewProvider {
         }
     }
 }
-
