@@ -80,16 +80,71 @@ struct TestView: View {
         colorScheme == .dark ? .white : .black
     }
     
-    // Computed property for pass range text.
+    // This computed property (used when recording a test) is based on the current UI state.
+    // However, for displaying a recorded test’s pass range we use the helper below.
     var passRangeText: String {
-        switch viewModel.currentTest {
-        case .lowFlow:
-            return "95% - 101%"
-        case .midFlow:
-            return "97% - 101.5%"
-        case .highFlow:
-            return "98.5% - 101.5%"
-        }
+        let model = selectedMeterModel
+        let test = viewModel.currentTest
+        let (minTol, maxTol) = {
+            switch model {
+            // Positive Displacement & Single-Jet
+            case .positiveDisplacement, .singleJet:
+                switch test {
+                case .lowFlow:
+                    return (95.0, 101.5)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Multi-Jet
+            case .multiJet:
+                switch test {
+                case .lowFlow:
+                    return (97.0, 103.0)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Turbine
+            case .turbine:
+                return (98.5, 101.5)
+            // Electromagnetic/Ultrasonic
+            case .typeI, .typeII, .electromagnetic, .ultrasonic:
+                switch test {
+                case .lowFlow:
+                    return (95.0, 105.0)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Fire Service
+            case .fireservice:
+                switch test {
+                case .lowFlow:
+                    return (95.0, 101.5)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Compound
+            case .compound:
+                switch test {
+                case .lowFlow:
+                    return (95.0, 101.0)
+                case .midFlow:
+                    return (98.5, 101.5)
+                case .highFlow:
+                    return (97.0, 103.0)
+                }
+            // Other fallback
+            case .other:
+                switch test {
+                case .lowFlow:
+                    return (95.0, 101.0)
+                case .midFlow:
+                    return (97.0, 101.5)
+                case .highFlow:
+                    return (98.5, 101.5)
+                }
+            }
+        }()
+        return String(format: "%.1f%% - %.1f%%", minTol, maxTol)
     }
     
     // Helper for border color in test type filter.
@@ -102,12 +157,12 @@ struct TestView: View {
     }
     
     private var hasRequiredFields: Bool {
-        let hasValidReadings = isCompoundMeter ?
-            (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty &&
-             !viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty) :
-            (selectedSingleMeter == .small ?
-                (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty) :
-                (!viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty))
+        let hasValidReadings = isCompoundMeter
+            ? (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty &&
+               !viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty)
+            : (selectedSingleMeter == .small
+                ? (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty)
+                : (!viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty))
         
         let hasValidVolume = !totalVolumeText.isEmpty && Double(sanitizeNumericInput(totalVolumeText)) != nil
         let hasValidFlowRate = !flowRateText.isEmpty && Double(sanitizeNumericInput(flowRateText)) != nil
@@ -160,6 +215,7 @@ struct TestView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.vertical, 4)
+                
                 if selectedSingleMeter == .small {
                     smallMeterReadings
                 } else {
@@ -281,7 +337,7 @@ struct TestView: View {
                 HStack {
                     Label("Meter Size", systemImage: "ruler")
                         .foregroundColor(primaryColor)
-
+                    
                     if isCompoundMeter {
                         VStack {
                             Picker("Small Meter", selection: $selectedCompoundSmallMeterSize) {
@@ -290,7 +346,7 @@ struct TestView: View {
                                 }
                             }
                             .pickerStyle(MenuPickerStyle())
-
+                            
                             Picker("Large Meter", selection: $selectedCompoundLargeMeterSize) {
                                 ForEach(MeterSize.allCases, id: \.self) { size in
                                     Text(size.rawValue).tag(size)
@@ -385,6 +441,80 @@ struct TestView: View {
         }
     }
     
+    // MARK: - Helper: Compute pass range for a recorded test result.
+    private func passRangeForResult(_ result: TestResult) -> String {
+        let test = result.testType
+        if let model = MeterModel(rawValue: result.meterModel) {
+            let (minTol, maxTol): (Double, Double) = {
+                switch model {
+                // Positive Displacement & Single-Jet
+                case .positiveDisplacement, .singleJet:
+                    switch test {
+                    case .lowFlow:
+                        return (95.0, 101.5)
+                    case .midFlow, .highFlow:
+                        return (98.5, 101.5)
+                    }
+                // Multi-Jet
+                case .multiJet:
+                    switch test {
+                    case .lowFlow:
+                        return (97.0, 103.0)
+                    case .midFlow, .highFlow:
+                        return (98.5, 101.5)
+                    }
+                // Turbine
+                case .turbine:
+                    return (98.5, 101.5)
+                // Electromagnetic/Ultrasonic
+                case .typeI, .typeII, .electromagnetic, .ultrasonic:
+                    switch test {
+                    case .lowFlow:
+                        return (95.0, 105.0)
+                    case .midFlow, .highFlow:
+                        return (98.5, 101.5)
+                    }
+                // Fire Service
+                case .fireservice:
+                    switch test {
+                    case .lowFlow:
+                        return (95.0, 101.5)
+                    case .midFlow, .highFlow:
+                        return (98.5, 101.5)
+                    }
+                // Compound
+                case .compound:
+                    switch test {
+                    case .lowFlow:
+                        return (95.0, 101.0)
+                    case .midFlow:
+                        return (98.5, 101.5)
+                    case .highFlow:
+                        return (97.0, 103.0)
+                    }
+                // Other fallback
+                case .other:
+                    switch test {
+                    case .lowFlow:
+                        return (95.0, 101.0)
+                    case .midFlow:
+                        return (97.0, 101.5)
+                    case .highFlow:
+                        return (98.5, 101.5)
+                    }
+                }
+            }()
+            return String(format: "%.1f%% - %.1f%%", minTol, maxTol)
+        } else {
+            // Fallback if conversion fails.
+            switch test {
+            case .lowFlow: return "95.0% - 101.0%"
+            case .midFlow: return "97.0% - 101.5%"
+            case .highFlow: return "98.5% - 101.5%"
+            }
+        }
+    }
+    
     private func latestResultSection(result: TestResult) -> some View {
         DetailCard(title: "Latest Result") {
             NavigationLink(destination: TestDetailView(result: result)) {
@@ -396,7 +526,7 @@ struct TestView: View {
                         .foregroundColor(result.isPassing ? .green : .red)
                     Label("Status: \(result.isPassing ? "PASS" : "FAIL")", systemImage: result.isPassing ? "checkmark.seal" : "xmark.seal")
                         .foregroundColor(result.isPassing ? .green : .red)
-                    Label("Pass Range: \(passRangeText)", systemImage: "ruler.fill")
+                    Label("Pass Range: \(passRangeForResult(result))", systemImage: "ruler.fill")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text("Tap for more details")
@@ -412,7 +542,7 @@ struct TestView: View {
     
     // MARK: - Helper Functions
     private func sanitizeNumericInput(_ input: String) -> String {
-        return input
+        input
             .replacingOccurrences(of: "'", with: ".")
             .replacingOccurrences(of: "`", with: "")
             .replacingOccurrences(of: "٫", with: ".")
@@ -587,7 +717,7 @@ struct TestView: View {
                     .resizable()
                     .renderingMode(.original)
                     .aspectRatio(contentMode: .fit)
-                    .frame(height: 40)  
+                    .frame(height: 40)
                     .padding(.horizontal)
                     .padding(.vertical, 10)
                     .frame(maxHeight: 44)
@@ -632,3 +762,4 @@ struct TestView_Previews: PreviewProvider {
         }
     }
 }
+

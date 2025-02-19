@@ -56,7 +56,7 @@ struct TestHistoryView: View {
     
     // Filtered results.
     var filteredResults: [TestResult] {
-        // First filter the results as before
+        // First filter the results
         let filtered = viewModel.testResults.filter { result in
             let inDateRange = (result.date >= startDate) && (result.date <= effectiveEndDate)
             let filterMatch: Bool = {
@@ -84,7 +84,7 @@ struct TestHistoryView: View {
             return inDateRange && filterMatch && matchesSearch
         }
         
-        // Then sort the filtered results
+        // Then sort
         return filtered.sorted { first, second in
             switch selectedSortOrder {
             case .ascending:
@@ -418,3 +418,4 @@ struct TestHistoryView_Previews: PreviewProvider {
         }
     }
 }
+

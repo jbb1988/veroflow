@@ -123,15 +123,76 @@ struct TestResult: Identifiable, Codable {
     let meterModel: String
     let jobNumber: String
 
+    // Updated pass/fail logic based on testType + meterModel
     var isPassing: Bool {
-        switch testType {
-        case .lowFlow:
-            return reading.accuracy >= 95 && reading.accuracy <= 101
-        case .midFlow:
-            return reading.accuracy >= 97 && reading.accuracy <= 101.5
-        case .highFlow:
-            return reading.accuracy >= 98.5 && reading.accuracy <= 101.5
-        }
+        let acc = reading.accuracy
+        // Determine tolerance range
+        let (minTol, maxTol) = {
+            switch meterModel {
+            // Positive Displacement & Single-Jet
+            case MeterModel.positiveDisplacement.rawValue,
+                 MeterModel.singleJet.rawValue:
+                switch testType {
+                case .lowFlow:
+                    return (95.0, 101.5)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Multi-Jet
+            case MeterModel.multiJet.rawValue:
+                switch testType {
+                case .lowFlow:
+                    return (97.0, 103.0)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Turbine (Class II)
+            case MeterModel.turbine.rawValue:
+                // All flow rates
+                return (98.5, 101.5)
+            // Electromagnetic/Ultrasonic (Type I, Type II, Mag, Ultrasonic)
+            case MeterModel.typeI.rawValue,
+                 MeterModel.typeII.rawValue,
+                 MeterModel.electromagnetic.rawValue,
+                 MeterModel.ultrasonic.rawValue:
+                switch testType {
+                case .lowFlow:
+                    return (95.0, 105.0)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Fire Service
+            case MeterModel.fireservice.rawValue:
+                switch testType {
+                case .lowFlow:
+                    return (95.0, 101.5)
+                case .midFlow, .highFlow:
+                    return (98.5, 101.5)
+                }
+            // Compound
+            case MeterModel.compound.rawValue:
+                switch testType {
+                case .lowFlow:
+                    return (95.0, 101.0)
+                case .midFlow:
+                    return (98.5, 101.5)
+                case .highFlow:
+                    return (97.0, 103.0)
+                }
+            // Default / Other
+            default:
+                // Fallback ranges based on test type alone
+                switch testType {
+                case .lowFlow:
+                    return (95.0, 101.0)
+                case .midFlow:
+                    return (97.0, 101.5)
+                case .highFlow:
+                    return (98.5, 101.5)
+                }
+            }
+        }()
+        return acc >= minTol && acc <= maxTol
     }
 }
 
@@ -182,3 +243,4 @@ struct TestData {
     var meterModel: MeterModel
     var jobNumber: String
 }
+

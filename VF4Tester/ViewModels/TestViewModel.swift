@@ -180,3 +180,4 @@ class TestViewModel: ObservableObject {
         testResults.remove(atOffsets: indexSet)
     }
 }
+

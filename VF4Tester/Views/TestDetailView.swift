@@ -122,3 +122,4 @@ struct TestDetailView_Previews: PreviewProvider {
         }
     }
 }
+

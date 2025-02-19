@@ -302,3 +302,4 @@ struct SectionHeader: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
