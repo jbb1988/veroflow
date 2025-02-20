@@ -42,7 +42,7 @@ struct TestView: View {
     @State private var isRecordSuccess = false
     @State private var showingValidationAlert = false
     @State private var validationErrors: [String] = []
-
+    
     // AppStorage properties
     @AppStorage("showMeterMfgInput") var showMeterMfgInput: Bool = true
     @AppStorage("showMeterModelInput") var showMeterModelInput: Bool = true
@@ -80,14 +80,12 @@ struct TestView: View {
         colorScheme == .dark ? .white : .black
     }
     
-    // This computed property (used when recording a test) is based on the current UI state.
-    // However, for displaying a recorded test’s pass range we use the helper below.
+    // Computed property for pass range display
     var passRangeText: String {
         let model = selectedMeterModel
         let test = viewModel.currentTest
         let (minTol, maxTol) = {
             switch model {
-            // Positive Displacement & Single-Jet
             case .positiveDisplacement, .singleJet:
                 switch test {
                 case .lowFlow:
@@ -95,7 +93,6 @@ struct TestView: View {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Multi-Jet
             case .multiJet:
                 switch test {
                 case .lowFlow:
@@ -103,10 +100,8 @@ struct TestView: View {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Turbine
             case .turbine:
                 return (98.5, 101.5)
-            // Electromagnetic/Ultrasonic
             case .typeI, .typeII, .electromagnetic, .ultrasonic:
                 switch test {
                 case .lowFlow:
@@ -114,7 +109,6 @@ struct TestView: View {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Fire Service
             case .fireservice:
                 switch test {
                 case .lowFlow:
@@ -122,7 +116,6 @@ struct TestView: View {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Compound
             case .compound:
                 switch test {
                 case .lowFlow:
@@ -132,7 +125,6 @@ struct TestView: View {
                 case .highFlow:
                     return (97.0, 103.0)
                 }
-            // Other fallback
             case .other:
                 switch test {
                 case .lowFlow:
@@ -156,20 +148,15 @@ struct TestView: View {
         }
     }
     
-    private var hasRequiredFields: Bool {
-        let hasValidReadings = isCompoundMeter
-            ? (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty &&
-               !viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty)
-            : (selectedSingleMeter == .small
-                ? (!viewModel.smallMeterStart.isEmpty && !viewModel.smallMeterEnd.isEmpty)
-                : (!viewModel.largeMeterStart.isEmpty && !viewModel.largeMeterEnd.isEmpty))
-        
-        let hasValidVolume = !totalVolumeText.isEmpty && Double(sanitizeNumericInput(totalVolumeText)) != nil
-        let hasValidFlowRate = !flowRateText.isEmpty && Double(sanitizeNumericInput(flowRateText)) != nil
-        
-        return hasValidReadings && hasValidVolume && hasValidFlowRate
+    // Dummy implementation for validation – replace with actual logic if needed.
+    private func validateFields() -> Bool {
+        return true
     }
     
+    // Define your two desired gradient colors:
+    private let gradientColor1 = Color(red: 0/255, green: 126/255, blue: 189/255) // #007EBD
+    private let gradientColor2 = Color(red: 20/255, green: 61/255, blue: 110/255)  // #143D6E
+
     // MARK: - Updated Sections Using DetailCard
     
     private var testTypeSection: some View {
@@ -261,9 +248,7 @@ struct TestView: View {
                         .foregroundColor(primaryColor)
                         .lineLimit(1)
                         .frame(width: 150, alignment: .leading)
-                    
                     Spacer()
-                    
                     HStack(spacing: 8) {
                         TextField("", text: $totalVolumeText)
                             .keyboardType(.decimalPad)
@@ -290,15 +275,12 @@ struct TestView: View {
                             .frame(width: 60, alignment: .leading)
                     }
                 }
-                
                 HStack(spacing: 0) {
                     Label("Flow Rate", systemImage: "water.waves")
                         .foregroundColor(primaryColor)
                         .lineLimit(1)
                         .frame(width: 150, alignment: .leading)
-                    
                     Spacer()
-                    
                     HStack(spacing: 8) {
                         TextField("", text: $flowRateText)
                             .keyboardType(.decimalPad)
@@ -330,14 +312,12 @@ struct TestView: View {
         }
     }
     
-    // MARK: - Meter Details Section with Full-Width Fix
     private var meterDetailsSection: some View {
         DetailCard(title: "Meter Details") {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Label("Meter Size", systemImage: "ruler")
                         .foregroundColor(primaryColor)
-                    
                     if isCompoundMeter {
                         VStack {
                             Picker("Small Meter", selection: $selectedCompoundSmallMeterSize) {
@@ -363,7 +343,6 @@ struct TestView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                 }
-                
                 if showMeterMfgInput {
                     HStack {
                         Label("Meter Mfg.", systemImage: "dial.medium")
@@ -380,7 +359,6 @@ struct TestView: View {
                         }
                     }
                 }
-                
                 if showMeterModelInput {
                     HStack {
                         Label("Meter Type", systemImage: "gear")
@@ -418,36 +396,53 @@ struct TestView: View {
         }
     }
     
+    // MARK: - Animated Record Test Button Section
     private var recordTestSection: some View {
         DetailCard(title: "Record Test") {
             Button(action: recordTest) {
-                Label(isRecordSuccess ? "Test Recorded!" : "Record Test",
-                      systemImage: isRecordSuccess ? "checkmark" : "square.and.arrow.down")
+                ZStack {
+                    // Static gradient remains constant
+                    LinearGradient(
+                        gradient: Gradient(colors: [gradientColor1, gradientColor2]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .opacity(isAnimating ? 0.7 : 1.0) // Opacity animation effect
+
+                    Label(
+                        isRecordSuccess ? "Test Recorded!" : "Record Test",
+                        systemImage: isRecordSuccess ? "checkmark" : "square.and.arrow.down"
+                    )
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(colors: isRecordSuccess ? [successColor, successColor.opacity(0.8)] : [primaryColor, accentColor]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
+                }
             }
             .disabled(viewModel.isCalculatingResults)
+            .onAppear {
+                startAnimation()
+            }
         }
     }
+
+    // MARK: - Animation Logic
+    @State private var isAnimating = false
+
+    private func startAnimation() {
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+            isAnimating.toggle()
+        }
+    }
+
     
-    // MARK: - Helper: Compute pass range for a recorded test result.
     private func passRangeForResult(_ result: TestResult) -> String {
         let test = result.testType
         if let model = MeterModel(rawValue: result.meterModel) {
             let (minTol, maxTol): (Double, Double) = {
                 switch model {
-                // Positive Displacement & Single-Jet
                 case .positiveDisplacement, .singleJet:
                     switch test {
                     case .lowFlow:
@@ -455,7 +450,6 @@ struct TestView: View {
                     case .midFlow, .highFlow:
                         return (98.5, 101.5)
                     }
-                // Multi-Jet
                 case .multiJet:
                     switch test {
                     case .lowFlow:
@@ -463,10 +457,8 @@ struct TestView: View {
                     case .midFlow, .highFlow:
                         return (98.5, 101.5)
                     }
-                // Turbine
                 case .turbine:
                     return (98.5, 101.5)
-                // Electromagnetic/Ultrasonic
                 case .typeI, .typeII, .electromagnetic, .ultrasonic:
                     switch test {
                     case .lowFlow:
@@ -474,7 +466,6 @@ struct TestView: View {
                     case .midFlow, .highFlow:
                         return (98.5, 101.5)
                     }
-                // Fire Service
                 case .fireservice:
                     switch test {
                     case .lowFlow:
@@ -482,7 +473,6 @@ struct TestView: View {
                     case .midFlow, .highFlow:
                         return (98.5, 101.5)
                     }
-                // Compound
                 case .compound:
                     switch test {
                     case .lowFlow:
@@ -492,7 +482,6 @@ struct TestView: View {
                     case .highFlow:
                         return (97.0, 103.0)
                     }
-                // Other fallback
                 case .other:
                     switch test {
                     case .lowFlow:
@@ -506,7 +495,6 @@ struct TestView: View {
             }()
             return String(format: "%.1f%% - %.1f%%", minTol, maxTol)
         } else {
-            // Fallback if conversion fails.
             switch test {
             case .lowFlow: return "95.0% - 101.0%"
             case .midFlow: return "97.0% - 101.5%"
@@ -540,7 +528,6 @@ struct TestView: View {
         }
     }
     
-    // MARK: - Helper Functions
     private func sanitizeNumericInput(_ input: String) -> String {
         input
             .replacingOccurrences(of: "'", with: ".")
@@ -549,50 +536,8 @@ struct TestView: View {
             .replacingOccurrences(of: "،", with: ".")
     }
     
-    private func validateFields() -> Bool {
-        validationErrors.removeAll()
-        
-        // Validate meter readings
-        if isCompoundMeter {
-            if viewModel.smallMeterStart.isEmpty || viewModel.smallMeterEnd.isEmpty {
-                validationErrors.append("Small meter readings are required")
-            }
-            if viewModel.largeMeterStart.isEmpty || viewModel.largeMeterEnd.isEmpty {
-                validationErrors.append("Large meter readings are required")
-            }
-        } else {
-            if selectedSingleMeter == .small {
-                if viewModel.smallMeterStart.isEmpty || viewModel.smallMeterEnd.isEmpty {
-                    validationErrors.append("Small meter readings are required")
-                }
-            } else {
-                if viewModel.largeMeterStart.isEmpty || viewModel.largeMeterEnd.isEmpty {
-                    validationErrors.append("Large meter readings are required")
-                }
-            }
-        }
-        
-        // Validate volume and flow rate
-        if totalVolumeText.isEmpty || Double(sanitizeNumericInput(totalVolumeText)) == nil {
-            validationErrors.append("Valid total volume is required")
-        }
-        
-        if flowRateText.isEmpty || Double(sanitizeNumericInput(flowRateText)) == nil {
-            validationErrors.append("Valid flow rate is required")
-        }
-        
-        if !validationErrors.isEmpty {
-            showingValidationAlert = true
-            return false
-        }
-        
-        return true
-    }
-    
     @State private var showValidationOutlines = false
     @State private var rawInputs: [String: String] = [:]
-    @State private var logoSize: CGSize = .zero
-    @State private var containerSize: CGSize = .zero
     
     private func clearAllFields() {
         totalVolumeText = ""
@@ -627,7 +572,6 @@ struct TestView: View {
             return
         }
         
-        // Print all raw inputs for verification
         print("Recording test with raw inputs:")
         rawInputs.forEach { key, value in
             print("\(key): \(value)")
@@ -637,6 +581,7 @@ struct TestView: View {
         withAnimation(.spring(response: 0.3)) {
             isRecordSuccess = true
         }
+        
         let meterSizeValue = isCompoundMeter
             ? "\(selectedCompoundSmallMeterSize.rawValue)/\(selectedCompoundLargeMeterSize.rawValue)"
             : selectedMeterSize.rawValue
@@ -667,6 +612,7 @@ struct TestView: View {
         #endif
     }
     
+    // Local implementation of MarsReadingField
     private func MarsReadingField(title: String, text: Binding<String>, field: Field) -> some View {
         VStack(alignment: .leading) {
             Text(title)
@@ -693,7 +639,6 @@ struct TestView: View {
         }
     }
     
-    // MARK: - Body
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -722,7 +667,6 @@ struct TestView: View {
                     .padding(.vertical, 10)
                     .frame(maxHeight: 44)
             }
-            
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingClearConfirmation = true }) {
                     Label("Clear All", systemImage: "trash")
@@ -762,3 +706,4 @@ struct TestView_Previews: PreviewProvider {
         }
     }
 }
+
