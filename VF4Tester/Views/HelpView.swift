@@ -206,7 +206,7 @@ struct CustomTopBar: View {
             Image("MARS Company")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(height: 44)  // Adjust as desired
+                .frame(height: 44)  // Adjust as needed
             Spacer()
         }
         .padding(.vertical, 8)
@@ -215,17 +215,17 @@ struct CustomTopBar: View {
     }
 }
 
-// MARK: - HelpView (Custom Top Bar, No Nav Bar)
+// MARK: - Main Help View (Custom Top Bar, No Navigation Bar)
 struct HelpView: View {
     @State private var selectedSection: HelpSection = .support
     @State private var searchQuery = ""
     
     var body: some View {
         VStack(spacing: 0) {
-            // 1) Our custom top bar with the MARS logo
+            // Custom Top Bar with MARS logo
             CustomTopBar()
             
-            // 2) Filter Bar
+            // Filter Bar
             HStack {
                 Spacer()
                 HStack(spacing: 0) {
@@ -253,13 +253,13 @@ struct HelpView: View {
             .padding(.vertical, 4)
             .background(Color(UIColor.systemBackground))
             
-            // 3) Optional Search Bar (FAQ only)
+            // Optional Search Bar (FAQ only)
             if selectedSection == .faq {
                 SearchBar(text: $searchQuery)
                     .padding(.horizontal)
             }
             
-            // 4) Main Content
+            // Main Content
             ScrollView {
                 VStack(spacing: 20) {
                     switch selectedSection {
@@ -278,7 +278,7 @@ struct HelpView: View {
                 .padding()
             }
         }
-        // If your parent is a NavigationView, hide it here:
+        // Hide any parent Navigation Bar if needed
         .navigationBarHidden(true)
     }
 }
@@ -317,18 +317,184 @@ struct SearchBar: View {
     }
 }
 
-// MARK: - Interactive Testing Guide
+// MARK: - Enhanced Support View (Consistent Card Styling)
+struct EnhancedSupportView: View {
+    @Environment(\.openURL) var openURL
+    @State private var showSafari = false
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // AI Assistant Overview Card
+            VStack(alignment: .leading, spacing: 12) {
+                Text("MARS Company AI Assistant")
+                    .font(.headline)
+                Text("Ask questions about using the app, learn about the associated VEROflow-4 hardware, get information on meter types, test procedures or share feedback. The MARS Company AI is here to help!")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .frame(maxWidth: .infinity)
+            
+            // Animated Gradient Button
+            AnimatedSafariButton {
+                showSafari = true
+            }
+            .sheet(isPresented: $showSafari) {
+                SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
+            }
+            
+            // Contact Support Card wrapped in same styling
+            VStack {
+                ContactSupportView()
+            }
+            .padding()
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .frame(maxWidth: .infinity)
+        }
+        .padding()
+    }
+}
+
+// MARK: - Contact Support View (Inner Content Only)
+struct ContactSupportView: View {
+    @Environment(\.openURL) var openURL
+    var body: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                HStack {
+                    Image(systemName: "headphones.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(.blue)
+                    Text("Contact Support")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                }
+                Divider()
+                VStack(spacing: 16) {
+                    HStack(alignment: .top) {
+                        Image(systemName: "building.2.fill")
+                            .foregroundColor(.blue)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("MARS Company")
+                                .font(.headline)
+                            Text("3925 SW 13th Street")
+                            Text("Ocala, FL 34474")
+                        }
+                        .font(.subheadline)
+                        Spacer()
+                    }
+                    HStack(alignment: .top) {
+                        Image(systemName: "clock.fill")
+                            .foregroundColor(.blue)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Business Hours")
+                                .font(.headline)
+                            Text("Monday - Friday")
+                            Text("8:00 AM - 5:00 PM EST")
+                        }
+                        .font(.subheadline)
+                        Spacer()
+                    }
+                }
+                .padding(.vertical, 8)
+                VStack(spacing: 12) {
+                    Button(action: {
+                        if let phoneURL = URL(string: "tel://8777MYMARS") {
+                            openURL(phoneURL)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "phone.circle.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Call Support")
+                                    .font(.headline)
+                                Text("1-877-7MY-MARS")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: {
+                        if let emailURL = URL(string: "mailto:support@marswater.com") {
+                            openURL(emailURL)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "envelope.circle.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Email Support")
+                                    .font(.headline)
+                                Text("support@marswater.com")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Link(destination: URL(string: "https://marswater.com")!) {
+                        HStack {
+                            Image(systemName: "globe.americas.fill")
+                                .font(.title2)
+                            VStack(alignment: .leading) {
+                                Text("Visit Website")
+                                    .font(.headline)
+                                Text("www.marswater.com")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.purple.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+// MARK: - Interactive Testing Guide & Other Views
 struct InteractiveTestingGuide: View {
     @State private var expandedSections: Set<String> = []
     @State private var completedSteps: Set<String> = []
-
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Interactive Testing Guide")
                 .font(.title2)
                 .bold()
                 .padding(.bottom, 8)
-
             ForEach(testingSteps) { section in
                 TestingSection(
                     section: section,
@@ -354,7 +520,6 @@ struct TestingSection: View {
     let isExpanded: Bool
     @Binding var completedSteps: Set<String>
     let onToggle: () -> Void
-
     var body: some View {
         VStack(alignment: .leading) {
             Button(action: onToggle) {
@@ -362,18 +527,14 @@ struct TestingSection: View {
                     Image(systemName: section.icon)
                         .foregroundColor(.blue)
                         .frame(width: 24)
-
                     Text(section.title)
                         .font(.headline)
-
                     Spacer()
-
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                         .foregroundColor(.secondary)
                 }
             }
-
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(section.steps, id: \.self) { step in
@@ -404,41 +565,33 @@ struct StepRow: View {
     let step: String
     let isCompleted: Bool
     let onToggle: () -> Void
-
     var body: some View {
         Button(action: onToggle) {
             HStack(alignment: .top) {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(isCompleted ? .green : .secondary)
-
                 Text(step)
                     .strikethrough(isCompleted)
                     .foregroundColor(isCompleted ? .secondary : .primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
-
                 Spacer()
             }
         }
     }
 }
 
-// MARK: - Enhanced FAQ View
 struct EnhancedFAQView: View {
     let searchQuery: String
     @State private var expandedQuestions: Set<UUID> = []
     @State private var helpfulResponses: Set<UUID> = []
-
     var filteredFAQs: [FAQItem] {
-        if searchQuery.isEmpty {
-            return faqItems
-        }
+        if searchQuery.isEmpty { return faqItems }
         return faqItems.filter { item in
             item.question.localizedCaseInsensitiveContains(searchQuery) ||
             item.answer.localizedCaseInsensitiveContains(searchQuery)
         }
     }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if filteredFAQs.isEmpty {
@@ -480,7 +633,6 @@ struct FAQItemView: View {
     let isHelpful: Bool
     let onToggle: () -> Void
     let onHelpfulTap: () -> Void
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: onToggle) {
@@ -488,24 +640,19 @@ struct FAQItemView: View {
                     Image(systemName: item.icon)
                         .foregroundColor(.blue)
                         .frame(width: 24)
-
                     Text(item.question)
                         .font(.headline)
                         .multilineTextAlignment(.leading)
-
                     Spacer()
-
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                         .foregroundColor(.secondary)
                 }
             }
-
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(item.answer)
                         .padding(.leading, 32)
-
                     HStack {
                         Spacer()
                         Button(action: onHelpfulTap) {
@@ -525,7 +672,6 @@ struct FAQItemView: View {
     }
 }
 
-// MARK: - Demo View
 struct DemoView: View {
     var body: some View {
         VStack(alignment: .leading) {
@@ -533,7 +679,6 @@ struct DemoView: View {
                 .font(.title2)
                 .bold()
                 .padding(.bottom, 8)
-            
             WebView(url: URL(string: "https://marswater.notion.site/vf4?pvs=4")!)
                 .frame(height: 300)
                 .cornerRadius(12)
@@ -550,175 +695,6 @@ struct WebView: UIViewRepresentable {
     }
 }
 
-// MARK: - Enhanced Support View
-struct EnhancedSupportView: View {
-    @Environment(\.openURL) var openURL
-    @Environment(\.colorScheme) var colorScheme
-    
-    @State private var showSafari = false
-
-    var body: some View {
-        VStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("MARS Company AI Assistant")
-                    .font(.headline)
-                Text("Ask questions about using the app, learn about the associated VEROflow-4 hardware, get information on meter types, test procedures or share feedback. The MARS Company AI is here to help!")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .padding()
-            .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-            
-            AnimatedSafariButton {
-                showSafari = true
-            }
-            .sheet(isPresented: $showSafari) {
-                SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
-            }
-            
-            ContactSupportView()
-        }
-        .padding()
-    }
-}
-
-// MARK: - Contact Support
-struct ContactSupportView: View {
-    @Environment(\.openURL) var openURL
-    @Environment(\.colorScheme) var colorScheme
-
-    var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 16) {
-                HStack {
-                    Image(systemName: "headphones.circle.fill")
-                        .font(.system(size: 36))
-                        .foregroundColor(.blue)
-                    Text("Contact Support")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Spacer()
-                }
-
-                Divider()
-
-                VStack(spacing: 16) {
-                    HStack(alignment: .top) {
-                        Image(systemName: "building.2.fill")
-                            .foregroundColor(.blue)
-                            .frame(width: 24)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("MARS Company")
-                                .font(.headline)
-                            Text("3925 SW 13th Street")
-                            Text("Ocala, FL 34474")
-                        }
-                        .font(.subheadline)
-                        Spacer()
-                    }
-
-                    HStack(alignment: .top) {
-                        Image(systemName: "clock.fill")
-                            .foregroundColor(.blue)
-                            .frame(width: 24)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Business Hours")
-                                .font(.headline)
-                            Text("Monday - Friday")
-                            Text("8:00 AM - 5:00 PM EST")
-                        }
-                        .font(.subheadline)
-                        Spacer()
-                    }
-                }
-                .padding(.vertical, 8)
-
-                VStack(spacing: 12) {
-                    Button(action: {
-                        if let phoneURL = URL(string: "tel://8777MYMARS") {
-                            openURL(phoneURL)
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "phone.circle.fill")
-                                .font(.title2)
-                            VStack(alignment: .leading) {
-                                Text("Call Support")
-                                    .font(.headline)
-                                Text("1-877-7MY-MARS")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-
-                    Button(action: {
-                        if let emailURL = URL(string: "mailto:support@marswater.com") {
-                            openURL(emailURL)
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "envelope.circle.fill")
-                                .font(.title2)
-                            VStack(alignment: .leading) {
-                                Text("Email Support")
-                                    .font(.headline)
-                                Text("support@marswater.com")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-
-                    Link(destination: URL(string: "https://marswater.com")!) {
-                        HStack {
-                            Image(systemName: "globe.americas.fill")
-                                .font(.title2)
-                            VStack(alignment: .leading) {
-                                Text("Visit Website")
-                                    .font(.headline)
-                                Text("www.marswater.com")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .background(Color.purple.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                }
-            }
-            .padding()
-            .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-        }
-        .padding()
-    }
-}
-
 // MARK: - Test Chart View
 struct TestChartView: View {
     var body: some View {
@@ -727,11 +703,9 @@ struct TestChartView: View {
                 Text("Meter Accuracy Tolerances")
                     .font(.title2)
                     .bold()
-
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Large Meters (3″ and Larger)")
                         .font(.headline)
-                    
                     ToleranceTable(rows: [
                         ("Positive Displacement & Single-Jet", "95% – 101.5%", "98.5% – 101.5%"),
                         ("Multi-Jet", "97% – 103%", "98.5% – 101.5%"),
@@ -744,11 +718,9 @@ struct TestChartView: View {
                 .padding(16)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(16)
-
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Small Meters (5/8″ to 2″)")
                         .font(.headline)
-                    
                     ToleranceTable(rows: [
                         ("Positive Displacement & Single-Jet", "95% – 101.5%", "98.5% – 101.5%"),
                         ("Multi-Jet", "97% – 103%", "98.5% – 101.5%"),
@@ -761,15 +733,12 @@ struct TestChartView: View {
                 .padding(16)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(16)
-
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Calculation Overview")
                         .font(.headline)
-                    
                     Text("The app automatically selects the appropriate tolerance range based on the meter type and test flow (low, mid, or high). It calculates the meter's accuracy as the ratio of the combined meter reading to the test volume (expressed as a percentage).")
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 8)
-                    
                     Text("A test passes only if the calculated accuracy falls within the designated tolerance range. For example, for a Multi-Jet meter at low flow, the accuracy must be between 97% and 103% for the test to pass.")
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -782,10 +751,8 @@ struct TestChartView: View {
     }
 }
 
-// MARK: - Tolerance Table
 struct ToleranceTable: View {
     let rows: [(String, String, String)]
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
@@ -800,7 +767,6 @@ struct ToleranceTable: View {
             .padding(.horizontal, 12)
             .background(Color.blue.opacity(0.1))
             .font(.footnote.bold())
-            
             ForEach(rows, id: \.0) { row in
                 Divider()
                 HStack(spacing: 16) {
@@ -822,7 +788,6 @@ struct ToleranceTable: View {
     }
 }
 
-// MARK: - Preview
 struct HelpView_Previews: PreviewProvider {
     static var previews: some View {
         HelpView()
