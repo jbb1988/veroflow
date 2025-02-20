@@ -328,7 +328,7 @@ struct EnhancedSupportView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text("MARS Company AI Assistant")
                     .font(.headline)
-                Text("Ask questions about using the app, learn about the associated VEROflow-4 hardware, get information on meter types, test procedures or share feedback. The MARS Company AI is here to help!")
+                Text("Ask questions about using the app, like how often should water meters be tested? What are the economic implications of not maintaining water meters properly? Learn about the associated VEROflow-4 hardware steps to test, or just share feedback. If you need further asistance just give MARS a call or email - The MARS Company AI is here to help!")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }

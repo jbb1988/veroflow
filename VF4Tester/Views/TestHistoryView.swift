@@ -4,14 +4,27 @@ import PDFKit
 
 struct TestHistoryView: View {
     @EnvironmentObject var viewModel: TestViewModel
+    
+    // Local State
     @State private var searchText = ""
     @State private var selectedResult: TestResult? = nil
     @State private var showingExportSheet = false
     
-    // Internal filter state that the user can modify.
     @State private var selectedHistoryFilter: FilterOption
+    @State private var selectedSortOrder: SortOrder
+    @State private var startDate: Date
+    @State private var endDate: Date
     
-    // Filter options.
+    // Used to expand/collapse the Filters & Sort panel.
+    @State private var isFilterExpanded = false
+    
+    // Data used for exporting PDF/CSV
+    @State private var exportedData: Data? = nil
+    @State private var showShareSheet = false
+    
+    // ----------------------------------------
+    // MARK: - Filter and Sort Enums
+    // ----------------------------------------
     enum FilterOption: String, CaseIterable, Identifiable {
         case all = "All Tests"
         case lowFlow = "Low Flow"
@@ -20,9 +33,10 @@ struct TestHistoryView: View {
         case compound = "Compound"
         case passed = "Passed"
         case failed = "Failed"
+        
         var id: Self { self }
         
-        // Colored border similar to Analytics stat cards.
+        // For the small colored border in Filter Options
         var borderColor: Color {
             switch self {
             case .all: return .purple
@@ -41,24 +55,21 @@ struct TestHistoryView: View {
         case descending = "Newest First"
     }
     
-    @State private var selectedSortOrder: SortOrder
-    @State private var startDate: Date
-    @State private var endDate: Date
+    // ----------------------------------------
+    // MARK: - Computed Properties
+    // ----------------------------------------
     
-    // Effective end date.
+    // The effective end date ensures we don't break if endDate < current date
     var effectiveEndDate: Date {
         max(endDate, Date())
     }
     
-    // Export variables.
-    @State private var exportedData: Data? = nil
-    @State private var showShareSheet = false
-    
-    // Filtered results.
+    // The main filtered array, factoring in date range, filter, and search text
     var filteredResults: [TestResult] {
-        // First filter the results
+        // 1) Filter by date range, filter type, and search text
         let filtered = viewModel.testResults.filter { result in
             let inDateRange = (result.date >= startDate) && (result.date <= effectiveEndDate)
+            
             let filterMatch: Bool = {
                 switch selectedHistoryFilter {
                 case .all:
@@ -77,14 +88,16 @@ struct TestHistoryView: View {
                     return !result.isPassing
                 }
             }()
-            let matchesSearch = searchText.isEmpty ||
-                result.jobNumber.localizedCaseInsensitiveContains(searchText) ||
-                result.meterType.localizedCaseInsensitiveContains(searchText) ||
-                result.meterSize.localizedCaseInsensitiveContains(searchText)
+            
+            let matchesSearch = searchText.isEmpty
+                || result.jobNumber.localizedCaseInsensitiveContains(searchText)
+                || result.meterType.localizedCaseInsensitiveContains(searchText)
+                || result.meterSize.localizedCaseInsensitiveContains(searchText)
+            
             return inDateRange && filterMatch && matchesSearch
         }
         
-        // Then sort
+        // 2) Sort ascending or descending by date
         return filtered.sorted { first, second in
             switch selectedSortOrder {
             case .ascending:
@@ -95,8 +108,9 @@ struct TestHistoryView: View {
         }
     }
     
-    @State private var isFilterExpanded = false
-    
+    // ----------------------------------------
+    // MARK: - Init
+    // ----------------------------------------
     init(initialFilter: FilterOption = .all) {
         _selectedHistoryFilter = State(initialValue: initialFilter)
         _selectedSortOrder = State(initialValue: .descending)
@@ -104,130 +118,148 @@ struct TestHistoryView: View {
         _endDate = State(initialValue: Date())
     }
     
+    // ----------------------------------------
+    // MARK: - Body
+    // ----------------------------------------
     var body: some View {
         VStack {
-            // Filters and Date Range.
-            DisclosureGroup(
-                isExpanded: $isFilterExpanded,
-                content: {
-                    VStack(spacing: 16) {
-                        DetailCard(title: "Filter Options") {
-                            let gridFilterOptions: [[FilterOption]] = [
-                                [.all],
-                                [.lowFlow, .midFlow, .highFlow],
-                                [.passed, .failed]
-                            ]
-                            VStack(spacing: 8) {
-                                ForEach(0..<gridFilterOptions.count, id: \.self) { rowIndex in
-                                    HStack(spacing: 8) {
-                                        ForEach(gridFilterOptions[rowIndex], id: \.self) { option in
-                                            Button(action: {
-                                                selectedHistoryFilter = option
-                                            }) {
-                                                Text(option.rawValue)
-                                                    .font(.caption)
-                                                    .padding(6)
-                                                    .frame(maxWidth: .infinity)
-                                                    .background(selectedHistoryFilter == option ? option.borderColor.opacity(0.2) : Color(UIColor.secondarySystemBackground))
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: 8)
-                                                            .stroke(option.borderColor, lineWidth: 2)
-                                                    )
-                                                    .cornerRadius(8)
-                                            }
+            
+            // Filters & Sort Section
+            DisclosureGroup(isExpanded: $isFilterExpanded) {
+                VStack(spacing: 16) {
+                    
+                    // Filter Options
+                    DetailCard(title: "Filter Options") {
+                        let gridFilterOptions: [[FilterOption]] = [
+                            [.all],
+                            [.lowFlow, .midFlow, .highFlow],
+                            [.passed, .failed]
+                        ]
+                        VStack(spacing: 8) {
+                            ForEach(0..<gridFilterOptions.count, id: \.self) { rowIndex in
+                                HStack(spacing: 8) {
+                                    ForEach(gridFilterOptions[rowIndex], id: \.self) { option in
+                                        Button {
+                                            selectedHistoryFilter = option
+                                        } label: {
+                                            Text(option.rawValue)
+                                                .font(.caption)
+                                                .padding(6)
+                                                .frame(maxWidth: .infinity)
+                                                .background(
+                                                    selectedHistoryFilter == option
+                                                    ? option.borderColor.opacity(0.2)
+                                                    : Color(UIColor.secondarySystemBackground)
+                                                )
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(option.borderColor, lineWidth: 2)
+                                                )
+                                                .cornerRadius(8)
                                         }
                                     }
                                 }
                             }
                         }
-                        
-                        DetailCard(title: "Sort Order") {
-                            HStack {
-                                ForEach(SortOrder.allCases, id: \.self) { order in
-                                    Button(action: {
-                                        selectedSortOrder = order
-                                    }) {
-                                        Text(order.rawValue)
-                                            .font(.caption)
-                                            .padding(6)
-                                            .frame(maxWidth: .infinity)
-                                            .background(selectedSortOrder == order ? Color.blue.opacity(0.2) : Color(UIColor.secondarySystemBackground))
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.blue, lineWidth: 2)
-                                            )
-                                            .cornerRadius(8)
-                                    }
+                    }
+                    
+                    // Sort Order
+                    DetailCard(title: "Sort Order") {
+                        HStack {
+                            ForEach(SortOrder.allCases, id: \.self) { order in
+                                Button {
+                                    selectedSortOrder = order
+                                } label: {
+                                    Text(order.rawValue)
+                                        .font(.caption)
+                                        .padding(6)
+                                        .frame(maxWidth: .infinity)
+                                        .background(
+                                            selectedSortOrder == order
+                                            ? Color.blue.opacity(0.2)
+                                            : Color(UIColor.secondarySystemBackground)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.blue, lineWidth: 2)
+                                        )
+                                        .cornerRadius(8)
                                 }
                             }
                         }
-                        
-                        DetailCard(title: "Date Range") {
-                            DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                            DatePicker("End Date", selection: $endDate, displayedComponents: .date)
-                        }
                     }
-                },
-                label: {
-                    HStack {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Filters & Sort")
-                                .font(.headline)
-                            Text("\(selectedHistoryFilter.rawValue) • \(selectedSortOrder.rawValue)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: isFilterExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
-                            .foregroundColor(.blue)
-                            .animation(.easeInOut, value: isFilterExpanded)
+                    
+                    // Date Range
+                    DetailCard(title: "Date Range") {
+                        DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
                     }
-                    .padding(12)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                    )
                 }
-            )
+            } label: {
+                // DisclosureGroup label
+                HStack {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.title3)
+                        .foregroundColor(.blue)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Filters & Sort")
+                            .font(.headline)
+                        Text("\(selectedHistoryFilter.rawValue) • \(selectedSortOrder.rawValue)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: isFilterExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                        .foregroundColor(.blue)
+                        .animation(.easeInOut, value: isFilterExpanded)
+                }
+                .padding(12)
+                .background(Color(UIColor.secondarySystemBackground))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                )
+            }
             .padding(.horizontal)
             .padding(.top, 16)
             
-            // Add extra space between header and search bar by wrapping List in a VStack with a spacer.
-            VStack(spacing: 0) {
-                Spacer().frame(height: 32)  // Increase this value to add more space
-                List {
-                    ForEach(filteredResults) { result in
-                        TestResultRow(result: result)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                selectedResult = result
-                            }
-                    }
-                    .onDelete { indexSet in
-                        let resultsToDelete = indexSet.map { filteredResults[$0] }
-                        for result in resultsToDelete {
-                            if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
-                                viewModel.testResults.remove(at: index)
-                            }
+            // Main List with pinned search bar
+            List {
+                // 1) An empty "spacer" row at the top
+                Section {
+                    Spacer().frame(height: 40)  // Adjust as needed
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+                
+                // 2) Actual test results
+                ForEach(filteredResults) { result in
+                    TestResultRow(result: result)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            selectedResult = result
+                        }
+                }
+                .onDelete { indexSet in
+                    let toDelete = indexSet.map { filteredResults[$0] }
+                    for result in toDelete {
+                        if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
+                            viewModel.testResults.remove(at: index)
                         }
                     }
                 }
-                .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
             }
-        }
+            .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
+            
+        } // end VStack
         .navigationTitle("Test History")
-        .sheet(item: $selectedResult) { result in
-            TestDetailView(result: result)
-        }
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // VEROflow logo in the nav bar
             ToolbarItem(placement: .principal) {
                 Image("veroflowLogo")
                     .resizable()
@@ -239,13 +271,19 @@ struct TestHistoryView: View {
                     .frame(maxHeight: 44)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Export button on the trailing side
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingExportSheet = true }) {
+                Button {
+                    showingExportSheet = true
+                } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
             }
+        }
+        .sheet(item: $selectedResult) { result in
+            // Show detail when a test result is tapped
+            TestDetailView(result: result)
         }
         .actionSheet(isPresented: $showingExportSheet) {
             ActionSheet(
@@ -270,6 +308,7 @@ struct TestHistoryView: View {
         .sheet(isPresented: $showShareSheet, onDismiss: {
             exportedData = nil
         }) {
+            // ShareSheet for PDF/CSV
             if let data = exportedData {
                 #if os(iOS)
                 ShareSheet(activityItems: [data])
@@ -278,7 +317,9 @@ struct TestHistoryView: View {
         }
     }
     
-    // MARK: - Export Functions
+    // ----------------------------------------
+    // MARK: - Export PDF & CSV
+    // ----------------------------------------
     func generatePDF() -> Data? {
         let pdfMetaData = [
             kCGPDFContextCreator: "VF4Tester",
@@ -286,18 +327,27 @@ struct TestHistoryView: View {
         ]
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
+        
         let pageWidth = 8.5 * 72.0
         let pageHeight = 11 * 72.0
         let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
+        
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
         let data = renderer.pdfData { context in
             context.beginPage()
+            
             let text = generateExportSummary()
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 12)
             ]
-            text.draw(in: CGRect(x: 20, y: 20, width: pageRect.width - 40, height: pageRect.height - 40), withAttributes: attributes)
+            
+            text.draw(in: CGRect(
+                x: 20, y: 20,
+                width: pageRect.width - 40,
+                height: pageRect.height - 40
+            ), withAttributes: attributes)
         }
+        
         return data
     }
     
@@ -306,6 +356,7 @@ struct TestHistoryView: View {
         let df = DateFormatter()
         df.dateStyle = .short
         df.timeStyle = .short
+        
         for result in filteredResults {
             let row = [
                 df.string(from: result.date),
@@ -319,6 +370,7 @@ struct TestHistoryView: View {
             ].joined(separator: ",")
             csvString += row + "\n"
         }
+        
         return csvString.data(using: .utf8)
     }
     
@@ -326,19 +378,29 @@ struct TestHistoryView: View {
         let df = DateFormatter()
         df.dateStyle = .short
         df.timeStyle = .short
+        
         var summary = "Test History Export\n\n"
         summary += "Date Range: \(df.string(from: startDate)) - \(df.string(from: effectiveEndDate))\n"
         summary += "Total Tests: \(filteredResults.count)\n\n"
         summary += "Tests:\n"
+        
         for result in filteredResults.sorted(by: { $0.date < $1.date }) {
-            summary += "\(df.string(from: result.date)): \(result.testType.rawValue), Accuracy: \(String(format: "%.1f%%", result.reading.accuracy)), \(result.isPassing ? "PASS" : "FAIL")\n"
+            summary += "\(df.string(from: result.date)): \(result.testType.rawValue), "
+            summary += "Accuracy: \(String(format: "%.1f%%", result.reading.accuracy)), "
+            summary += result.isPassing ? "PASS" : "FAIL"
+            summary += "\n"
         }
+        
         return summary
     }
 }
 
+// ----------------------------------------
+// MARK: - TestResultRow
+// ----------------------------------------
 struct TestResultRow: View {
     let result: TestResult
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -367,58 +429,6 @@ struct TestResultRow: View {
             }
         }
         .padding(.vertical, 4)
-    }
-}
-
-struct TestHistoryView_Previews: PreviewProvider {
-    static var previews: some View {
-        let vm = TestViewModel()
-        vm.testResults = [
-            TestResult(
-                id: UUID(),
-                testType: .lowFlow,
-                reading: MeterReading(
-                    smallMeterStart: 10,
-                    smallMeterEnd: 20,
-                    largeMeterStart: 0,
-                    largeMeterEnd: 0,
-                    totalVolume: 10,
-                    flowRate: 5,
-                    readingType: .small
-                ),
-                notes: "Test LowFlow",
-                date: Date().addingTimeInterval(-86400),
-                meterImageData: nil,
-                meterSize: "2\"",
-                meterType: "Neptune",
-                meterModel: "Positive Displacement",
-                jobNumber: "JOB-001"
-            ),
-            TestResult(
-                id: UUID(),
-                testType: .highFlow,
-                reading: MeterReading(
-                    smallMeterStart: 15,
-                    smallMeterEnd: 25,
-                    largeMeterStart: 0,
-                    largeMeterEnd: 0,
-                    totalVolume: 50,
-                    flowRate: 30,
-                    readingType: .small
-                ),
-                notes: "Test HighFlow",
-                date: Date(),
-                meterImageData: nil,
-                meterSize: "3\"",
-                meterType: "Sensus",
-                meterModel: "Multi-Jet",
-                jobNumber: "JOB-002"
-            )
-        ]
-        return NavigationView {
-            TestHistoryView()
-                .environmentObject(vm)
-        }
     }
 }
 
