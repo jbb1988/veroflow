@@ -198,27 +198,30 @@ struct TestHistoryView: View {
                 }
             )
             .padding(.horizontal)
-            .animation(.easeInOut, value: isFilterExpanded)
+            .padding(.top, 16)
             
-            // List of Test Results.
-            List {
-                ForEach(filteredResults) { result in
-                    TestResultRow(result: result)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedResult = result
-                        }
-                }
-                .onDelete { indexSet in
-                    let resultsToDelete = indexSet.map { filteredResults[$0] }
-                    for result in resultsToDelete {
-                        if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
-                            viewModel.testResults.remove(at: index)
+            // Add extra space between header and search bar by wrapping List in a VStack with a spacer.
+            VStack(spacing: 0) {
+                Spacer().frame(height: 32)  // Increase this value to add more space
+                List {
+                    ForEach(filteredResults) { result in
+                        TestResultRow(result: result)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedResult = result
+                            }
+                    }
+                    .onDelete { indexSet in
+                        let resultsToDelete = indexSet.map { filteredResults[$0] }
+                        for result in resultsToDelete {
+                            if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
+                                viewModel.testResults.remove(at: index)
+                            }
                         }
                     }
                 }
+                .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
             }
-            .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
         }
         .navigationTitle("Test History")
         .sheet(item: $selectedResult) { result in
