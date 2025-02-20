@@ -36,7 +36,6 @@ struct TestHistoryView: View {
         
         var id: Self { self }
         
-        // For the small colored border in Filter Options
         var borderColor: Color {
             switch self {
             case .all: return .purple
@@ -59,14 +58,11 @@ struct TestHistoryView: View {
     // MARK: - Computed Properties
     // ----------------------------------------
     
-    // The effective end date ensures we don't break if endDate < current date
     var effectiveEndDate: Date {
         max(endDate, Date())
     }
     
-    // The main filtered array, factoring in date range, filter, and search text
     var filteredResults: [TestResult] {
-        // 1) Filter by date range, filter type, and search text
         let filtered = viewModel.testResults.filter { result in
             let inDateRange = (result.date >= startDate) && (result.date <= effectiveEndDate)
             
@@ -97,7 +93,6 @@ struct TestHistoryView: View {
             return inDateRange && filterMatch && matchesSearch
         }
         
-        // 2) Sort ascending or descending by date
         return filtered.sorted { first, second in
             switch selectedSortOrder {
             case .ascending:
@@ -122,12 +117,10 @@ struct TestHistoryView: View {
     // MARK: - Body
     // ----------------------------------------
     var body: some View {
-        VStack {
-            
+        VStack(spacing: 0) {
             // Filters & Sort Section
             DisclosureGroup(isExpanded: $isFilterExpanded) {
                 VStack(spacing: 16) {
-                    
                     // Filter Options
                     DetailCard(title: "Filter Options") {
                         let gridFilterOptions: [[FilterOption]] = [
@@ -225,18 +218,12 @@ struct TestHistoryView: View {
                 )
             }
             .padding(.horizontal)
-            .padding(.top, 16)
-            
+            // Removed the .padding(.top, 16) so there's no extra top space
+            .padding(.top, 0)
+
             // Main List with pinned search bar
             List {
-                // 1) An empty "spacer" row at the top
-                Section {
-                    Spacer().frame(height: 40)  // Adjust as needed
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                }
-                
-                // 2) Actual test results
+                // Removed the empty spacer section
                 ForEach(filteredResults) { result in
                     TestResultRow(result: result)
                         .contentShape(Rectangle())
@@ -254,8 +241,7 @@ struct TestHistoryView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Search by job number, meter type, or size")
-            
-        } // end VStack
+        }
         .navigationTitle("Test History")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -272,7 +258,6 @@ struct TestHistoryView: View {
             }
         }
         .toolbar {
-            // Export button on the trailing side
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showingExportSheet = true
@@ -282,7 +267,6 @@ struct TestHistoryView: View {
             }
         }
         .sheet(item: $selectedResult) { result in
-            // Show detail when a test result is tapped
             TestDetailView(result: result)
         }
         .actionSheet(isPresented: $showingExportSheet) {
@@ -308,7 +292,6 @@ struct TestHistoryView: View {
         .sheet(isPresented: $showShareSheet, onDismiss: {
             exportedData = nil
         }) {
-            // ShareSheet for PDF/CSV
             if let data = exportedData {
                 #if os(iOS)
                 ShareSheet(activityItems: [data])
