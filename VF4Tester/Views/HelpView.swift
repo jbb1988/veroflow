@@ -20,6 +20,36 @@ struct FAQItem: Identifiable {
 // MARK: - Sample Data
 let faqItems: [FAQItem] = [
     FAQItem(
+        question: "What is MARS VEROflow Calibration?",
+        answer: "MARS VEROflow Calibration ensures precise measurement accuracy for VF-1 and VF-4 field test units with expert calibration and quick turnaround.",
+        icon: "wrench.and.screwdriver.fill"
+    ),
+    FAQItem(
+        question: "Why choose MARS for calibration?",
+        answer: "We offer expert technicians, industry-leading precision, and a customer-focused process to minimize downtime and keep your operations running smoothly.",
+        icon: "star.fill"
+    ),
+    FAQItem(
+        question: "What does the calibration process include?",
+        answer: "Our service includes flow rate and pressure calibration, a 16-point calibration linearization (VF-4), battery replacement, and repair assessments.",
+        icon: "list.bullet.clipboard.fill"
+    ),
+    FAQItem(
+        question: "How fast is the turnaround time?",
+        answer: "Our efficient process ensures a faster return than competitors, reducing downtime and potential revenue loss.",
+        icon: "clock.badge.checkmark.fill"
+    ),
+    FAQItem(
+        question: "Are MARS VEROflow units NIST-traceable?",
+        answer: "Yes, our VF-1 and VF-4 units are the only field test units with NIST traceability, ensuring global compliance and measurement reliability.",
+        icon: "checkmark.shield.fill"
+    ),
+    FAQItem(
+        question: "How do repairs work?",
+        answer: "Repairs are quoted separately and proceed only with your approval, ensuring transparency and optimal performance.",
+        icon: "gear.badge.checkmark"
+    ),
+    FAQItem(
         question: "How do I record a test?",
         answer: "Go to the Test tab, input your meter readings, and tap 'Record Test' to store your data.",
         icon: "square.and.pencil"
@@ -41,7 +71,7 @@ let faqItems: [FAQItem] = [
     ),
     FAQItem(
         question: "Where can I get help?",
-        answer: "Visit the Help tab for FAQs, troubleshooting guides, and contact support information.",
+        answer: "Visit the Suport section on the Help tab for FAQs, troubleshooting guides, and contact support information.",
         icon: "questionmark.circle.fill"
     )
 ]
@@ -794,4 +824,3 @@ struct HelpView_Previews: PreviewProvider {
             .preferredColorScheme(.light)
     }
 }
-

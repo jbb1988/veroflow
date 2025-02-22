@@ -85,7 +85,7 @@
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "app_store_fixed_1024x1024.png",
+      "filename" : "app_store_no_alpha_1024x1024.png",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
