@@ -453,31 +453,43 @@ struct TestView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.blue.opacity(0.7))
-                            
-                            // Neumorphic shadows
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(darkShadow, lineWidth: 4)
-                                .blur(radius: 4)
-                                .offset(x: 2, y: 2)
-                                .mask(RoundedRectangle(cornerRadius: 20)
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [.black, .clear]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing)))
-                            
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(lightShadow, lineWidth: 4)
-                                .blur(radius: 4)
-                                .offset(x: -2, y: -2)
-                                .mask(RoundedRectangle(cornerRadius: 20)
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [.clear, .black]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing)))
-                        })
+                            ZStack {
+                                // Your existing background remains
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.blue.opacity(0.7))
+                                
+                                // Neumorphic shadows
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(darkShadow, lineWidth: 4)
+                                    .blur(radius: 4)
+                                    .offset(x: 2, y: 2)
+                                    .mask(RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.black, .clear]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing)))
+                                
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(lightShadow, lineWidth: 4)
+                                    .blur(radius: 4)
+                                    .offset(x: -2, y: -2)
+                                    .mask(RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.clear, .black]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing)))
+                                
+                                // Add this glow effect
+                                if isRecordSuccess {
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.blue)
+                                        .blur(radius: 20)
+                                        .opacity(0.3)
+                                        .scaleEffect(1.2)
+                                        .animation(.easeInOut(duration: 1.0), value: isRecordSuccess)
+                                }
+                            }
+                        )
                 }
 
                 // Clear Inputs Button with neumorphic style
@@ -488,31 +500,32 @@ struct TestView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.red.opacity(0.7))
-                            
-                            // Neumorphic shadows
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(darkShadow, lineWidth: 4)
-                                .blur(radius: 4)
-                                .offset(x: 2, y: 2)
-                                .mask(RoundedRectangle(cornerRadius: 20)
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [.black, .clear]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing)))
-                            
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(lightShadow, lineWidth: 4)
-                                .blur(radius: 4)
-                                .offset(x: -2, y: -2)
-                                .mask(RoundedRectangle(cornerRadius: 20)
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [.clear, .black]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing)))
-                        })
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.red.opacity(0.7))
+                                
+                                // Neumorphic shadows
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(darkShadow, lineWidth: 4)
+                                    .blur(radius: 4)
+                                    .offset(x: 2, y: 2)
+                                    .mask(RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.black, .clear]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing)))
+                                
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(lightShadow, lineWidth: 4)
+                                    .blur(radius: 4)
+                                    .offset(x: -2, y: -2)
+                                    .mask(RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.clear, .black]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing)))
+                            }
+                        )
                 }
             }
             .alert(isPresented: $showingClearConfirmation) {
@@ -774,17 +787,8 @@ struct TestView: View {
                 .foregroundColor(.secondary)
             TextField("", text: text)
                 .keyboardType(.decimalPad)
-                .textFieldStyle(PlainTextFieldStyle())
+                .textFieldStyle(.roundedBorder)
                 .focused($focusedField, equals: field)
-                .padding(8)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.black)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(showValidationOutlines && text.wrappedValue.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                )
                 .onChange(of: text.wrappedValue) { newValue in
                     let sanitized = sanitizeNumericInput(newValue)
                     text.wrappedValue = sanitized

@@ -93,9 +93,12 @@ struct DetailCard<Content: View>: View {
             content()
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-        .frame(maxWidth: .infinity) // Forces full width for consistency.
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        )
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -384,5 +387,3 @@ struct FilterPill: View {
         }
     }
 }
-
-
