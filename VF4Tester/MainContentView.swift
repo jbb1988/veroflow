@@ -274,7 +274,7 @@ struct NavigationMenuView: View {
                 .padding(.top, 100)
                 
                 // Enhanced menu items
-                ForEach(NavigationItem.allCases, id: \.self) { item in
+                ForEach(NavigationItem.allCases.filter { $0 != .home }, id: \.self) { item in
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             selectedTab = item
@@ -383,7 +383,7 @@ struct NavigationMenuView: View {
         for _ in 0...15 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...menuWidth),
-                y: -50, 
+                y: -50,
                 scale: CGFloat.random(in: 0.4...0.8),
                 opacity: Double.random(in: 0.2...0.4),
                 speed: Double.random(in: 2...5)
@@ -398,7 +398,7 @@ struct NavigationMenuView: View {
         if drops.count < 25 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...menuWidth),
-                y: -50, 
+                y: -50,
                 scale: CGFloat.random(in: 0.4...0.8),
                 opacity: Double.random(in: 0.2...0.4),
                 speed: Double.random(in: 2...5)

@@ -41,9 +41,9 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>6.8</string> <!-- Updated Version -->
+    <string>6.9</string> <!-- Updated Version -->
     <key>CFBundleVersion</key>
-    <string>22</string> <!-- Updated Build Number -->
+    <string>23</string> <!-- Updated Build Number -->
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
