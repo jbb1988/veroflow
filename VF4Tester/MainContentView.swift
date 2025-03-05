@@ -222,6 +222,15 @@ struct ParticleMotionModifier: ViewModifier {
     }
 }
 
+struct Drop: Identifiable {
+    let id = UUID()
+    var x: CGFloat
+    var y: CGFloat
+    var scale: CGFloat
+    var opacity: Double
+    var speed: Double
+}
+
 struct NavigationMenuView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selectedTab: NavigationItem
@@ -229,100 +238,121 @@ struct NavigationMenuView: View {
     @State private var hoveredItem: NavigationItem? = nil
     @Namespace private var menuNamespace
     
+    @State private var drops: [Drop] = []
+    let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            // Enhanced BROWSE section
-            VStack(alignment: .leading, spacing: 0) {
-                Text("BROWSE")
-                    .font(.system(size: 14, weight: .heavy, design: .rounded))
-                    .foregroundColor(.white)
-                    .opacity(0.7)
-                    .padding(.bottom, 8)
-                    .blur(radius: 0.5)
-                Rectangle()
-                    .frame(height: 2)
-                    .foregroundColor(.white.opacity(0.3))
-                    .blur(radius: 0.5)
-                    .padding(.bottom, 12)
+        ZStack {
+            // Add drops layer first
+            ForEach(drops) { drop in
+                Image("Drop")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .scaleEffect(drop.scale)
+                    .opacity(drop.opacity)
+                    .position(x: drop.x, y: drop.y)
+                    .shadow(color: .white.opacity(0.3), radius: 2)
             }
-            .padding(.top, 100)
             
-            // Enhanced menu items
-            ForEach(NavigationItem.allCases, id: \.self) { item in
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = item
-                        selectedItemId = UUID()
-                        isMenuOpen = false
-                    }
-                }) {
-                    HStack(spacing: 15) {
-                        Image(systemName: item.icon)
-                            .font(.system(size: 20, weight: .medium))
-                            .frame(width: 24)
-                            .matchedGeometryEffect(id: "icon_\(item)", in: menuNamespace)
-                        
-                        Text(item.rawValue)
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 16)
-                    .background(
-                        ZStack {
-                            if selectedTab == item {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.15))
-                                    .matchedGeometryEffect(id: "background_\(item)", in: menuNamespace)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                    )
-                            }
-                        }
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            // Original menu content
+            VStack(alignment: .leading, spacing: 20) {
+                // Enhanced BROWSE section
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("BROWSE")
+                        .font(.system(size: 14, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .opacity(0.7)
+                        .padding(.bottom, 8)
+                        .blur(radius: 0.5)
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(.white.opacity(0.3))
+                        .blur(radius: 0.5)
+                        .padding(.bottom, 12)
                 }
-                .scaleEffect(selectedTab == item ? 1.02 : 1.0)
-                .overlay(
-                    selectedTab == item ?
-                    HStack {
-                        Spacer()
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(width: 3, height: 24)
-                            .cornerRadius(1.5)
-                    } : nil
-                )
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
+                .padding(.top, 100)
+                
+                // Enhanced menu items
+                ForEach(NavigationItem.allCases, id: \.self) { item in
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedTab = item
+                            selectedItemId = UUID()
+                            isMenuOpen = false
+                        }
+                    }) {
+                        HStack(spacing: 15) {
+                            Image(systemName: item.icon)
+                                .font(.system(size: 20, weight: .medium))
+                                .frame(width: 24)
+                                .matchedGeometryEffect(id: "icon_\(item)", in: menuNamespace)
+                            
+                            Text(item.rawValue)
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(
+                            ZStack {
+                                if selectedTab == item {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.15))
+                                        .matchedGeometryEffect(id: "background_\(item)", in: menuNamespace)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                        )
+                                }
+                            }
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .scaleEffect(selectedTab == item ? 1.02 : 1.0)
+                    .overlay(
+                        selectedTab == item ?
+                        HStack {
+                            Spacer()
+                            Rectangle()
+                                .fill(Color.white)
+                                .frame(width: 3, height: 24)
+                                .cornerRadius(1.5)
+                        } : nil
+                    )
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
+                }
+                
+                Spacer()
+
+                // Enhanced logo with circular border and glow
+                ZStack {
+                    // Glow effect
+                    Circle()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(width: 140, height: 140)
+                        .blur(radius: 20)
+                    
+                    // Circle border
+                    Circle()
+                        .stroke(.white.opacity(0.2), lineWidth: 2)
+                        .frame(width: 120, height: 120)
+                    
+                    Image("MARS Company")
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(.white.opacity(0.9))
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .shadow(color: .white.opacity(0.3), radius: 15)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 150)
+
             }
-            
-            Spacer()
-            
-            // Enhanced logo
-            Image("MARS Company")
-                .resizable()
-                .renderingMode(.template)
-                .foregroundColor(.white.opacity(0.9))
-                .scaledToFit()
-                .frame(height: 40)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.white.opacity(0.05))
-                        .blur(radius: 3)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
-                )
-                .padding(.horizontal, 30)
-                .padding(.bottom, 40)
-                .shadow(color: .white.opacity(0.1), radius: 10, x: 0, y: 0)
-            
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             ZStack {
                 // Base gradient
@@ -335,39 +365,58 @@ struct NavigationMenuView: View {
                     endPoint: .bottomTrailing
                 )
                 
-                // Animated particles
-                ForEach(0..<15) { index in
-                    Circle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(width: CGFloat.random(in: 2...4), height: CGFloat.random(in: 2...4))
-                        .modifier(ParticleMotionModifier())
-                        .zIndex(1)
-                }
-                
-                // Enhanced blur
-                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                    .opacity(0.3)
-                
-                // Gradient overlay
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.white.opacity(0.1),
-                        Color.clear
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
             }
         )
         .edgesIgnoringSafeArea(.all)
-        .transition(
-            AnyTransition.asymmetric(
-                insertion: .opacity.combined(with: .move(edge: .leading)),
-                removal: .opacity.combined(with: .move(edge: .leading))
-            )
-            .combined(with: .scale(scale: 0.95, anchor: .leading))
-        )
+        .onAppear {
+            startRain()
+        }
+        .onReceive(timer) { _ in
+            updateDrops()
+        }
     }
+
+    private func startRain() {
+        // Get the menu width instead of full screen
+        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+        
+        for _ in 0...15 {
+            drops.append(Drop(
+                x: CGFloat.random(in: 0...menuWidth),
+                y: -50, 
+                scale: CGFloat.random(in: 0.4...0.8),
+                opacity: Double.random(in: 0.2...0.4),
+                speed: Double.random(in: 2...5)
+            ))
+        }
+    }
+    
+    private func updateDrops() {
+        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+        let screenHeight = UIScreen.main.bounds.height
+        
+        if drops.count < 25 {
+            drops.append(Drop(
+                x: CGFloat.random(in: 0...menuWidth),
+                y: -50, 
+                scale: CGFloat.random(in: 0.4...0.8),
+                opacity: Double.random(in: 0.2...0.4),
+                speed: Double.random(in: 2...5)
+            ))
+        }
+        
+        drops = drops.compactMap { drop in
+            var updatedDrop = drop
+            updatedDrop.y += drop.speed
+            
+            if updatedDrop.y > screenHeight + 50 {
+                return nil
+            }
+            return updatedDrop
+        }
+    }
+    
+    // Rest of the view remains the same
 }
 
 struct ShimmerEffect: ViewModifier {
