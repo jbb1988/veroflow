@@ -9,6 +9,8 @@ struct TestingStep: Identifiable {
     let title: String
     let icon: String
     let steps: [String]
+    var isComplete: Bool = false
+    var onComplete: (() -> Void)?
 }
 
 struct FAQItem: Identifiable {
@@ -594,27 +596,67 @@ struct ContactButton: View {
 struct InteractiveTestingGuide: View {
     @State private var expandedSections: Set<String> = []
     @State private var completedSteps: Set<String> = []
+    @State private var testSteps: [TestingStep] = testingSteps
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Interactive Testing Guide")
                 .font(.title2)
                 .bold()
                 .padding(.bottom, 8)
-            ForEach(testingSteps) { section in
-                TestingSection(
-                    section: section,
-                    isExpanded: expandedSections.contains(section.id),
-                    completedSteps: $completedSteps,
-                    onToggle: {
-                        withAnimation {
-                            if expandedSections.contains(section.id) {
-                                expandedSections.remove(section.id)
-                            } else {
-                                expandedSections.insert(section.id)
+            
+            VStack(spacing: 16) {
+                ForEach(Array(testSteps.enumerated()), id: \.element.id) { index, section in
+                    TestingSection(
+                        section: section,
+                        isExpanded: expandedSections.contains(section.id),
+                        isLastItem: index == testSteps.count - 1,
+                        completedSteps: $completedSteps,
+                        onToggle: {
+                            withAnimation {
+                                if expandedSections.contains(section.id) {
+                                    expandedSections.remove(section.id)
+                                } else {
+                                    expandedSections.insert(section.id)
+                                }
+                            }
+                        },
+                        onComplete: {
+                            withAnimation(.spring(duration: 0.3)) {
+                                testSteps[index].isComplete.toggle()
+                                if testSteps[index].isComplete {
+                                    section.steps.forEach { completedSteps.insert($0) }
+                                } else {
+                                    section.steps.forEach { completedSteps.remove($0) }
+                                }
+                            }
+                        }
+                    )
+                }
+                
+                if !testSteps.isEmpty {
+                    HStack {
+                        Image(systemName: testSteps.allSatisfy({ $0.isComplete }) ? "checkmark.circle.fill" : "circle")
+                        Text("Complete All Steps")
+                        Spacer()
+                    }
+                    .foregroundStyle(testSteps.allSatisfy({ $0.isComplete }) ? .green : .gray)
+                    .font(.title2)
+                    .padding(.top)
+                    .onTapGesture {
+                        withAnimation(.spring(duration: 0.3)) {
+                            let allComplete = testSteps.allSatisfy({ $0.isComplete })
+                            testSteps.indices.forEach { index in
+                                testSteps[index].isComplete = !allComplete
+                                if !allComplete {
+                                    testSteps[index].steps.forEach { completedSteps.insert($0) }
+                                } else {
+                                    testSteps[index].steps.forEach { completedSteps.remove($0) }
+                                }
                             }
                         }
                     }
-                )
+                }
             }
         }
     }
@@ -623,46 +665,79 @@ struct InteractiveTestingGuide: View {
 struct TestingSection: View {
     let section: TestingStep
     let isExpanded: Bool
+    let isLastItem: Bool
     @Binding var completedSteps: Set<String>
     let onToggle: () -> Void
+    let onComplete: () -> Void
+    
     var body: some View {
-        VStack(alignment: .leading) {
-            Button(action: onToggle) {
-                HStack {
-                    Image(systemName: section.icon)
-                        .foregroundColor(.blue)
-                        .frame(width: 24)
-                    Text(section.title)
-                        .font(.headline)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        .foregroundColor(.secondary)
+        ZStack(alignment: .leading) {
+            // Timeline indicator
+            if !isLastItem {
+                VStack(spacing: 0) {
+                    Circle()
+                        .fill(section.isComplete ? Color.green : Color.gray)
+                        .frame(width: 20, height: 20)
+                    
+                    Rectangle()
+                        .fill(section.isComplete ? Color.green : Color.gray)
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
                 }
+                .padding(.leading, 10)
+            } else {
+                Circle()
+                    .fill(section.isComplete ? Color.green : Color.gray)
+                    .frame(width: 20, height: 20)
+                    .padding(.leading, 10)
             }
-            if isExpanded {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(section.steps, id: \.self) { step in
-                        StepRow(
-                            step: step,
-                            isCompleted: completedSteps.contains(step),
-                            onToggle: {
-                                if completedSteps.contains(step) {
-                                    completedSteps.remove(step)
-                                } else {
-                                    completedSteps.insert(step)
-                                }
-                            }
-                        )
+            
+            // Content
+            VStack(alignment: .leading) {
+                Button(action: onToggle) {
+                    HStack {
+                        Text(section.title)
+                            .font(.headline)
+                            .strikethrough(section.isComplete)
+                            .foregroundColor(section.isComplete ? .secondary : .primary)
+                        Spacer()
+                        Image(systemName: section.isComplete ? "checkmark.circle.fill" : "chevron.right")
+                            .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                            .foregroundColor(section.isComplete ? .green : .secondary)
                     }
                 }
-                .padding(.leading, 32)
-                .padding(.top, 8)
+                
+                if isExpanded {
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(section.steps, id: \.self) { step in
+                            StepRow(
+                                step: step,
+                                isCompleted: completedSteps.contains(step),
+                                onToggle: {
+                                    withAnimation(.spring(duration: 0.3)) {
+                                        if completedSteps.contains(step) {
+                                            completedSteps.remove(step)
+                                        } else {
+                                            completedSteps.insert(step)
+                                        }
+                                        if section.steps.allSatisfy({ completedSteps.contains($0) }) {
+                                            onComplete()
+                                        } else if section.isComplete {
+                                            onComplete()
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    .padding(.top, 8)
+                }
             }
+            .padding()
+            .padding(.leading, 24)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
         }
-        .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
     }
 }
 
@@ -708,7 +783,6 @@ struct EnhancedFAQView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Category Filter
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     CategoryPill(
@@ -734,7 +808,6 @@ struct EnhancedFAQView: View {
                 .padding(.horizontal)
             }
             
-            // FAQ List
             if filteredFAQs.isEmpty {
                 EmptyStateView()
             } else {
@@ -860,7 +933,6 @@ struct MeterToleranceChartView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Category selection
                 HStack(spacing: 16) {
                     ToleranceCategoryButton(
                         title: "Small Meters",
