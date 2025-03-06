@@ -143,6 +143,14 @@ class TestViewModel: ObservableObject {
         showingResults = true
     }
 
+    private func verifyAndLogImage(_ imageData: Data?) {
+        if let imageData = imageData {
+            print("Image data size: \(imageData.count) bytes")
+        } else {
+            print("No image data provided")
+        }
+    }
+    
     func calculateResults(
         with image: Data?,
         meterSize: String,
@@ -151,6 +159,8 @@ class TestViewModel: ObservableObject {
         jobNumber: String = "",
         readingType: MeterReadingType
     ) {
+        verifyAndLogImage(image)
+        
         let reading = MeterReading(
             smallMeterStart: Double(smallMeterStart) ?? 0,
             smallMeterEnd: Double(smallMeterEnd) ?? 0,
@@ -167,20 +177,22 @@ class TestViewModel: ObservableObject {
             reading: reading,
             notes: notes,
             date: Date(),
-            meterImageData: image,
+            meterImageData: image,  
             meterSize: meterSize,
             meterType: meterType,
             meterModel: meterModel,
             jobNumber: jobNumber
         )
 
+        print("Creating test result with image: \(image != nil)")
         testResults.append(result)
         lastTestResult = result
         showingResults = true
+        
+        CloudSyncManager.shared.saveToCloud(testResults: testResults)
     }
 
     func deleteTest(at indexSet: IndexSet) {
         testResults.remove(atOffsets: indexSet)
     }
 }
-

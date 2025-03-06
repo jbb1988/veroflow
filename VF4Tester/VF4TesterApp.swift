@@ -13,7 +13,7 @@ struct VF4TesterApp: App {
         WindowGroup {
             ZStack {
                 MainContentView()
-                    .environmentObject(viewModel)
+                    .environmentObject(viewModel)  
                     .preferredColorScheme(.dark)
                     .onAppear {
                         if showOnboarding {

@@ -1,5 +1,6 @@
 import SwiftUI
 
+ 
 // This will be our single source of truth for navigation
 enum NavigationItem: String, CaseIterable {
     case home = "Home"
@@ -8,32 +9,37 @@ enum NavigationItem: String, CaseIterable {
     case history = "History"
     case settings = "Settings"
     case help = "Help"
+    case cameraTest = "Camera Test"
 
     var icon: String {
         switch self {
-        case .home: return "house.fill"
-        case .test: return "speedometer"
-        case .analytics: return "chart.bar.xaxis"
-        case .history: return "clock.arrow.circlepath"
-        case .settings: return "gearshape.fill"
-        case .help: return "questionmark.circle.fill"
+        case .home: return "house"
+        case .test: return "testtube.2"
+        case .analytics: return "chart.bar"
+        case .history: return "clock"
+        case .settings: return "gear"
+        case .help: return "questionmark.circle"
+        case .cameraTest: return "camera"
         }
     }
     
+    @ViewBuilder
     var view: some View {
         switch self {
-        case .home:
-            return AnyView(MainContentView()) // Changed to MainContentView since ContentView might not be the intended home view
-        case .test:
-            return AnyView(TestView())
-        case .analytics:
-            return AnyView(AnalyticsView())
-        case .history:
-            return AnyView(TestHistoryView())
-        case .settings:
-            return AnyView(SettingsView())
-        case .help:
-            return AnyView(HelpView())
+        case .home: 
+            Text("Home View")
+        case .test: 
+            TestView()
+        case .analytics: 
+            AnalyticsView()
+        case .history: 
+            TestHistoryView()
+        case .settings: 
+            SettingsView()
+        case .help: 
+            HelpView()
+        case .cameraTest: 
+            CameraPermissionTestView()
         }
     }
 }

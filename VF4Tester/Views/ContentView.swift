@@ -9,21 +9,7 @@ struct ContentView: View {
         ZStack {
             // Main content
             VStack {
-                switch selectedTab {
-                case .home:
-                    Text("Home View")
-                        .font(.largeTitle)
-                case .test:
-                    TestView()
-                case .analytics:
-                    AnalyticsView()
-                case .history:
-                    TestHistoryView()
-                case .settings:
-                    SettingsView()
-                case .help:
-                    HelpView()
-                }
+                selectedTab.view
             }
             
             // Menu overlay

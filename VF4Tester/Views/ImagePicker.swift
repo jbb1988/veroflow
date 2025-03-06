@@ -4,6 +4,7 @@ import UIKit
 struct ImagePicker: UIViewControllerRepresentable {
     var sourceType: UIImagePickerController.SourceType = .camera
     @Binding var selectedImage: UIImage?
+    @Binding var imageData: Data?
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
@@ -37,6 +38,9 @@ struct ImagePicker: UIViewControllerRepresentable {
             if let image = info[.originalImage] as? UIImage {
                 DispatchQueue.main.async {
                     self.parent.selectedImage = image
+                    if let data = image.pngData() {
+                        self.parent.imageData = data
+                    }
                 }
             } else {
                 print("ImagePicker: No image found in info dictionary.")
@@ -50,4 +54,3 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
     }
 }
-

@@ -3,6 +3,7 @@ import Foundation
 #if os(iOS)
 import UIKit
 #endif
+import AVFoundation
 
 // Reusable Test Type Button remains unchanged.
 struct TestTypeButton: View {
@@ -264,6 +265,30 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
             }
+            // Add camera button
+            Button(action: {
+                showCamera = true
+            }) {
+                HStack {
+                    Image(systemName: "camera")
+                    Text("Capture Meter")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(primaryColor.opacity(0.7))
+                        .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
+                        .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                )
+            }
+            .padding(.top, 8)
+            // Add indicator
+            meterImageIndicator
+            if hasStoredImage {
+                capturedImagePreview
+            }
         }
     }
 
@@ -277,6 +302,30 @@ struct TestView: View {
                 MarsReadingField(title: "Start Read", text: $viewModel.largeMeterStart, field: .largeStart)
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
+            }
+            // Add camera button
+            Button(action: {
+                showCamera = true
+            }) {
+                HStack {
+                    Image(systemName: "camera")
+                    Text("Capture Meter")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(primaryColor.opacity(0.7))
+                        .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
+                        .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                )
+            }
+            .padding(.top, 8)
+            // Add indicator
+            meterImageIndicator
+            if hasStoredImage {
+                capturedImagePreview
             }
         }
     }
@@ -440,6 +489,14 @@ struct TestView: View {
     // MARK: - Animated Record Test Button Section
     @State private var rotation: CGFloat = 0
     @State private var showingTestDetail = false
+    @State private var showCamera = false
+    @State private var capturedImage: UIImage?
+    @State private var capturedImageData: Data? = nil
+    @State private var hasStoredImage = false
+    @State private var showOCRActionSheet = false
+    @State private var recognizedText: String? = nil
+    @State private var showValidationOutlines = false
+    @State private var rawInputs: [String: String] = [:]
 
     private var recordTestSection: some View {
         DetailCard(title: "Record Test") {
@@ -703,9 +760,6 @@ struct TestView: View {
             .replacingOccurrences(of: "،", with: ".")
     }
 
-    @State private var showValidationOutlines = false
-    @State private var rawInputs: [String: String] = [:]
-
     private func clearAllFields() {
         totalVolumeText = ""
         flowRateText = ""
@@ -729,6 +783,9 @@ struct TestView: View {
         selectedMeterModel = .positiveDisplacement
         dismissKeyboard()
         showValidationOutlines = false
+        capturedImage = nil
+        capturedImageData = nil
+        hasStoredImage = false
     }
 
     private func recordTest() {
@@ -755,7 +812,7 @@ struct TestView: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             viewModel.calculateResults(
-                with: nil,
+                with: self.capturedImageData,
                 meterSize: meterSizeValue,
                 meterType: selectedMeterType.rawValue,
                 meterModel: selectedMeterModel.rawValue,
@@ -799,6 +856,36 @@ struct TestView: View {
 
     @State private var keyboardHeight: CGFloat = 0
 
+    @State private var selectedImageSource: ImageSource? = nil
+    @State private var isImageSourcePresented = false
+
+    private enum ImageSource {
+        case camera, photoLibrary
+    }
+
+    private var meterImageIndicator: some View {
+        HStack {
+            Image(systemName: hasStoredImage ? "checkmark.circle.fill" : "camera.circle")
+                .foregroundColor(hasStoredImage ? .green : .gray)
+            Text(hasStoredImage ? "Photo Saved" : "No Photo")
+                .foregroundColor(hasStoredImage ? .green : .gray)
+        }
+        .padding(.top, 4)
+    }
+
+    private var capturedImagePreview: some View {
+        VStack {
+            if let image = capturedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 100)
+                    .cornerRadius(8)
+                    .padding(.vertical, 4)
+            }
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -822,16 +909,45 @@ struct TestView: View {
             .padding()
             .padding(.bottom, keyboardHeight)
         }
-        .onAppear {
-            // Set up keyboard notifications
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .zero
-                keyboardHeight = keyboardFrame.height
+        // Update ImagePicker parameters to match the struct definition
+        .sheet(isPresented: $showCamera) {
+            ImagePicker(sourceType: .camera, selectedImage: $capturedImage, imageData: $capturedImageData)
+                .onDisappear {
+                    hasStoredImage = capturedImage != nil
+                }
+        }
+        .onChange(of: capturedImage) { newValue in
+            if let newImage = newValue {
+                OCRManager.shared.recognizeText(in: newImage) { text in
+                    if let text = text {
+                        recognizedText = text
+                        showOCRActionSheet = true
+                    }
+                }
             }
-            
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                keyboardHeight = 0
-            }
+        }
+        .actionSheet(isPresented: $showOCRActionSheet) {
+            ActionSheet(
+                title: Text("Apply Reading"),
+                message: Text("Where would you like to apply the reading?"),
+                buttons: [
+                    .default(Text("Start Reading")) {
+                        if selectedSingleMeter == .small {
+                            viewModel.smallMeterStart = recognizedText ?? ""
+                        } else {
+                            viewModel.largeMeterStart = recognizedText ?? ""
+                        }
+                    },
+                    .default(Text("End Reading")) {
+                        if selectedSingleMeter == .small {
+                            viewModel.smallMeterEnd = recognizedText ?? ""
+                        } else {
+                            viewModel.largeMeterEnd = recognizedText ?? ""
+                        }
+                    },
+                    .cancel()
+                ]
+            )
         }
         .gesture(
             TapGesture()
