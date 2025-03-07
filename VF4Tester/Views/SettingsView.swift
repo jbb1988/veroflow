@@ -31,6 +31,7 @@ struct SettingsView: View {
     ]
 
     @State private var showingMeterTolerances = false
+    @State private var showCameraPermissionTest = false
 
     var body: some View {
         List {
@@ -145,6 +146,33 @@ struct SettingsView: View {
                         .foregroundColor(.primary)
                 }
             }
+
+            // Add Camera Test section
+            Section {
+                Button(action: {
+                    showCameraPermissionTest = true
+                }) {
+                    HStack {
+                        Image(systemName: "camera")
+                            .foregroundColor(.blue)
+                        Text("Camera Test")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 14))
+                    }
+                }
+            } header: {
+                HStack {
+                    Image(systemName: "camera.fill")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 20))
+                    Text("Camera Test")
+                        .textCase(nil)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
+            }
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle("Settings")
@@ -166,6 +194,11 @@ struct SettingsView: View {
         .sheet(isPresented: $showingMeterTolerances) {
             NavigationView {
                 MeterToleranceView()
+            }
+        }
+        .sheet(isPresented: $showCameraPermissionTest) {
+            NavigationView {
+                CameraPermissionTestView()
             }
         }
     }

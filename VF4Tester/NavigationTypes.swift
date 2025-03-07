@@ -9,17 +9,15 @@ enum NavigationItem: String, CaseIterable {
     case history = "History"
     case settings = "Settings"
     case help = "Help"
-    case cameraTest = "Camera Test"
 
     var icon: String {
         switch self {
         case .home: return "house"
-        case .test: return "testtube.2"
+        case .test: return "pencil.and.outline"
         case .analytics: return "chart.bar"
         case .history: return "clock"
         case .settings: return "gear"
         case .help: return "questionmark.circle"
-        case .cameraTest: return "camera"
         }
     }
     
@@ -38,8 +36,6 @@ enum NavigationItem: String, CaseIterable {
             SettingsView()
         case .help: 
             HelpView()
-        case .cameraTest: 
-            CameraPermissionTestView()
         }
     }
 }

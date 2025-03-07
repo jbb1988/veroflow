@@ -53,6 +53,7 @@ struct MainTabView: View {
             .tag(NavigationItem.help)
         }
         .navigationViewStyle(.stack)
+        .edgesIgnoringSafeArea(.all) // completely removes edge gaps
     }
 }
 

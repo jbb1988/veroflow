@@ -23,6 +23,7 @@ struct MainContentView: View {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
                 mainContentStack
+                    .offset(x: isMenuOpen ? (isIPad ? 300 : UIScreen.main.bounds.width * 0.55) : 0)
 
                 VStack(spacing: 0) {
                     CustomHeader(isMenuOpen: $isMenuOpen)
@@ -30,16 +31,47 @@ struct MainContentView: View {
                 }
             }
             .background(Color(UIColor.systemBackground))
-            .offset(x: isMenuOpen ? (isIPad ? 400 : UIScreen.main.bounds.width * 0.8) : 0)
             
-            // Menu View
+            // Menu View - Update width
             if isMenuOpen {
-                NavigationMenuView(
-                    isMenuOpen: $isMenuOpen,
-                    selectedTab: $navigationState.selectedTab
-                )
-                .frame(width: isIPad ? 400 : UIScreen.main.bounds.width * 0.8)
-                .transition(.move(edge: .leading))
+                HStack {
+                    GeometryReader { geometry in
+                        NavigationMenuView(
+                            isMenuOpen: $isMenuOpen,
+                            selectedTab: $navigationState.selectedTab
+                        )
+                        .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                        .background(
+                            GlassmorphicBackground()
+                                .edgesIgnoringSafeArea(.all)
+                        )
+                        .transition(.move(edge: .leading))
+                    }
+                    .ignoresSafeArea()
+                    
+                    // Close button area
+                    Button(action: {
+                        withAnimation {
+                            isMenuOpen = false
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "chevron.backward")
+                                .font(.system(size: 22, weight: .bold))
+                            Text("Close Menu")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(12)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                    }
+                    .padding(.leading, 20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Spacer()
+                }
             }
 
             // Onboarding overlay
@@ -353,20 +385,6 @@ struct NavigationMenuView: View {
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(
-            ZStack {
-                // Base gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0/255, green: 79/255, blue: 137/255),
-                        Color(red: 0/255, green: 100/255, blue: 160/255).opacity(0.8)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                
-            }
-        )
         .edgesIgnoringSafeArea(.all)
         .onAppear {
             startRain()
@@ -378,7 +396,7 @@ struct NavigationMenuView: View {
 
     private func startRain() {
         // Get the menu width instead of full screen
-        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.55
         
         for _ in 0...15 {
             drops.append(Drop(
@@ -392,7 +410,7 @@ struct NavigationMenuView: View {
     }
     
     private func updateDrops() {
-        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.55
         let screenHeight = UIScreen.main.bounds.height
         
         if drops.count < 25 {

@@ -112,10 +112,8 @@
 		CF1A0F42B69D8F500123456 = {
 			isa = PBXGroup;
 			children = (
-				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
 				CF1A0FE2B69D8F500123456 /* Products */,
 				CF1A0FF2B69D8F500123456 /* VF4Tester */,
-				2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -130,17 +128,18 @@
 		CF1A0FF2B69D8F500123456 /* VF4Tester */ = {
 			isa = PBXGroup;
 			children = (
-				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
-				CF1A1132B69D91800123456 /* Models */,
-				2D1963A02D4ED4B5009839D7 /* Connectivity */,
-				CF1A1122B69D91200123456 /* Views */,
-				CF1A1112B69D91100123456 /* ViewModels */,
-				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
-				2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */,
-				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
-				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
-				2D1BBBE72D760521002A6DC8 /* MainContentView.swift */,
 				CF1A1042B69D8F600123456 /* Assets.xcassets */,
+				2D1963A02D4ED4B5009839D7 /* Connectivity */,
+				2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */,
+				CF1A1132B69D91800123456 /* Models */,
+				2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */,
+				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
+				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
+				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
+				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
+				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
+				CF1A1112B69D91100123456 /* ViewModels */,
+				CF1A1122B69D91200123456 /* Views */,
 			);
 			path = VF4Tester;
 			sourceTree = "<group>";
@@ -157,12 +156,14 @@
 			isa = PBXGroup;
 			children = (
 				2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */,
-				2D1963A42D4ED511009839D7 /* AnalyticsView.swift */,
 				2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */,
+				2D1963A42D4ED511009839D7 /* AnalyticsView.swift */,
+				2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */,
+				2D0FE6042D79E831002A11EB /* CameraView.swift */,
 				2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */,
 				2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */,
-				2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */,
 				2D1BBBD62D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift */,
+				2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */,
 				2D9BCB9C2D74C9A200FF088F /* GeoView.swift */,
 				CF1A1172B69D94500123456 /* HelpView.swift */,
 				2D3B753E2D512D07002285C9 /* ImagePicker.swift */,
@@ -171,14 +172,13 @@
 				2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */,
 				CF1A1182B69D94F00123456 /* SettingsView.swift */,
 				CF1A1192B69D95A00123456 /* SharedComponents.swift */,
-				2D5665F62D5E321200E9C404 /* TestDetailView.swift */,
-				CF1A1152B69D93000123456 /* TestView.swift */,
-				2D0FE6042D79E831002A11EB /* CameraView.swift */,
-				2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */,
-				CF1A1162B69D93B00123456 /* TestHistoryView.swift */,
 				2D88B32F2D777F8C0013216E /* SplashScreenView.swift */,
-				2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */,
+				2D5665F62D5E321200E9C404 /* TestDetailView.swift */,
+				CF1A1162B69D93B00123456 /* TestHistoryView.swift */,
+				CF1A1152B69D93000123456 /* TestView.swift */,
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
+				2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */,
+				2D1BBBE72D760521002A6DC8 /* MainContentView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
