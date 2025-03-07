@@ -96,6 +96,9 @@ class MeterReadingOCR {
             return value >= 0 && value < 1000000
         }
         
+        if let readingWithDecimal = filtered.first(where: { $0.contains(".") }) {
+            return readingWithDecimal
+        }
         return filtered.first
     }
 }
