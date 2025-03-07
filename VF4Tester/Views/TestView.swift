@@ -1009,6 +1009,25 @@ struct TestView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        .overlay(
+            Group {
+                if isRecordSuccess {
+                    TestRecordedNotification()
+                        .padding(.top, 16)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            },
+            alignment: .top
+        )
+        .overlay(
+            Group {
+                if isRecordSuccess {
+                    TestRecordedNotification()
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            },
+            alignment: .top
+        )
     }
 }
 
@@ -1030,5 +1049,53 @@ extension UIImagePickerController.SourceType: Identifiable {
         case .savedPhotosAlbum: return 3
         @unknown default: return 0
         }
+    }
+}
+
+// A helper view to provide a blur effect (glassmorphism)
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+    }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) { }
+}
+
+struct TestRecordedNotification: View {
+    var body: some View {
+        // A glassmorphism-style card with blur, rounded corners, and a subtle border
+        ZStack {
+            // Background blur effect
+            VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            // Gradient overlay for a modern, tech-inspired look
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color("AccentColorLight"), Color("AccentColorDark")]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .opacity(0.85)
+                .blendMode(.overlay)
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.white)
+                    .shadow(color: Color.black.opacity(0.4), radius: 4, x: 0, y: 2)
+                Text("Test Recorded Successfully")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
+        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20 + 16)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .zIndex(1)
     }
 }
