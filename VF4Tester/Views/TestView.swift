@@ -987,6 +987,9 @@ struct TestView: View {
                             viewModel.largeMeterEnd = recognizedText ?? ""
                         }
                     },
+                    .default(Text("Serial Number")) {
+                        jobNumberText = recognizedText ?? ""
+                    },
                     .cancel()
                 ]
             )
@@ -1019,24 +1022,6 @@ struct TestView: View {
             },
             alignment: .top
         )
-        .overlay(
-            Group {
-                if isRecordSuccess {
-                    TestRecordedNotification()
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-            },
-            alignment: .top
-        )
-    }
-}
-
-struct TestView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            TestView()
-                .environmentObject(TestViewModel())
-        }
     }
 }
 
