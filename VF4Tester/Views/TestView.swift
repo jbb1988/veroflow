@@ -190,7 +190,37 @@ struct TestView: View {
 
     // Dummy implementation for validation – replace with actual logic if needed.
     private func validateFields() -> Bool {
-        return true
+        var isValid = true
+        validationErrors.removeAll()
+        
+        if viewModel.smallMeterStart.isEmpty {
+            isValid = false
+            validationErrors.append("Start Read")
+        }
+        
+        if viewModel.smallMeterEnd.isEmpty {
+            isValid = false
+            validationErrors.append("End Read")
+        }
+        
+        if totalVolumeText.isEmpty {
+            isValid = false
+            validationErrors.append("Total Volume")
+        }
+        
+        if flowRateText.isEmpty {
+            isValid = false
+            validationErrors.append("Flow Rate")
+        }
+
+        if !isValid {
+            withAnimation {
+                showValidationOutlines = true
+                showingValidationAlert = true
+            }
+        }
+        
+        return isValid
     }
 
     // Define your two desired gradient colors:
@@ -586,6 +616,11 @@ struct TestView: View {
                         )
                 }
             }
+            .alert("Missing Required Fields", isPresented: $showingValidationAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Please fill in the following fields:\n" + validationErrors.joined(separator: "\n"))
+            }
             .alert(isPresented: $showingClearConfirmation) {
                 Alert(
                     title: Text("Clear All Inputs"),
@@ -847,6 +882,10 @@ struct TestView: View {
                 .keyboardType(.decimalPad)
                 .textFieldStyle(.roundedBorder)
                 .focused($focusedField, equals: field)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(showValidationOutlines && text.wrappedValue.isEmpty ? Color.red : Color.clear, lineWidth: 2)
+                )
                 .onChange(of: text.wrappedValue) { newValue in
                     let sanitized = sanitizeNumericInput(newValue)
                     text.wrappedValue = sanitized

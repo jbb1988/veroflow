@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D65A82D7B68B2003A10AE /* SafariView.swift */; };
 		2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0FE6042D79E831002A11EB /* CameraView.swift */; };
 		2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */; };
 		2D1597F42D7A1F9500F29B21 /* MeterReadingOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */; };
@@ -45,6 +46,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D0D65A82D7B68B2003A10AE /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		2D0FE6042D79E831002A11EB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = VEROflowInfo.plist; sourceTree = "<group>"; };
 		2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterReadingOCR.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				2D1BBBDA2D7600BD002A6DC8 /* MainTabView.swift */,
 				2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */,
 				2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */,
+				2D0D65A82D7B68B2003A10AE /* SafariView.swift */,
 				CF1A1182B69D94F00123456 /* SettingsView.swift */,
 				CF1A1192B69D95A00123456 /* SharedComponents.swift */,
 				2D88B32F2D777F8C0013216E /* SplashScreenView.swift */,
@@ -279,6 +282,7 @@
 				CF1A1172B69D93B00123456 /* TestHistoryView.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
+				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
 				2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */,
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,

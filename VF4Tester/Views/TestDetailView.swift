@@ -5,15 +5,18 @@ struct TestDetailView: View {
     @State private var isAnimating = false
     @EnvironmentObject var viewModel: TestViewModel
     
+    // New state to control presenting the map sheet
+    @State private var showMapSheet = false
+
     private func debugPrintValues() {
-        print("Raw smallMeterStart: \(result.reading.smallMeterStart)")
-        print("Raw smallMeterEnd: \(result.reading.smallMeterEnd)")
-        print("Raw totalVolume: \(result.reading.totalVolume)")
-        print("Raw flowRate: \(result.reading.flowRate)")
-        print("Raw accuracy: \(result.reading.accuracy)")
-        
-        print("String smallMeterStart: \(String(describing: result.reading.smallMeterStart))")
-        print("Default format smallMeterStart: \(String(format: "%f", result.reading.smallMeterStart))")
+        print("Raw smallMeterStart: \\(result.reading.smallMeterStart)")
+        print("Raw smallMeterEnd: \\(result.reading.smallMeterEnd)")
+        print("Raw totalVolume: \\(result.reading.totalVolume)")
+        print("Raw flowRate: \\(result.reading.flowRate)")
+        print("Raw accuracy: \\(result.reading.accuracy)")
+
+        print("String smallMeterStart: \\(String(describing: result.reading.smallMeterStart))")
+        print("Default format smallMeterStart: \\(String(format: \"%f\", result.reading.smallMeterStart))")
     }
 
     @State private var cardOffsets: [CGFloat] = [50, 50, 50, 50, 50]
@@ -59,9 +62,9 @@ struct TestDetailView: View {
                         ResultRow(label: "End Read", value: String(describing: result.reading.smallMeterEnd), iconName: "arrow.backward.circle.fill", color: .purple)
                         ResultRow(label: "Total Volume", value: viewModel.configuration.formatVolume(result.reading.totalVolume), iconName: "drop.fill", color: .cyan)
                         ResultRow(label: "Flow Rate", value: "\(String(describing: result.reading.flowRate)) GPM", iconName: "speedometer", color: .orange)
-                        
+
                         AccuracyIndicator(accuracy: result.reading.accuracy, isPassing: result.isPassing, isAnimating: isAnimating)
-                        
+
                         StatusIndicator(isPassing: result.isPassing, isAnimating: isAnimating)
                     }
                 }
@@ -73,19 +76,27 @@ struct TestDetailView: View {
                     opacity: 1
                 ) {
                     if let lat = viewModel.latitude, let lon = viewModel.longitude {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Latitude: \(lat)")
-                            Text("Longitude: \(lon)")
-                            if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
-                                Text(locationDesc)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                        // Wrap lat/long in a Button to show SafariView
+                        Button(action: {
+                            showMapSheet = true
+                        }) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Latitude: \\(lat)")
+                                Text("Longitude: \\(lon)")
+                                if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
+                                    Text(locationDesc)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.blue)
                     } else {
                         Text("Location not available")
                     }
                 }
+
                 if !result.notes.isEmpty {
                     InfoCard(
                         title: "Notes",
@@ -122,6 +133,19 @@ struct TestDetailView: View {
         .onAppear {
             debugPrintValues()
             animateCards()
+        }
+        // Sheet for showing Google Maps in Safari
+        .sheet(isPresented: $showMapSheet) {
+            if let lat = viewModel.latitude, let lon = viewModel.longitude {
+                let urlString = "https://www.google.com/maps/search/?api=1&amp;query=\\(lat),\\(lon)"
+                if let url = URL(string: urlString) {
+                    SafariView(url: url)
+                } else {
+                    Text("Invalid Map URL")
+                }
+            } else {
+                Text("Location not available")
+            }
         }
     }
 
@@ -260,6 +284,7 @@ struct LabeledContent: View {
     }
 }
 
+// Example preview
 struct TestDetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -281,8 +306,10 @@ struct TestDetailView_Previews: PreviewProvider {
                 meterSize: "1\"",
                 meterType: "Neptune",
                 meterModel: "Positive Displacement",
-                jobNumber: "JOB-001", locationDescription: nil
+                jobNumber: "JOB-001",
+                locationDescription: nil
             ))
+            .environmentObject(TestViewModel())
         }
     }
 }
