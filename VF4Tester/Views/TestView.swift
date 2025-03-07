@@ -295,20 +295,33 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
             }
-            // Add camera button
+            // Add enhanced camera button
             Button(action: {
                 showImageSourceSheet = true
             }) {
-                HStack {
-                    Image(systemName: "camera")
-                    Text("Capture Meter")
+                VStack(spacing: 4) {
+                    HStack {
+                        Image(systemName: "camera")
+                        Text("Capture Meter")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    
+                    // Add descriptive text
+                    Text("Auto-detects start reading & info")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(8)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(primaryColor.opacity(0.7))
+                        .fill(LinearGradient(
+                            gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
                         .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
                         .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
                 )
@@ -333,20 +346,33 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
             }
-            // Add camera button
+            // Add enhanced camera button to match the small meter version
             Button(action: {
                 showImageSourceSheet = true
             }) {
-                HStack {
-                    Image(systemName: "camera")
-                    Text("Capture Meter")
+                VStack(spacing: 4) {
+                    HStack {
+                        Image(systemName: "camera")
+                        Text("Capture Meter")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    
+                    // Add descriptive text
+                    Text("Auto-detects start reading & info")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(8)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(primaryColor.opacity(0.7))
+                        .fill(LinearGradient(
+                            gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
                         .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
                         .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
                 )
@@ -528,6 +554,9 @@ struct TestView: View {
     @State private var recognizedText: String? = nil
     @State private var showValidationOutlines = false
     @State private var rawInputs: [String: String] = [:]
+    @State private var isProcessingImage = false
+    @State private var showDetectionSuccess = false
+    @State private var detectedReadingValue: String? = nil
 
     private var recordTestSection: some View {
         DetailCard(title: "Record Test") {
@@ -847,25 +876,25 @@ struct TestView: View {
             ? "\(selectedCompoundSmallMeterSize.rawValue)/\(selectedCompoundLargeMeterSize.rawValue)"
             : selectedMeterSize.rawValue
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let fixedLatitude = viewModel.latitude
-            let fixedLongitude = viewModel.longitude
-            viewModel.calculateResults(
-                with: capturedImageData != nil ? [capturedImageData!] : [],
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
+            let fixedLatitude = self.viewModel.latitude
+            let fixedLongitude = self.viewModel.longitude
+            self.viewModel.calculateResults(
+                with: self.capturedImageData != nil ? [self.capturedImageData!] : [],
                 meterSize: meterSizeValue,
-                meterType: selectedMeterType.rawValue,
-                meterModel: selectedMeterModel.rawValue,
-                jobNumber: jobNumberText,
-                readingType: isCompoundMeter ? .compound : (selectedSingleMeter == .small ? .small : .large),
+                meterType: self.selectedMeterType.rawValue,
+                meterModel: self.selectedMeterModel.rawValue,
+                jobNumber: self.jobNumberText,
+                readingType: self.isCompoundMeter ? .compound : (self.selectedSingleMeter == .small ? .small : .large),
                 latitude: fixedLatitude,
                 longitude: fixedLongitude
             )
-            showToast = true
+            self.showToast = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                clearAllFields()
-                viewModel.isCalculatingResults = false
+                self.clearAllFields()
+                self.viewModel.isCalculatingResults = false
                 withAnimation {
-                    isRecordSuccess = false
+                    self.isRecordSuccess = false
                 }
             }
         }
@@ -875,6 +904,365 @@ struct TestView: View {
         #if os(iOS)
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         #endif
+    }
+    
+    // Enhanced OCR implementation optimized for water meter reading detection
+    private func performBasicOCR(for image: UIImage, completion: @escaping (Bool) -> Void) {
+        // First try processing the image with specialized water meter preprocessing
+        let startTime = Date()
+        print("Starting water meter OCR process...")
+        
+        // Use the OCR manager to extract text
+        OCRManager.shared.recognizeText(in: image) { text in
+            var success = false
+            
+            if let text = text {
+                print("OCR Raw Text: \(text)")
+                let processingTime = Date().timeIntervalSince(startTime)
+                print("OCR processing time: \(processingTime) seconds")
+                
+                // Extract digits with potential decimal points from the text
+                var meterReadings: [(value: Double, originalText: String, hasDecimal: Bool, confidence: Double)] = []
+                var serialNumbers: [String] = []
+                var otherSignificantText: [String] = []
+                
+                // WATER METER SPECIFIC PATTERNS:
+                
+                // 1. First priority: Clearly formatted decimal numbers (digital meters)
+                // Look for clear decimal numbers which are the most reliable indicator of meter readings
+                let decimalPattern = "\\b\\d+\\.\\d+\\b"
+                if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
+                    let nsString = text as NSString
+                    let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                    
+                    // Extract decimal numbers that match meter reading patterns
+                    for match in matches {
+                        let matchString = nsString.substring(with: match.range)
+                        
+                        // Check surroundings to make sure it's not part of something else
+                        let surroundRange = NSRange(
+                            location: max(0, match.range.location - 1),
+                            length: min(nsString.length - match.range.location + 1, match.range.length + 2)
+                        )
+                        let surroundText = nsString.substring(with: surroundRange)
+                        let hasSpecialChar = surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) != nil
+                        
+                        if !hasSpecialChar, let value = Double(matchString), value > 0 {
+                            // This is a high-priority reading with a decimal point
+                            let confidence = 0.95 // Very high confidence for clearly formatted decimals
+                            meterReadings.append((value, matchString, true, confidence))
+                            print("Found high-confidence decimal reading: \(matchString)")
+                        }
+                    }
+                }
+                
+                // 2. Look for analog meter readings (uniform digit sequences)
+                // Analog meters typically show 5-8 consecutive digits
+                let analogMeterPattern = "\\b\\d{5,8}\\b"
+                if let regex = try? NSRegularExpression(pattern: analogMeterPattern, options: []) {
+                    let nsString = text as NSString
+                    let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                    
+                    for match in matches {
+                        let matchString = nsString.substring(with: match.range)
+                        
+                        // Skip if it has special characters nearby or is very large (unlikely to be a reading)
+                        if let value = Double(matchString), value > 0 && value < 100000000 {
+                            // For analog readings without decimals, we assign slightly lower confidence
+                            let confidence = 0.7
+                            meterReadings.append((value, matchString, false, confidence))
+                            print("Found analog meter reading: \(matchString) (confidence: \(confidence))")
+                        }
+                    }
+                }
+                
+                // 3. Special case: OCR often mistakes decimal points for spaces
+                // This pattern looks for "digits space digits" which could be a decimal point misread as space
+                let potentialDecimalPattern = "\\b(\\d+)\\s+(\\d{1,3})\\b"
+                if let regex = try? NSRegularExpression(pattern: potentialDecimalPattern, options: []) {
+                    let nsString = text as NSString
+                    let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                    
+                    for match in matches {
+                        if match.numberOfRanges >= 3 {
+                            let integerPart = nsString.substring(with: match.range(at: 1))
+                            let decimalPart = nsString.substring(with: match.range(at: 2))
+                            
+                            // Only consider this pattern if the decimal part is short (1-3 digits)
+                            // which is typical for water meter decimal precision
+                            if decimalPart.count <= 3 {
+                                let combined = "\(integerPart).\(decimalPart)"
+                                if let value = Double(combined), value > 0 {
+                                    // Add as a reconstructed decimal reading with slightly lower confidence
+                                    let confidence = 0.75
+                                    meterReadings.append((value, combined, true, confidence))
+                                    print("Reconstructed decimal reading: \(combined) (confidence: \(confidence))")
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // 4. Handle cases where OCR might mistake 0 for O or other similar characters
+                // Pattern like "1O34.56" where O should be 0
+                let textWithFixedDigits = text.replacingOccurrences(of: "O", with: "0")
+                                             .replacingOccurrences(of: "o", with: "0")
+                                             .replacingOccurrences(of: "l", with: "1")
+                                             .replacingOccurrences(of: "I", with: "1")
+                
+                if textWithFixedDigits != text {
+                    print("Applied character corrections for potential digit misreads")
+                    
+                    // Re-run the decimal number detection on the corrected text
+                    if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
+                        let nsString = textWithFixedDigits as NSString
+                        let matches = regex.matches(in: textWithFixedDigits, options: [], range: NSRange(location: 0, length: nsString.length))
+                        
+                        for match in matches {
+                            let matchString = nsString.substring(with: match.range)
+                            
+                            if let value = Double(matchString), value > 0 {
+                                // Add with slightly lower confidence since we had to correct characters
+                                let confidence = 0.65
+                                meterReadings.append((value, matchString, true, confidence))
+                                print("Found corrected decimal reading: \(matchString) (confidence: \(confidence))")
+                            }
+                        }
+                    }
+                }
+                
+                // 5. Look for serial numbers - typically alphanumeric without special characters
+                // Water meter serials are usually 5-15 characters, often with both letters and numbers
+                let serialPattern = "\\b[A-Za-z0-9]{5,15}\\b"
+                if let regex = try? NSRegularExpression(pattern: serialPattern, options: []) {
+                    let nsString = text as NSString
+                    let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                    
+                    for match in matches {
+                        let matchString = nsString.substring(with: match.range)
+                        
+                        // Serial numbers for water meters typically have specific formats:
+                        // 1. Might be all digits (different from readings - typically shorter or longer)
+                        // 2. Often have both letters and numbers
+                        // 3. Should not contain special characters
+                        
+                        // Check if this pattern is adjacent to a special character (like PCB#2001454174)
+                        // by examining the surrounding characters in the original text
+                        let startIdx = max(0, match.range.location - 1)
+                        let endIdx = min(nsString.length, match.range.location + match.range.length + 1)
+                        let surroundingCharsRange = NSRange(location: startIdx, length: endIdx - startIdx)
+                        let surroundingText = nsString.substring(with: surroundingCharsRange)
+                        
+                        // Check if there are any special characters in or adjacent to this text
+                        let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;/")
+                        let hasSpecialChar = surroundingText.rangeOfCharacter(from: specialChars) != nil
+                        
+                        // Rule out anything that's already been identified as a meter reading
+                        let isAlreadyReading = meterReadings.contains { $0.originalText == matchString }
+                        
+                        // Only consider as a serial number if there are NO special characters nearby
+                        if !hasSpecialChar && !isAlreadyReading {
+                            // Check if it looks like a serial number (alphanumeric or all-numeric but not a reading)
+                            let hasLetters = matchString.rangeOfCharacter(from: .letters) != nil
+                            let hasDigits = matchString.rangeOfCharacter(from: .decimalDigits) != nil
+                            let isAllDigits = Double(matchString) != nil
+                            
+                            // Accept as a serial if:
+                            // 1. It has both letters and numbers (very likely a serial)
+                            // 2. OR it's all digits but doesn't match the format of a typical reading
+                            if (hasLetters && hasDigits) ||
+                               (isAllDigits && (matchString.count < 5 || matchString.count > 8)) {
+                                serialNumbers.append(matchString)
+                                print("Found clean potential serial: \(matchString)")
+                            }
+                        } else if hasSpecialChar {
+                            // If it has special characters, log it but don't use as a serial
+                            print("Rejected potential serial with special chars nearby: \(surroundingText)")
+                        }
+                    }
+                }
+                
+                // Collect all significant text, including possible manufacturer info
+                // Water meters often have text like "Neptune", "Sensus", "Cubic Feet", "Gallons" etc.
+                let allTextLines = text.components(separatedBy: .newlines)
+                otherSignificantText = allTextLines.filter { line in
+                    // Remove empty lines and very short fragments
+                    let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                    return !trimmed.isEmpty && trimmed.count >= 3
+                }
+                
+                // Sort meter readings by confidence and decimal presence
+                meterReadings.sort {
+                    // First by confidence score
+                    if $0.confidence != $1.confidence {
+                        return $0.confidence > $1.confidence
+                    }
+                    
+                    // Then prioritize readings with decimal points
+                    if $0.hasDecimal && !$1.hasDecimal { return true }
+                    if !$0.hasDecimal && $1.hasDecimal { return false }
+                    
+                    // Then by value reasonableness
+                    if $0.value > 0 && $0.value < 1000000 && ($1.value <= 0 || $1.value >= 1000000) { return true }
+                    if $1.value > 0 && $1.value < 1000000 && ($0.value <= 0 || $0.value >= 1000000) { return false }
+                    
+                    // Finally by length/complexity
+                    return $0.originalText.count > $1.originalText.count
+                }
+                
+                // Print detailed results for debugging
+                print("Sorted meter readings: \(meterReadings.map { "\($0.value) (text: \($0.originalText), decimal: \($0.hasDecimal), confidence: \($0.confidence))" })")
+                print("Detected serial numbers: \(serialNumbers)")
+                print("Other significant text lines: \(otherSignificantText.count)")
+                
+                DispatchQueue.main.async {
+                    var detectedInfo: [String] = []
+                    var detectedReading: String? = nil
+                    
+                    // Apply meter reading (prefer decimal numbers over integers)
+                    if let bestReading = meterReadings.first {
+                        // Use the exact text to preserve decimal points
+                        let readingText: String = bestReading.originalText
+                        
+                        // Add to START field (per user request)
+                        if self.selectedSingleMeter == .small {
+                            self.viewModel.smallMeterStart = readingText
+                        } else {
+                            self.viewModel.largeMeterStart = readingText
+                        }
+                        success = true
+                        detectedReading = readingText
+                        detectedInfo.append("Meter reading: \(readingText)")
+                    }
+                    
+                    // Apply serial number if found, with additional validation
+                    if !serialNumbers.isEmpty {
+                        // Do a final validation check on the serial - must not contain or be adjacent to special chars
+                        // This uses the first detected serial number
+                        let candidateSerial = serialNumbers[0]
+                        
+                        // Look for the serial in the original text to check its context
+                        let containsSpecialChars = text.contains { char -> Bool in
+                            let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;/")
+                            if let scalar = char.unicodeScalars.first {
+                                return specialChars.contains(scalar)
+                            }
+                            return false
+                        }
+                        
+                        if !containsSpecialChars {
+                            // Clean up the serial number - remove any remaining special chars
+                            let cleanedSerial = candidateSerial.filter { $0.isLetter || $0.isNumber }
+                            self.jobNumberText = cleanedSerial
+                            detectedInfo.append("Serial number: \(cleanedSerial)")
+                        } else {
+                            // If special chars were found, don't use as serial but note it
+                            detectedInfo.append("Potential serial (not applied due to special chars): \(candidateSerial)")
+                        }
+                    }
+                    
+                    // First add all raw detected text to ensure nothing is missed
+                    detectedInfo.append("Raw detected text:")
+                    
+                    // Add all text from the original lines
+                    for line in allTextLines {
+                        let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !trimmedLine.isEmpty {
+                            detectedInfo.append(trimmedLine)
+                        }
+                    }
+                    
+                    // Add metadata about the meter type
+                    if let bestReading = meterReadings.first {
+                        if bestReading.hasDecimal {
+                            detectedInfo.append("Appears to be a digital meter display")
+                        } else {
+                            detectedInfo.append("Appears to be an analog meter display")
+                        }
+                    }
+                    
+                    // Categorize findings for easier reference
+                    detectedInfo.append("--- Analysis Results ---")
+                    
+                    // Include all found readings in case the first one wasn't the best choice
+                    if !meterReadings.isEmpty {
+                        detectedInfo.append("Possible meter readings:")
+                        for reading in meterReadings.prefix(3) {
+                            detectedInfo.append("• \(reading.originalText) (confidence: \(Int(reading.confidence*100))%)")
+                        }
+                    }
+                    
+                    // Include all found serial numbers
+                    if !serialNumbers.isEmpty {
+                        detectedInfo.append("Possible serial numbers:")
+                        for serialNumber in Array(serialNumbers.prefix(3)) {
+                            detectedInfo.append("• \(serialNumber)")
+                        }
+                    }
+                    
+                    // Add a special note for text containing special characters for the user's reference
+                    let specialCharTexts = allTextLines.filter { line in
+                        let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;/")
+                        return line.rangeOfCharacter(from: specialChars) != nil
+                    }
+                    
+                    if !specialCharTexts.isEmpty {
+                        detectedInfo.append("Text with special characters (not used as serial):")
+                        for specialText in specialCharTexts {
+                            detectedInfo.append("• \(specialText)")
+                        }
+                    }
+                    
+                    // Update the detected info in the notes field - each item on its own line
+                    if !detectedInfo.isEmpty {
+                        // Format timestamp for the auto-detected information
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateStyle = .short
+                        dateFormatter.timeStyle = .short
+                        let timestamp = dateFormatter.string(from: Date())
+                        
+                        let existingNotes = self.viewModel.notes
+                        let newInfo = "--- Auto-Detected Information (\(timestamp)) ---\n" + detectedInfo.joined(separator: "\n")
+                        
+                        if existingNotes.isEmpty {
+                            self.viewModel.notes = newInfo
+                        } else {
+                            self.viewModel.notes = existingNotes + "\n\n" + newInfo
+                        }
+                    }
+                    
+                    withAnimation {
+                        self.isProcessingImage = false
+                        self.showDetectionSuccess = success
+                    }
+                    
+                    if success {
+                        // Store the detected reading for the success message
+                        self.detectedReadingValue = detectedReading
+                        
+                        // Hide success indicator after a delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                self.showDetectionSuccess = false
+                            }
+                        }
+                    } else {
+                        // Fall back to manual selection if automated detection failed
+                        self.recognizedText = text
+                        self.showOCRActionSheet = true
+                    }
+                    
+                    completion(success)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    withAnimation {
+                        self.isProcessingImage = false
+                    }
+                    completion(false)
+                }
+            }
+        }
     }
 
     // Local implementation of MarsReadingField
@@ -900,16 +1288,44 @@ struct TestView: View {
     }
 
     @State private var keyboardHeight: CGFloat = 0
-
-    @State private var selectedImageSource: UIImagePickerController.SourceType?
     @State private var showImageSourceSheet = false
+    @State private var selectedImageSource: UIImagePickerController.SourceType?
     
     private var meterImageIndicator: some View {
         HStack {
-            Image(systemName: hasStoredImage ? "checkmark.circle.fill" : "camera.circle")
-                .foregroundColor(hasStoredImage ? .green : .gray)
-            Text(hasStoredImage ? "Photo Saved" : "No Photo")
-                .foregroundColor(hasStoredImage ? .green : .gray)
+            if isProcessingImage {
+                // Show loading indicator while processing
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .padding(.trailing, 2)
+                Text("Analyzing meter...")
+                    .foregroundColor(.orange)
+            } else if showDetectionSuccess {
+                // Show success animation when detection succeeds
+                Image(systemName: "number.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.system(size: 16, weight: .bold))
+                    .scaleEffect(showDetectionSuccess ? 1.2 : 1.0)
+                    .animation(Animation.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: showDetectionSuccess)
+                
+                // Show the specific reading value that was detected
+                if let detectedValue = detectedReadingValue {
+                    Text("Reading \(detectedValue) detected!")
+                        .foregroundColor(.green)
+                        .font(.system(size: 14, weight: .medium))
+                } else {
+                    // Fallback if we somehow don't have the detected value stored
+                    Text("Reading detected!")
+                        .foregroundColor(.green)
+                        .font(.system(size: 14, weight: .medium))
+                }
+            } else {
+                // Default state
+                Image(systemName: hasStoredImage ? "checkmark.circle.fill" : "camera.circle")
+                    .foregroundColor(hasStoredImage ? .green : .gray)
+                Text(hasStoredImage ? "Photo Saved" : "No Photo")
+                    .foregroundColor(hasStoredImage ? .green : .gray)
+            }
         }
         .padding(.top, 4)
     }
@@ -958,10 +1374,37 @@ struct TestView: View {
                     hasStoredImage = capturedImage != nil
                     selectedImageSource = nil
                     if let image = capturedImage {
-                        OCRManager.shared.recognizeText(in: image) { text in
-                            if let text = text {
-                                recognizedText = text
-                                showOCRActionSheet = true
+                        // Show loading indicator
+                        withAnimation {
+                            isProcessingImage = true
+                        }
+                        
+                        // First try the advanced meter detection - use OCR since we need to implement the MeterDetectionManager
+                        self.performBasicOCR(for: image) { success in
+                            if success {
+                                // Advanced detection worked - show success
+                                withAnimation {
+                                    isProcessingImage = false
+                                    showDetectionSuccess = true
+                                }
+                                
+                                // Hide success indicator after a delay
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation {
+                                        self.showDetectionSuccess = false
+                                    }
+                                }
+                            } else {
+                                // Fall back to basic OCR if advanced detection failed
+                                OCRManager.shared.recognizeText(in: image) { text in
+                                    withAnimation {
+                                        self.isProcessingImage = false
+                                    }
+                                    if let text = text {
+                                        self.recognizedText = text
+                                        self.showOCRActionSheet = true
+                                    }
+                                }
                             }
                         }
                     }
