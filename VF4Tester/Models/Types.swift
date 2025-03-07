@@ -111,26 +111,26 @@ struct MeterReading: Codable {
     }
 }
 
-struct TestResult: Identifiable, Codable {
+struct TestResult: Codable, Identifiable {
     let id: UUID
     let testType: TestType
+    let date: Date
     let reading: MeterReading
     let notes: String
-    let date: Date
-    let meterImageData: Data?
+    let meterImageData: [Data]?
     let meterSize: String
     let meterType: String
     let meterModel: String
     let jobNumber: String
+    let latitude: Double?
+    let longitude: Double?
     let locationDescription: String?
-
-    // Updated pass/fail logic based on testType + meterModel
+    
     var isPassing: Bool {
         let acc = reading.accuracy
-        // Determine tolerance range
-        let (minTol, maxTol) = {
+        // Determine the min/max tolerance based on meterModel and testType
+        let (minTol, maxTol): (Double, Double) = {
             switch meterModel {
-            // Positive Displacement & Single-Jet
             case MeterModel.positiveDisplacement.rawValue,
                  MeterModel.singleJet.rawValue:
                 switch testType {
@@ -139,7 +139,6 @@ struct TestResult: Identifiable, Codable {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Multi-Jet
             case MeterModel.multiJet.rawValue:
                 switch testType {
                 case .lowFlow:
@@ -147,11 +146,9 @@ struct TestResult: Identifiable, Codable {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Turbine (Class II)
             case MeterModel.turbine.rawValue:
-                // All flow rates
+                // For Turbine
                 return (98.5, 101.5)
-            // Electromagnetic/Ultrasonic (Type I, Type II, Mag, Ultrasonic)
             case MeterModel.typeI.rawValue,
                  MeterModel.typeII.rawValue,
                  MeterModel.electromagnetic.rawValue,
@@ -162,7 +159,6 @@ struct TestResult: Identifiable, Codable {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Fire Service
             case MeterModel.fireservice.rawValue:
                 switch testType {
                 case .lowFlow:
@@ -170,7 +166,6 @@ struct TestResult: Identifiable, Codable {
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }
-            // Compound
             case MeterModel.compound.rawValue:
                 switch testType {
                 case .lowFlow:
@@ -180,9 +175,8 @@ struct TestResult: Identifiable, Codable {
                 case .highFlow:
                     return (97.0, 103.0)
                 }
-            // Default / Other
             default:
-                // Fallback ranges based on test type alone
+                // Fallback ranges if meterModel doesn't match above
                 switch testType {
                 case .lowFlow:
                     return (95.0, 101.0)
@@ -196,6 +190,7 @@ struct TestResult: Identifiable, Codable {
         return acc >= minTol && acc <= maxTol
     }
 }
+
 
 // MARK: - Configuration
 struct Configuration: Codable {

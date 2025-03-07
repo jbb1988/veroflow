@@ -1,4 +1,5 @@
 import SwiftUI
+ 
 
 struct TestDetailView: View {
     let result: TestResult
@@ -75,7 +76,7 @@ struct TestDetailView: View {
                     offset: 0,
                     opacity: 1
                 ) {
-                    if let lat = viewModel.latitude, let lon = viewModel.longitude {
+                    if let lat = result.latitude, let lon = result.longitude {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Test Location")
                                 .font(.headline)
@@ -143,7 +144,7 @@ struct TestDetailView: View {
                     }
                 }
 
-                if let imageData = result.meterImageData, let uiImage = UIImage(data: imageData) {
+                if let imageDataArray = result.meterImageData, let firstData = imageDataArray.first, let uiImage = UIImage(data: firstData) {
                     InfoCard(
                         title: "Meter Image",
                         icon: "photo",
@@ -170,8 +171,8 @@ struct TestDetailView: View {
         }
         // Sheet for showing Google Maps in Safari
         .sheet(isPresented: $showMapSheet) {
-            if let lat = viewModel.latitude, let lon = viewModel.longitude {
-                let urlString = "https://www.google.com/maps/search/?api=1&amp;query=\\(lat),\\(lon)"
+            if let lat = result.latitude, let lon = result.longitude {
+                let urlString = "https://www.google.com/maps/search/?api=1&query=\(lat),\(lon)"
                 if let url = URL(string: urlString) {
                     SafariView(url: url)
                 } else {
@@ -325,6 +326,7 @@ struct TestDetailView_Previews: PreviewProvider {
             TestDetailView(result: TestResult(
                 id: UUID(),
                 testType: .lowFlow,
+                date: Date(),
                 reading: MeterReading(
                     smallMeterStart: 10,
                     smallMeterEnd: 20,
@@ -335,12 +337,13 @@ struct TestDetailView_Previews: PreviewProvider {
                     readingType: .small
                 ),
                 notes: "Preview test note",
-                date: Date(),
                 meterImageData: nil,
                 meterSize: "1\"",
                 meterType: "Neptune",
                 meterModel: "Positive Displacement",
                 jobNumber: "JOB-001",
+                latitude: nil,
+                longitude: nil,
                 locationDescription: nil
             ))
             .environmentObject(TestViewModel())

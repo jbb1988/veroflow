@@ -848,13 +848,17 @@ struct TestView: View {
             : selectedMeterSize.rawValue
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let fixedLatitude = viewModel.latitude
+            let fixedLongitude = viewModel.longitude
             viewModel.calculateResults(
-                with: self.capturedImageData,
+                with: capturedImageData != nil ? [capturedImageData!] : [],
                 meterSize: meterSizeValue,
                 meterType: selectedMeterType.rawValue,
                 meterModel: selectedMeterModel.rawValue,
                 jobNumber: jobNumberText,
-                readingType: isCompoundMeter ? .compound : (selectedSingleMeter == .small ? .small : .large)
+                readingType: isCompoundMeter ? .compound : (selectedSingleMeter == .small ? .small : .large),
+                latitude: fixedLatitude,
+                longitude: fixedLongitude
             )
             showToast = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -953,18 +957,17 @@ struct TestView: View {
                 .onDisappear {
                     hasStoredImage = capturedImage != nil
                     selectedImageSource = nil
-                }
-        }
-        .onChange(of: capturedImage) { newValue in
-            if let newImage = newValue {
-                OCRManager.shared.recognizeText(in: newImage) { text in
-                    if let text = text {
-                        recognizedText = text
-                        showOCRActionSheet = true
+                    if let image = capturedImage {
+                        OCRManager.shared.recognizeText(in: image) { text in
+                            if let text = text {
+                                recognizedText = text
+                                showOCRActionSheet = true
+                            }
+                        }
                     }
                 }
-            }
         }
+
         .actionSheet(isPresented: $showOCRActionSheet) {
             ActionSheet(
                 title: Text("Apply Reading"),

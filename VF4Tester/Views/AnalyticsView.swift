@@ -344,6 +344,7 @@ struct AnalyticsView: View {
                 TestResult(
                     id: UUID(),
                     testType: .lowFlow,
+                    date: Date().addingTimeInterval(-86400),
                     reading: MeterReading(
                         smallMeterStart: 10,
                         smallMeterEnd: 20,
@@ -354,17 +355,19 @@ struct AnalyticsView: View {
                         readingType: .small
                     ),
                     notes: "Test LowFlow",
-                    date: Date().addingTimeInterval(-86400),
                     meterImageData: nil,
                     meterSize: "1\"",
                     meterType: "Neptune",
                     meterModel: "Positive Displacement",
                     jobNumber: "JOB-001",
+                    latitude: nil,
+                    longitude: nil,
                     locationDescription: nil
                 ),
                 TestResult(
                     id: UUID(),
                     testType: .highFlow,
+                    date: Date(),
                     reading: MeterReading(
                         smallMeterStart: 15,
                         smallMeterEnd: 25,
@@ -375,12 +378,13 @@ struct AnalyticsView: View {
                         readingType: .small
                     ),
                     notes: "Test HighFlow",
-                    date: Date(),
                     meterImageData: nil,
                     meterSize: "3\"",
                     meterType: "Sensus",
                     meterModel: "Multi-Jet",
                     jobNumber: "JOB-002",
+                    latitude: nil,
+                    longitude: nil,
                     locationDescription: nil
                 )
             ]

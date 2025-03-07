@@ -90,8 +90,8 @@ class TestViewModel: ObservableObject {
         
         if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer") {
             self.configuration.defaultMeterManufacturer = defaultMfg
-       }
-       captureGeoLocation()
+        }
+        captureGeoLocation()
     }
 
     func loadData() {
@@ -120,33 +120,18 @@ class TestViewModel: ObservableObject {
     }
 
     func recordTest(_ testData: TestData) {
-        let reading = MeterReading(
-            smallMeterStart: Double(smallMeterStart) ?? 0,
-            smallMeterEnd: Double(smallMeterEnd) ?? 0,
-            largeMeterStart: Double(largeMeterStart) ?? 0,
-            largeMeterEnd: Double(largeMeterEnd) ?? 0,
-            totalVolume: testData.totalVolume,
-            flowRate: testData.flowRate,
-            readingType: .small // default for legacy usage
-        )
-
-        let result = TestResult(
-            id: UUID(),
-            testType: testData.testType,
-            reading: reading,
-            notes: testData.additionalRemarks,
-            date: Date(),
-            meterImageData: nil,
+        // Example usage of calculateResults to show we can pass lat/long
+        // You might modify or remove if your actual usage differs
+        calculateResults(
+            with: [],
             meterSize: testData.meterSize.rawValue,
             meterType: testData.meterType.rawValue,
             meterModel: testData.meterModel.rawValue,
             jobNumber: testData.jobNumber,
-            locationDescription: locationDescription
+            readingType: .small,
+            latitude: self.latitude,
+            longitude: self.longitude
         )
-
-        testResults.append(result)
-        lastTestResult = result
-        showingResults = true
     }
 
     private func verifyAndLogImage(_ imageData: Data?) {
@@ -158,14 +143,17 @@ class TestViewModel: ObservableObject {
     }
     
     func calculateResults(
-        with image: Data?,
+        with images: [Data],
         meterSize: String,
         meterType: String,
         meterModel: String,
         jobNumber: String = "",
-        readingType: MeterReadingType
+        readingType: MeterReadingType,
+        latitude: Double?,
+        longitude: Double?
     ) {
-        verifyAndLogImage(image)
+        // Log the first image if present
+        verifyAndLogImage(images.first)
         
         let reading = MeterReading(
             smallMeterStart: Double(smallMeterStart) ?? 0,
@@ -177,26 +165,28 @@ class TestViewModel: ObservableObject {
             readingType: readingType
         )
 
+        print("Creating test result with images: \(images.count)")
         let result = TestResult(
             id: UUID(),
             testType: currentTest,
-            reading: reading,
+            date: Date(), reading: reading,
             notes: notes,
-            date: Date(),
-            meterImageData: image,  
+            meterImageData: images,  // store all images
             meterSize: meterSize,
             meterType: meterType,
             meterModel: meterModel,
             jobNumber: jobNumber,
+            latitude: latitude,
+            longitude: longitude,
             locationDescription: locationDescription
         )
 
-        print("Creating test result with image: \(image != nil)")
         testResults.append(result)
         lastTestResult = result
         showingResults = true
         
-        CloudSyncManager.shared.saveToCloud(testResults: testResults)
+        // If you have cloud sync, you can store the updated results
+        // e.g. CloudSyncManager.shared.saveToCloud(testResults: testResults)
     }
 
     func deleteTest(at indexSet: IndexSet) {
