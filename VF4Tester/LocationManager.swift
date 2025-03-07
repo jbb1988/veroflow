@@ -7,8 +7,12 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private let locationManager: CLLocationManager = {
         let manager = CLLocationManager()
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.distanceFilter = kCLDistanceFilterNone
+        manager.pausesLocationUpdatesAutomatically = false
         return manager
     }()
+    
+    private var locationStatus: CLAuthorizationStatus?
     
     var currentLocation: CLLocation? {
         didSet {
@@ -23,19 +27,39 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private override init() {
         super.init()
         locationManager.delegate = self
+        locationStatus = locationManager.authorizationStatus
     }
     
     // Request location permission
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
     }
     
     // Fetch current location
     func fetchCurrentLocation() {
-        locationManager.requestLocation()
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationManager.requestLocation()
+            locationManager.startUpdatingLocation()
+        case .denied, .restricted:
+            print("Location access denied or restricted")
+            currentLocation = nil
+        case .notDetermined:
+            requestLocationPermission()
+        @unknown default:
+            print("Unknown location authorization status")
+        }
     }
     
     // MARK: - CLLocationManagerDelegate Methods
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        locationStatus = manager.authorizationStatus
+        if manager.authorizationStatus == .authorizedWhenInUse {
+            locationManager.startUpdatingLocation()
+        }
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.last
     }
