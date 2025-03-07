@@ -267,7 +267,7 @@ struct TestView: View {
             }
             // Add camera button
             Button(action: {
-                showCamera = true
+                showImageSourceSheet = true
             }) {
                 HStack {
                     Image(systemName: "camera")
@@ -305,7 +305,7 @@ struct TestView: View {
             }
             // Add camera button
             Button(action: {
-                showCamera = true
+                showImageSourceSheet = true
             }) {
                 HStack {
                     Image(systemName: "camera")
@@ -494,6 +494,7 @@ struct TestView: View {
     @State private var capturedImageData: Data? = nil
     @State private var hasStoredImage = false
     @State private var showOCRActionSheet = false
+
     @State private var recognizedText: String? = nil
     @State private var showValidationOutlines = false
     @State private var rawInputs: [String: String] = [:]
@@ -856,13 +857,9 @@ struct TestView: View {
 
     @State private var keyboardHeight: CGFloat = 0
 
-    @State private var selectedImageSource: ImageSource? = nil
-    @State private var isImageSourcePresented = false
-
-    private enum ImageSource {
-        case camera, photoLibrary
-    }
-
+    @State private var selectedImageSource: UIImagePickerController.SourceType?
+    @State private var showImageSourceSheet = false
+    
     private var meterImageIndicator: some View {
         HStack {
             Image(systemName: hasStoredImage ? "checkmark.circle.fill" : "camera.circle")
@@ -910,10 +907,11 @@ struct TestView: View {
             .padding(.bottom, keyboardHeight)
         }
         // Update ImagePicker parameters to match the struct definition
-        .sheet(isPresented: $showCamera) {
-            ImagePicker(sourceType: .camera, selectedImage: $capturedImage, imageData: $capturedImageData)
+        .sheet(item: $selectedImageSource) { source in
+            ImagePicker(sourceType: source, selectedImage: $capturedImage, imageData: $capturedImageData)
                 .onDisappear {
                     hasStoredImage = capturedImage != nil
+                    selectedImageSource = nil
                 }
         }
         .onChange(of: capturedImage) { newValue in
@@ -958,6 +956,15 @@ struct TestView: View {
                 }
         )
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .confirmationDialog("Select Image Source", isPresented: $showImageSourceSheet, titleVisibility: .visible) {
+            Button("Camera") {
+                selectedImageSource = .camera
+            }
+            Button("Photo Library") {
+                selectedImageSource = .photoLibrary
+            }
+            Button("Cancel", role: .cancel) { }
+        }
     }
 }
 
@@ -966,6 +973,18 @@ struct TestView_Previews: PreviewProvider {
         NavigationView {
             TestView()
                 .environmentObject(TestViewModel())
+        }
+    }
+}
+
+// Extension to make UIImagePickerController.SourceType conform to Identifiable
+extension UIImagePickerController.SourceType: Identifiable {
+    public var id: Int {
+        switch self {
+        case .camera: return 1
+        case .photoLibrary: return 2
+        case .savedPhotosAlbum: return 3
+        @unknown default: return 0
         }
     }
 }
