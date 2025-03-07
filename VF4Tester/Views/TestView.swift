@@ -825,6 +825,7 @@ struct TestView: View {
     }
 
     private func recordTest() {
+        LocationManager.shared.fetchCurrentLocation()
         dismissKeyboard()
         showValidationOutlines = true
 

@@ -90,7 +90,8 @@ class TestViewModel: ObservableObject {
         
         if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer") {
             self.configuration.defaultMeterManufacturer = defaultMfg
-        }
+       }
+       captureGeoLocation()
     }
 
     func loadData() {

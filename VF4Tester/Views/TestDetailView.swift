@@ -76,22 +76,55 @@ struct TestDetailView: View {
                     opacity: 1
                 ) {
                     if let lat = viewModel.latitude, let lon = viewModel.longitude {
-                        // Wrap lat/long in a Button to show SafariView
-                        Button(action: {
-                            showMapSheet = true
-                        }) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Latitude: \\(lat)")
-                                Text("Longitude: \\(lon)")
-                                if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
-                                    Text(locationDesc)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Test Location")
+                                .font(.headline)
+                            Text("Lat: \(lat), Lon: \(lon)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
+                                Text(locationDesc)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Button(action: {
+                                showMapSheet = true
+                            }) {
+                                Text("View Map")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color.blue.opacity(0.7))
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(Color.black.opacity(0.2), lineWidth: 4)
+                                                .blur(radius: 4)
+                                                .offset(x: 2, y: 2)
+                                                .mask(
+                                                    RoundedRectangle(cornerRadius: 20)
+                                                        .fill(LinearGradient(
+                                                            gradient: Gradient(colors: [Color.black, Color.clear]),
+                                                            startPoint: .topLeading,
+                                                            endPoint: .bottomTrailing))
+                                                )
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(Color.white.opacity(0.7), lineWidth: 4)
+                                                .blur(radius: 4)
+                                                .offset(x: -2, y: -2)
+                                                .mask(
+                                                    RoundedRectangle(cornerRadius: 20)
+                                                        .fill(LinearGradient(
+                                                            gradient: Gradient(colors: [Color.clear, Color.black]),
+                                                            startPoint: .topLeading,
+                                                            endPoint: .bottomTrailing))
+                                                )
+                                        }
+                                    )
                             }
                         }
-                        .buttonStyle(.plain)
-                        .foregroundColor(.blue)
                     } else {
                         Text("Location not available")
                     }
@@ -133,6 +166,7 @@ struct TestDetailView: View {
         .onAppear {
             debugPrintValues()
             animateCards()
+            LocationManager.shared.fetchCurrentLocation()
         }
         // Sheet for showing Google Maps in Safari
         .sheet(isPresented: $showMapSheet) {
