@@ -896,6 +896,25 @@ struct TestView: View {
                 meterDetailsSection
                 additionalDetailsSection
                 notesSection
+                Button(action: {
+                    viewModel.captureGeoLocation()
+                }) {
+                    HStack {
+                        Image(systemName: "location.fill")
+                        Text("Add Location")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.green.opacity(0.7))
+                            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 2, y: 2)
+                            .shadow(color: Color.white.opacity(0.7), radius: 4, x: -2, y: -2)
+                    )
+                }
+                .padding(.vertical, 8)
                 recordTestSection
                 recentTestSection
 

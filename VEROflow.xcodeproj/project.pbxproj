@@ -29,6 +29,7 @@
 		2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D88B32F2D777F8C0013216E /* SplashScreenView.swift */; };
 		2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9C2D74C9A200FF088F /* GeoView.swift */; };
 		2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */; };
+		2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB46F792D7B5E5700FEE204 /* LocationManager.swift */; };
 		2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
 		2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */; };
@@ -67,6 +68,7 @@
 		2D88B32F2D777F8C0013216E /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		2D9BCB9C2D74C9A200FF088F /* GeoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoView.swift; sourceTree = "<group>"; };
 		2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffect.swift; sourceTree = "<group>"; };
+		2DB46F792D7B5E5700FEE204 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTestView.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyToleranceView.swift; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 				CF1A1132B69D91800123456 /* Models */,
 				2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */,
 				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
+				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
 				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
 				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
 				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
@@ -280,6 +283,7 @@
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
 				2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */,
+				2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */,
 				CF1A1182B69D94500123456 /* HelpView.swift in Sources */,
 				2D1597F42D7A1F9500F29B21 /* MeterReadingOCR.swift in Sources */,
 				2D5665F72D5E321200E9C404 /* TestDetailView.swift in Sources */,

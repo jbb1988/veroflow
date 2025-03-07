@@ -66,6 +66,26 @@ struct TestDetailView: View {
                     }
                 }
 
+                InfoCard(
+                    title: "Location",
+                    icon: "location.fill",
+                    offset: 0,
+                    opacity: 1
+                ) {
+                    if let lat = viewModel.latitude, let lon = viewModel.longitude {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Latitude: \(lat)")
+                            Text("Longitude: \(lon)")
+                            if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
+                                Text(locationDesc)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    } else {
+                        Text("Location not available")
+                    }
+                }
                 if !result.notes.isEmpty {
                     InfoCard(
                         title: "Notes",
@@ -261,7 +281,7 @@ struct TestDetailView_Previews: PreviewProvider {
                 meterSize: "1\"",
                 meterType: "Neptune",
                 meterModel: "Positive Displacement",
-                jobNumber: "JOB-001"
+                jobNumber: "JOB-001", locationDescription: nil
             ))
         }
     }

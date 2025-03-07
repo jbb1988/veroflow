@@ -359,7 +359,8 @@ struct AnalyticsView: View {
                     meterSize: "1\"",
                     meterType: "Neptune",
                     meterModel: "Positive Displacement",
-                    jobNumber: "JOB-001"
+                    jobNumber: "JOB-001",
+                    locationDescription: nil
                 ),
                 TestResult(
                     id: UUID(),
@@ -379,7 +380,8 @@ struct AnalyticsView: View {
                     meterSize: "3\"",
                     meterType: "Sensus",
                     meterModel: "Multi-Jet",
-                    jobNumber: "JOB-002"
+                    jobNumber: "JOB-002",
+                    locationDescription: nil
                 )
             ]
             return NavigationView {

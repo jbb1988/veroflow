@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import CoreLocation
 import Foundation
 
 class TestViewModel: ObservableObject {
@@ -30,6 +31,9 @@ class TestViewModel: ObservableObject {
     @Published var isCalculatingResults: Bool = false
     @Published var showingResults: Bool = false
     @Published var lastTestResult: TestResult? = nil
+    @Published var latitude: Double? = nil
+    @Published var longitude: Double? = nil
+    @Published var locationDescription: String? = nil
 
     // MARK: - Configuration
     struct Configuration: Codable {
@@ -135,7 +139,8 @@ class TestViewModel: ObservableObject {
             meterSize: testData.meterSize.rawValue,
             meterType: testData.meterType.rawValue,
             meterModel: testData.meterModel.rawValue,
-            jobNumber: testData.jobNumber
+            jobNumber: testData.jobNumber,
+            locationDescription: locationDescription
         )
 
         testResults.append(result)
@@ -181,7 +186,8 @@ class TestViewModel: ObservableObject {
             meterSize: meterSize,
             meterType: meterType,
             meterModel: meterModel,
-            jobNumber: jobNumber
+            jobNumber: jobNumber,
+            locationDescription: locationDescription
         )
 
         print("Creating test result with image: \(image != nil)")
@@ -194,5 +200,42 @@ class TestViewModel: ObservableObject {
 
     func deleteTest(at indexSet: IndexSet) {
         testResults.remove(atOffsets: indexSet)
+    }
+
+    func captureGeoLocation() {
+        LocationManager.shared.locationUpdateHandler = { [weak self] location in
+            guard let location = location else {
+                print("Failed to capture location")
+                return
+            }
+            DispatchQueue.main.async {
+                self?.latitude = location.coordinate.latitude
+                self?.longitude = location.coordinate.longitude
+            }
+
+            // Reverse geocoding to get address
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(location) { placemarks, error in
+                guard error == nil, let placemark = placemarks?.first else {
+                    print("Reverse geocoding failed: \(error?.localizedDescription ?? "")")
+                    return
+                }
+
+                // Build a simple string with relevant placemark info
+                let city = placemark.locality ?? ""
+                let state = placemark.administrativeArea ?? ""
+                let country = placemark.country ?? ""
+
+                // Example: "Tampa, Florida, United States"
+                let addressString = [city, state, country]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: ", ")
+
+                DispatchQueue.main.async {
+                    self?.locationDescription = addressString
+                }
+            }
+        }
+        LocationManager.shared.fetchCurrentLocation()
     }
 }

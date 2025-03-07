@@ -122,6 +122,7 @@ struct TestResult: Identifiable, Codable {
     let meterType: String
     let meterModel: String
     let jobNumber: String
+    let locationDescription: String?
 
     // Updated pass/fail logic based on testType + meterModel
     var isPassing: Bool {
@@ -243,4 +244,3 @@ struct TestData {
     var meterModel: MeterModel
     var jobNumber: String
 }
-
