@@ -49,27 +49,18 @@ class MeterReadingOCR {
         let ciImage = CIImage(cgImage: cgImage)
         let context = CIContext()
         
-        let filters: [(CIImage) -> CIImage?] = [
-            { image in
-                let parameters = [kCIInputImageKey: image,
-                                kCIInputContrastKey: NSNumber(value: 1.1)]
-                return CIFilter(name: "CIColorControls", parameters: parameters)?.outputImage
-            },
-            { image in
-                let parameters = [kCIInputImageKey: image,
-                                kCIInputRadiusKey: NSNumber(value: 0)]
-                return CIFilter(name: "CIUnsharpMask", parameters: parameters)?.outputImage
-            }
-        ]
+        // Convert to grayscale using CIPhotoEffectMono filter
+        let grayscale = ciImage.applyingFilter("CIPhotoEffectMono")
         
-        var processedImage = ciImage
-        for filter in filters {
-            if let filtered = filter(processedImage) {
-                processedImage = filtered
-            }
-        }
+        // Adjust contrast to enhance text regions
+        let contrastAdjusted = grayscale.applyingFilter("CIColorControls", parameters: [kCIInputContrastKey: 1.2])
         
-        guard let outputCGImage = context.createCGImage(processedImage, from: processedImage.extent) else {
+        // Apply unsharp mask to sharpen the image
+        let sharpened = contrastAdjusted.applyingFilter("CIUnsharpMask", parameters: [kCIInputRadiusKey: 2.5, kCIInputIntensityKey: 0.8])
+        
+        // (Optional) You can implement adaptive thresholding here if needed by using a custom filter or third-party solution.
+        
+        guard let outputCGImage = context.createCGImage(sharpened, from: sharpened.extent) else {
             return nil
         }
         
@@ -91,14 +82,32 @@ class MeterReadingOCR {
     }
     
     private static func findBestReading(from readings: [String]) -> String? {
-        let filtered = readings.filter { reading -> Bool in
-            guard let value = Double(reading) else { return false }
-            return value >= 0 && value < 1000000
-        }
-        
-        if let readingWithDecimal = filtered.first(where: { $0.contains(".") }) {
-            return readingWithDecimal
-        }
-        return filtered.first
+    let filtered = readings.filter { reading -> Bool in
+        guard let value = Double(reading) else { return false }
+        return value >= 0 && value < 1000000
     }
+    
+    // Prefer readings that already contain a decimal
+    if let readingWithDecimal = filtered.first(where: { $0.contains(".") }) {
+        return readingWithDecimal
+    }
+    
+    // If no decimal is found, attempt to insert one if the candidate length matches expected format.
+    if let candidate = filtered.first {
+        // Assume typical meter readings have 5 or 6 digits and require one decimal place.
+        if candidate.count == 5 {
+            // Insert decimal before the last digit (e.g., "12345" -> "1234.5")
+            let index = candidate.index(candidate.endIndex, offsetBy: -1)
+            let newReading = candidate[..<index] + "." + candidate[index...]
+            return String(newReading)
+        } else if candidate.count == 6 {
+            // Insert decimal before the last two digits (e.g., "123456" -> "1234.56")
+            let index = candidate.index(candidate.endIndex, offsetBy: -2)
+            let newReading = candidate[..<index] + "." + candidate[index...]
+            return String(newReading)
+        }
+        return candidate
+    }
+    return nil
+}
 }

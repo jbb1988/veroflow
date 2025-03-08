@@ -936,6 +936,14 @@ struct TestView: View {
                         break
                     }
                 }
+                for size in MeterSize.allCases {
+                    let normalizedSize = size.rawValue.lowercased().replacingOccurrences(of: " ", with: "")
+                    if normalizedText.contains(normalizedSize) {
+                        self.selectedMeterSize = size
+                        print("Auto-selected Meter Size: \(size.rawValue)")
+                        break
+                    }
+                }
                 
                 // 1. Find meter readings - prioritize numbers with decimal points
                 var bestMeterReading: String? = nil
