@@ -297,43 +297,43 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
             }
-            // Add enhanced camera button
-            Button(action: {
-                showImageSourceSheet = true
-            }) {
-                VStack(spacing: 4) {
+            // Create a horizontal layout with the button and preview
+            HStack(spacing: 12) {
+                // Smaller capture button
+                Button(action: {
+                    showImageSourceSheet = true
+                }) {
                     HStack {
                         Image(systemName: "camera")
                         Text("Capture Meter")
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    
-                    // Add descriptive text
-                    Text("Auto-detects start reading & info")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ))
+                            .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
+                            .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                    )
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
-                        .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
-                )
+                
+                Spacer()
+                
+                // Status indicator with image preview
+                VStack {
+                    meterImageIndicator
+                    if hasStoredImage {
+                        capturedImagePreview
+                    }
+                }
             }
             .padding(.top, 8)
-            // Add indicator
-            meterImageIndicator
-            if hasStoredImage {
-                capturedImagePreview
-            }
         }
     }
 
@@ -348,43 +348,43 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
             }
-            // Add enhanced camera button to match the small meter version
-            Button(action: {
-                showImageSourceSheet = true
-            }) {
-                VStack(spacing: 4) {
+            // Create a horizontal layout with the button and preview
+            HStack(spacing: 12) {
+                // Smaller capture button
+                Button(action: {
+                    showImageSourceSheet = true
+                }) {
                     HStack {
                         Image(systemName: "camera")
                         Text("Capture Meter")
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    
-                    // Add descriptive text
-                    Text("Auto-detects start reading & info")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ))
+                            .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
+                            .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                    )
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
-                        .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
-                )
+                
+                Spacer()
+                
+                // Status indicator with image preview
+                VStack {
+                    meterImageIndicator
+                    if hasStoredImage {
+                        capturedImagePreview
+                    }
+                }
             }
             .padding(.top, 8)
-            // Add indicator
-            meterImageIndicator
-            if hasStoredImage {
-                capturedImagePreview
-            }
         }
     }
 
@@ -1209,14 +1209,13 @@ struct TestView: View {
     }
 
     private var capturedImagePreview: some View {
-        VStack {
+        Group {
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(height: 100)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(8)
-                    .padding(.vertical, 4)
             }
         }
     }
