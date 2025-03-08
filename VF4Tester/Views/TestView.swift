@@ -920,6 +920,22 @@ struct TestView: View {
             
             if let text = text {
                 print("OCR Raw Text: \(text)")
+                let normalizedText = text.lowercased().replacingOccurrences(of: " ", with: "")
+                for type in MeterType.allCases {
+                    let normalizedType = type.rawValue.lowercased().replacingOccurrences(of: " ", with: "")
+                    if normalizedText.contains(normalizedType) {
+                        self.selectedMeterType = type
+                        print("Auto-selected Meter Manufacturer: \(type.rawValue)")
+                        break
+                    }
+                }
+                for type in MeterType.allCases {
+                    if text.localizedCaseInsensitiveContains(type.rawValue) {
+                        self.selectedMeterType = type
+                        print("Auto-selected Meter Manufacturer: \(type.rawValue)")
+                        break
+                    }
+                }
                 
                 // 1. Find meter readings - prioritize numbers with decimal points
                 var bestMeterReading: String? = nil

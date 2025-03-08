@@ -36,4 +36,26 @@ class OCRManager {
             completion(nil)
         }
     }
+    
+    func detectBarcodes(in image: UIImage, completion: @escaping ([VNBarcodeObservation]?) -> Void) {
+        guard let cgImage = image.cgImage else {
+            completion(nil)
+            return
+        }
+        
+        let barcodeRequest = VNDetectBarcodesRequest { request, error in
+            if let observations = request.results as? [VNBarcodeObservation] {
+                completion(observations)
+            } else {
+                completion(nil)
+            }
+        }
+        
+        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        do {
+            try requestHandler.perform([barcodeRequest])
+        } catch {
+            completion(nil)
+        }
+    }
 }
