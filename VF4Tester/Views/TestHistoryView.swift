@@ -13,6 +13,8 @@ struct TestHistoryView: View {
     
     @State private var selectedHistoryFilter: FilterOption
     @State private var selectedSortOrder: SortOrder
+    @State private var selectedMeterSize: MeterSizeFilter
+    @State private var selectedManufacturer: MeterManufacturerFilter
     @State private var startDate: Date
     @State private var endDate: Date
     
@@ -57,6 +59,36 @@ struct TestHistoryView: View {
         case descending = "Newest First"
     }
     
+    enum MeterSizeFilter: String, CaseIterable, Identifiable {
+        case all = "All Sizes"
+        case size5_8 = "5/8"
+        case size3_4 = "3/4"
+        case size1 = "1"
+        case size1_5 = "1-1/2"
+        case size2 = "2"
+        case size3 = "3"
+        case size4 = "4"
+        case size6 = "6"
+        case size8 = "8"
+        case custom = "Custom"
+        
+        var id: Self { self }
+    }
+    
+    enum MeterManufacturerFilter: String, CaseIterable, Identifiable {
+        case all = "All Manufacturers"
+        case sensus = "Sensus"
+        case neptune = "Neptune"
+        case badger = "Badger"
+        case mueller = "Mueller"
+        case master = "Master Meter"
+        case elster = "Elster"
+        case kamstrup = "Kamstrup"
+        case custom = "Other"
+        
+        var id: Self { self }
+    }
+    
     // MARK: - Computed Properties
     var effectiveEndDate: Date {
         max(endDate, Date())
@@ -78,7 +110,36 @@ struct TestHistoryView: View {
                 }
             }()
             
-            // Fixed optional chaining and string handling
+            let meterSizeMatch: Bool = {
+                switch selectedMeterSize {
+                case .all: return true
+                case .size5_8: return result.meterSize.contains("5/8") || result.meterSize.contains("0.625")
+                case .size3_4: return result.meterSize.contains("3/4") || result.meterSize.contains("0.75")
+                case .size1: return result.meterSize.contains("1\"") && !result.meterSize.contains("1-")
+                case .size1_5: return result.meterSize.contains("1-1/2") || result.meterSize.contains("1.5")
+                case .size2: return result.meterSize.contains("2")
+                case .size3: return result.meterSize.contains("3")
+                case .size4: return result.meterSize.contains("4")
+                case .size6: return result.meterSize.contains("6")
+                case .size8: return result.meterSize.contains("8")
+                case .custom: return true
+                }
+            }()
+            
+            let manufacturerMatch: Bool = {
+                switch selectedManufacturer {
+                case .all: return true
+                case .sensus: return result.meterType.lowercased().contains("sensus")
+                case .neptune: return result.meterType.lowercased().contains("neptune")
+                case .badger: return result.meterType.lowercased().contains("badger")
+                case .mueller: return result.meterType.lowercased().contains("mueller")
+                case .master: return result.meterType.lowercased().contains("master")
+                case .elster: return result.meterType.lowercased().contains("elster")
+                case .kamstrup: return result.meterType.lowercased().contains("kamstrup")
+                case .custom: return true
+                }
+            }()
+            
             let matchesSearch = searchText.isEmpty
                 || result.jobNumber.localizedCaseInsensitiveContains(searchText)
                 || result.meterType.localizedCaseInsensitiveContains(searchText)
@@ -90,7 +151,7 @@ struct TestHistoryView: View {
                 || result.testType.rawValue.localizedCaseInsensitiveContains(searchText)
                 || (result.isPassing ? "pass" : "fail").localizedCaseInsensitiveContains(searchText)
             
-            return inDateRange && filterMatch && matchesSearch
+            return inDateRange && filterMatch && meterSizeMatch && manufacturerMatch && matchesSearch
         }
         
         return filtered.sorted { first, second in
@@ -109,6 +170,8 @@ struct TestHistoryView: View {
     init(initialFilter: FilterOption = .all) {
         _selectedHistoryFilter = State(initialValue: initialFilter)
         _selectedSortOrder = State(initialValue: .descending)
+        _selectedMeterSize = State(initialValue: .all)
+        _selectedManufacturer = State(initialValue: .all)
         _startDate = State(initialValue: Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date())
         _endDate = State(initialValue: Date())
     }
@@ -124,16 +187,18 @@ struct TestHistoryView: View {
                         .frame(height: 100)
                     
                     SearchBar(text: $searchText)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
+                        .padding(Edge.Set.horizontal)
+                        .padding(Edge.Set.vertical, 8)
                         .background(Color.black)
                     
-                    FilterPill(
+                    CompactFilterPill(
                         isExpanded: $isFilterExpanded,
                         selectedFilter: $selectedHistoryFilter,
                         selectedSort: $selectedSortOrder,
                         startDate: $startDate,
-                        endDate: $endDate
+                        endDate: $endDate,
+                        selectedMeterSize: $selectedMeterSize,
+                        selectedManufacturer: $selectedManufacturer
                     )
                     .padding(.horizontal)
                     .padding(.vertical, 8)

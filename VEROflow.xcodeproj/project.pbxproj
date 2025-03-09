@@ -27,6 +27,8 @@
 		2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */; };
 		2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */; };
 		2D66B52E2D726ED7008B6717 /* RecentTestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */; };
+		2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */; };
+		2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */; };
 		2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D88B32F2D777F8C0013216E /* SplashScreenView.swift */; };
 		2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9C2D74C9A200FF088F /* GeoView.swift */; };
 		2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */; };
@@ -68,6 +70,8 @@
 		2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartView.swift; sourceTree = "<group>"; };
 		2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartOptionsView.swift; sourceTree = "<group>"; };
 		2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTestsView.swift; sourceTree = "<group>"; };
+		2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactFilterPill.swift; sourceTree = "<group>"; };
+		2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDropdown.swift; sourceTree = "<group>"; };
 		2D88B32F2D777F8C0013216E /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		2D9BCB9C2D74C9A200FF088F /* GeoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoView.swift; sourceTree = "<group>"; };
 		2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffect.swift; sourceTree = "<group>"; };
@@ -135,15 +139,17 @@
 			isa = PBXGroup;
 			children = (
 				CF1A1042B69D8F600123456 /* Assets.xcassets */,
+				2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */,
 				2D1963A02D4ED4B5009839D7 /* Connectivity */,
+				2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */,
+				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
 				2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */,
 				CF1A1132B69D91800123456 /* Models */,
 				2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */,
 				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
-				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
 				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
-				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
 				2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */,
+				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
 				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
 				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
 				CF1A1112B69D91100123456 /* ViewModels */,
@@ -283,6 +289,7 @@
 				2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */,
 				2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */,
 				CF1A1172B69D93B00123456 /* TestHistoryView.swift in Sources */,
+				2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
 				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
@@ -296,6 +303,7 @@
 				2D1597F42D7A1F9500F29B21 /* MeterReadingOCR.swift in Sources */,
 				2D5665F72D5E321200E9C404 /* TestDetailView.swift in Sources */,
 				2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */,
+				2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */,
 				2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */,
 				CF1A1192B69D94F00123456 /* SettingsView.swift in Sources */,
 				2D1963A52D4ED511009839D7 /* AnalyticsView.swift in Sources */,
