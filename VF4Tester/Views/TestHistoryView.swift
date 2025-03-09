@@ -334,7 +334,7 @@ struct TestHistoryView: View {
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
         
-        let pageRect = CGRect(x: 0, y: 0, width: 8.5 * 72.0, height: 11 * 72.0)
+        let pageRect = CGRect(x: 0, y: 0, width: 11 * 72.0, height: 8.5 * 72.0)
         let margin: CGFloat = 36.0
         
         let df = DateFormatter()
@@ -349,8 +349,8 @@ struct TestHistoryView: View {
             
             func drawPageHeader() {
                 let headerGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                             colors: [UIColor(red: 0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
-                                                     UIColor(red: 0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
+                                             colors: [UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
+                                                     UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
                                              locations: [0, 1])!
                 
                 let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
@@ -401,24 +401,39 @@ struct TestHistoryView: View {
             
             currentY += 20
             
-            let headers = ["Date", "Time", "Serial Number", "Test Type", "Meter Size", "Accuracy", "Status"]
-            let columnWidths: [CGFloat] = [90, 70, 120, 100, 80, 70, 70]
+            let headers = ["Date", "Time", "Serial Number", "Test Type", "Meter Size", "Accuracy", "Status", "Notes"]
+            let columnWidths: [CGFloat] = [80, 70, 110, 90, 80, 70, 70, 180]
+            
+            let tableWidth = columnWidths.reduce(0, +)
+            
+            let headerBackgroundRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
+            context.cgContext.setFillColor(UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor)
+            context.cgContext.fill(headerBackgroundRect)
             
             var xPos = margin
+            
             for (index, header) in headers.enumerated() {
                 let headerAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.boldSystemFont(ofSize: 12),
                     .foregroundColor: UIColor.black
                 ]
-                header.draw(at: CGPoint(x: xPos, y: currentY),
-                         withAttributes: headerAttributes)
+                
+                let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: 25)
+                context.cgContext.stroke(cellRect)
+                
+                let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: 20)
+                let headerAttributedString = NSAttributedString(string: header, attributes: headerAttributes)
+                headerAttributedString.draw(in: textRect)
+                
                 xPos += columnWidths[index]
             }
             
-            currentY += 20
+            currentY += 25
             
             for result in filteredResults {
-                if currentY > pageRect.height - 100 {
+                if currentY > pageRect.height - 60 {
+                    self.drawFooter(context: context, pageRect: pageRect)
+                    
                     currentPage += 1
                     context.beginPage()
                     drawPageHeader()
@@ -431,22 +446,47 @@ struct TestHistoryView: View {
                     result.testType.rawValue,
                     result.meterSize,
                     String(format: "%.1f%%", result.reading.accuracy),
-                    result.isPassing ? "PASS" : "FAIL"
+                    result.isPassing ? "PASS" : "FAIL",
+                    result.notes.isEmpty ? "-" : result.notes
                 ]
+                
+                let rowBackground = result.isPassing ? 
+                    UIColor(red: 0.9, green: 1.0, blue: 0.9, alpha: 0.2) : 
+                    UIColor(red: 1.0, green: 0.9, blue: 0.9, alpha: 0.2)
+                
+                let rowRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 40)
+                context.cgContext.setFillColor(rowBackground.cgColor)
+                context.cgContext.fill(rowRect)
                 
                 xPos = margin
                 for (index, data) in rowData.enumerated() {
+                    let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: 40)
+                    context.cgContext.stroke(cellRect)
+                    
                     let attributes: [NSAttributedString.Key: Any] = [
-                        .font: UIFont.systemFont(ofSize: 12),
+                        .font: UIFont.systemFont(ofSize: 10),
                         .foregroundColor: UIColor.black
                     ]
-                    data.draw(at: CGPoint(x: xPos, y: currentY),
-                           withAttributes: attributes)
+                    
+                    let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: 30)
+                    
+                    let paragraphStyle = NSMutableParagraphStyle()
+                    paragraphStyle.alignment = .left
+                    paragraphStyle.lineBreakMode = .byWordWrapping
+                    
+                    var textAttributes = attributes
+                    textAttributes[.paragraphStyle] = paragraphStyle
+                    
+                    let attributedString = NSAttributedString(string: data, attributes: textAttributes)
+                    attributedString.draw(in: textRect)
+                    
                     xPos += columnWidths[index]
                 }
                 
-                currentY += 20
+                currentY += 40
             }
+            
+            self.drawFooter(context: context, pageRect: pageRect)
         }
     }
     
@@ -471,6 +511,21 @@ struct TestHistoryView: View {
         }
         
         return csvString.data(using: .utf8)
+    }
+    
+    // MARK: - Footer Drawing Helper
+    func drawFooter(context: UIGraphicsPDFRendererContext, pageRect: CGRect) {
+        let footerText = "VEROflow-4 Test Report"
+        let footerAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 12),
+            .foregroundColor: UIColor.gray
+        ]
+        let textSize = footerText.size(withAttributes: footerAttributes)
+        let textRect = CGRect(x: pageRect.width - textSize.width - 20,
+                              y: pageRect.height - textSize.height - 20,
+                              width: textSize.width,
+                              height: textSize.height)
+        footerText.draw(in: textRect, withAttributes: footerAttributes)
     }
     
     // MARK: - TestResultRow
@@ -676,7 +731,7 @@ struct TestHistoryView: View {
             let format = UIGraphicsPDFRendererFormat()
             format.documentInfo = pdfMetaData as [String: Any]
             
-            let pageRect = CGRect(x: 0, y: 0, width: 8.5 * 72.0, height: 11 * 72.0)
+            let pageRect = CGRect(x: 0, y: 0, width: 11 * 72.0, height: 8.5 * 72.0)
             let margin: CGFloat = 36.0
             
             let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
@@ -685,8 +740,8 @@ struct TestHistoryView: View {
                 context.beginPage()
                 
                 let headerGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                             colors: [UIColor(red: 0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
-                                                     UIColor(red: 0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
+                                             colors: [UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
+                                                     UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
                                              locations: [0, 1])!
                 
                 let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
@@ -742,39 +797,22 @@ struct TestHistoryView: View {
                     currentY += 25
                 }
                 
-                let footerGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                            colors: [UIColor(red: 0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
-                                                    UIColor(red: 0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
-                                            locations: [0, 1])!
-                
-                let footerRect = CGRect(x: 0, y: pageRect.height - 60, width: pageRect.width, height: 60)
-                context.cgContext.drawLinearGradient(footerGradient,
-                                                 start: CGPoint(x: 0, y: footerRect.minY),
-                                                 end: CGPoint(x: 0, y: footerRect.maxY),
-                                                 options: [])
-                
-                let footerAttributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 14, weight: .semibold),
-                    .foregroundColor: UIColor.white
-                ]
-                let footer = "Generated by MARS Company VEROflow Test System | Official Test Result"
-                let footerSize = footer.size(withAttributes: footerAttributes)
-                footer.draw(at: CGPoint(x: (pageRect.width - footerSize.width) / 2, y: pageRect.height - 40),
-                          withAttributes: footerAttributes)
+                self.drawFooter(context: context, pageRect: pageRect)
             }
         }
-    }
-}
-
-class DocumentInteractionDelegate: NSObject, UIDocumentInteractionControllerDelegate {
-    static let shared = DocumentInteractionDelegate()
-    
-    func documentInteractionControllerViewControllerForPreview(_ controller: UIDocumentInteractionController) -> UIViewController {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
-              let rootVC = window.rootViewController else {
-            return UIViewController()
+        
+        func drawFooter(context: UIGraphicsPDFRendererContext, pageRect: CGRect) {
+            let footerText = "VEROflow-4 Test Report"
+            let footerAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UIColor.gray
+            ]
+            let textSize = footerText.size(withAttributes: footerAttributes)
+            let textRect = CGRect(x: pageRect.width - textSize.width - 20,
+                                  y: pageRect.height - textSize.height - 20,
+                                  width: textSize.width,
+                                  height: textSize.height)
+            footerText.draw(in: textRect, withAttributes: footerAttributes)
         }
-        return rootVC
     }
 }
