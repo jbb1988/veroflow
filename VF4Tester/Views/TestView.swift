@@ -1280,10 +1280,10 @@ struct TestView: View {
         .onChange(of: focusedField) { newValue in
             isNotesFieldFocused = (newValue == .additionalRemarks)
         }
-        // Update ImagePicker parameters to match the struct definition
         .sheet(item: $selectedImageSource) { source in
             ImagePicker(sourceType: source, selectedImage: $capturedImage, imageData: $capturedImageData)
                 .onDisappear {
+                    let currentSource = selectedImageSource
                     hasStoredImage = capturedImage != nil
                     selectedImageSource = nil
                     if let image = capturedImage {
@@ -1292,7 +1292,7 @@ struct TestView: View {
                             isProcessingImage = true
                         }
                         
-                        // First try the advanced meter detection - use OCR since we need to implement the MeterDetectionManager
+                        // Always use advanced OCR rules regardless of image source (Camera or Photo Library)
                         self.performBasicOCR(for: image) { success in
                             if success {
                                 // Advanced detection worked - show success
@@ -1314,8 +1314,11 @@ struct TestView: View {
                                         self.isProcessingImage = false
                                     }
                                     if let text = text {
-                                        self.recognizedText = text
-                                        self.showOCRActionSheet = true
+                                        if self.selectedSingleMeter == .small {
+                                            self.viewModel.smallMeterStart = text
+                                        } else {
+                                            self.viewModel.largeMeterStart = text
+                                        }
                                     }
                                 }
                             }
@@ -1324,32 +1327,7 @@ struct TestView: View {
                 }
         }
 
-        .actionSheet(isPresented: $showOCRActionSheet) {
-            ActionSheet(
-                title: Text("Apply Reading"),
-                message: Text("Where would you like to apply the reading?"),
-                buttons: [
-                    .default(Text("Start Reading")) {
-                        if selectedSingleMeter == .small {
-                            viewModel.smallMeterStart = recognizedText ?? ""
-                        } else {
-                            viewModel.largeMeterStart = recognizedText ?? ""
-                        }
-                    },
-                    .default(Text("End Reading")) {
-                        if selectedSingleMeter == .small {
-                            viewModel.smallMeterEnd = recognizedText ?? ""
-                        } else {
-                            viewModel.largeMeterEnd = recognizedText ?? ""
-                        }
-                    },
-                    .default(Text("Serial Number")) {
-                        jobNumberText = recognizedText ?? ""
-                    },
-                    .cancel()
-                ]
-            )
-        }
+
         .gesture(
             TapGesture()
                 .onEnded { _ in
