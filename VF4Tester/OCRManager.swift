@@ -4,34 +4,91 @@ import UIKit
 import CoreImage
 
 class OCRManager {
+    // Nested enum for meter types to avoid redeclaration conflicts
+    enum MeterType {
+        case digital
+        case analog
+        case unknown
+    }
+    
     static let shared = OCRManager()
     
     private init() {}
     
-    // Advanced recognizeText using multiple preprocessing approaches
+    // Classify the meter type using a simple heuristic.
+    // In a real implementation, you might use a CoreML model.
+    func classifyMeterType(in image: UIImage) -> MeterType {
+        // A basic heuristic: if the image aspect ratio is nearly square,
+        // assume analog (e.g., circular gauge), else digital (rectangular LCD).
+        let ratio = image.size.width / image.size.height
+        if ratio > 0.8 && ratio < 1.2 {
+            return .analog
+        } else if ratio >= 1.2 {
+            return .digital
+        }
+        return .unknown
+    }
+    
+    // Process analog meter images.
+    // This stub attempts to extract readings from analog meters,
+    // such as by applying analog-specific preprocessing.
+    func processAnalogMeter(in image: UIImage, completion: @escaping (String?) -> Void) {
+        // For analog meters, we use the analog preprocessor.
+        if let analogImage = image.preprocessAnalogMeter() {
+            // Optionally, additional processing can be added here,
+            // such as detecting needle angles or extracting digital readouts.
+            performOCR(on: analogImage, completion: completion)
+        } else {
+            completion(nil)
+        }
+    }
+    
+    // Enhanced recognizeText using multiple preprocessing approaches and meter type branching
     func recognizeText(in image: UIImage, completion: @escaping (String?) -> Void) {
-        // Try multiple preprocessing approaches for best results with meter readings
-        let processedImage1 = image.preprocessForOCR() ?? image
-        let processedImage2 = image.preprocessDigitalDisplay() ?? image
-        
-        // Try both processed versions sequentially
-        performOCR(on: processedImage1) { result1 in
-            if self.containsLikelyMeterReading(in: result1) {
-                // If the first processing method yields good meter readings, use it
-                completion(result1)
-            } else {
-                // Otherwise try the alternative preprocessing
-                self.performOCR(on: processedImage2) { result2 in
-                    // Determine which result seems better for meter readings
-                    if self.containsLikelyMeterReading(in: result2) && (result1 == nil || !self.containsLikelyMeterReading(in: result1)) {
-                        completion(result2)
-                    } else {
-                        // Default to the first result if both or neither have meter readings
-                        completion(result1 ?? result2)
+        let meterType = classifyMeterType(in: image)
+        switch meterType {
+        case .digital:
+            // Digital path: use existing digital preprocessors
+            let processedImage1 = image.preprocessForOCR() ?? image
+            let processedImage2 = image.preprocessDigitalDisplay() ?? image
+            let processedImage3 = image.preprocessEnhancedForOCR() ?? image
+            
+            // Try all processed versions sequentially
+            performOCR(on: processedImage1) { result1 in
+                if self.containsLikelyMeterReading(in: result1) {
+                    completion(self.postProcessOCRResult(text: result1 ?? ""))
+                } else {
+                    self.performOCR(on: processedImage2) { result2 in
+                        if self.containsLikelyMeterReading(in: result2) && (result1 == nil || !self.containsLikelyMeterReading(in: result1)) {
+                            completion(self.postProcessOCRResult(text: result2 ?? ""))
+                        } else {
+                            self.performOCR(on: processedImage3) { result3 in
+                                if self.containsLikelyMeterReading(in: result3) && (result2 == nil || !self.containsLikelyMeterReading(in: result2)) {
+                                    completion(self.postProcessOCRResult(text: result3 ?? ""))
+                                } else {
+                                    // Default to the best available result after post processing
+                                    let finalResult = result1 ?? result2 ?? result3
+                                    completion(self.postProcessOCRResult(text: finalResult ?? ""))
+                                }
+                            }
+                        }
                     }
                 }
             }
+        case .analog:
+            // Analog path: process with analog-specific preprocessing
+            processAnalogMeter(in: image, completion: completion)
+        case .unknown:
+            // Fall back to default OCR processing if meter type is uncertain
+            performOCR(on: image, completion: completion)
         }
+    }
+    
+    // Placeholder for custom OCR model integration (e.g., using CoreML or Tesseract)
+    func performCustomOCR(on image: UIImage, completion: @escaping (String?) -> Void) {
+        // Custom OCR implementation would go here.
+        // For now, we'll call the default OCR.
+        performOCR(on: image, completion: completion)
     }
     
     // Barcode detection method from the original version
@@ -57,15 +114,26 @@ class OCRManager {
         }
     }
     
-    // Helper to check if recognized text likely contains a meter reading (i.e., decimal numbers)
+    // Helper to check if recognized text likely contains a meter reading (i.e., a digital reading with a comma or a decimal)
     private func containsLikelyMeterReading(in text: String?) -> Bool {
         guard let text = text else { return false }
-        
-        let decimalPattern = "\\b\\d+\\.\\d+\\b"
-        let regex = try? NSRegularExpression(pattern: decimalPattern, options: [])
+        // Updated pattern to allow comma-separated numbers and decimals
+        let pattern = "\\b\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?\\b"
+        let regex = try? NSRegularExpression(pattern: pattern, options: [])
         let nsString = text as NSString
         let matches = regex?.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-        return (matches?.count ?? 0) > 0
+        // Return true if any match contains either a comma or a decimal point
+        return matches?.contains(where: { match in
+            let matchedString = nsString.substring(with: match.range)
+            return matchedString.contains(",") || matchedString.contains(".")
+        }) ?? false
+    }
+    
+    // Post-process OCR result using additional heuristics (e.g., validating meter value ranges)
+    func postProcessOCRResult(text: String) -> String {
+        // Additional logic to validate and correct OCR results could be implemented here.
+        // For now, we simply return the text unchanged.
+        return text
     }
     
     // Core OCR implementation that processes a single image using Vision
@@ -177,64 +245,47 @@ class OCRManager {
     
     // Advanced method to extract numeric value from OCR results - specialized for water meters
     func extractNumericValue(from text: String) -> String? {
+        let nsString = text as NSString
+        
+        // 1) First, specifically look for a number preceding "gallons" or "gal".
+        //    Pattern example: "227.79 gallons" or "12,345.67 gal"
+        let precedingGallonsPattern = "(\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal|gallons))"
+        if let regex = try? NSRegularExpression(pattern: precedingGallonsPattern, options: .caseInsensitive) {
+            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+            if let match = results.first {
+                let matchString = nsString.substring(with: match.range)
+                // Remove commas for standard numeric parsing if needed
+                let normalized = matchString.replacingOccurrences(of: ",", with: "")
+                print("Found numeric preceding gallons: \(matchString) normalized to \(normalized)")
+                return normalized
+            }
+        }
+        
+        // 2) Check for numbers with commas (digital meter readings)
+        let commaDecimalPattern = "\\b\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?\\b"
+        if let regex = try? NSRegularExpression(pattern: commaDecimalPattern, options: []) {
+            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+            if let match = results.first {
+                let matchString = nsString.substring(with: match.range)
+                // Remove commas so the number can be parsed correctly if needed
+                let normalized = matchString.replacingOccurrences(of: ",", with: "")
+                print("Found digital meter reading with comma: \(matchString) normalized to \(normalized)")
+                return normalized
+            }
+        }
+        
+        // 3) Then, try to find a standard decimal number without commas.
         let decimalPattern = "\\b\\d+\\.\\d+\\b"
         if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
-            let nsString = text as NSString
             let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            for match in results {
-                let matchRange = match.range
-                let matchString = nsString.substring(with: matchRange)
-                let startIdx = max(0, matchRange.location - 1)
-                let endIdx = min(nsString.length, matchRange.location + matchRange.length + 1)
-                let surroundingCharsRange = NSRange(location: startIdx, length: endIdx - startIdx)
-                let surroundingText = nsString.substring(with: surroundingCharsRange)
-                let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;")
-                if surroundingText.rangeOfCharacter(from: specialChars) == nil {
-                    print("Found meter reading with decimal: \(matchString)")
-                    return matchString
-                }
+            if let match = results.first {
+                return nsString.substring(with: match.range)
             }
         }
         
+        // 4) Fallback: Look for analog meter readings (sequences of 5-9 digits)
         let analogPattern = "\\b\\d{5,9}\\b"
         if let regex = try? NSRegularExpression(pattern: analogPattern, options: []) {
-            let nsString = text as NSString
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            for match in results {
-                let matchRange = match.range
-                let matchString = nsString.substring(with: matchRange)
-                let startIdx = max(0, matchRange.location - 1)
-                let endIdx = min(nsString.length, matchRange.location + matchRange.length + 1)
-                let surroundingCharsRange = NSRange(location: startIdx, length: endIdx - startIdx)
-                let surroundingText = nsString.substring(with: surroundingCharsRange)
-                let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;")
-                if surroundingText.rangeOfCharacter(from: specialChars) == nil {
-                    print("Found analog meter reading: \(matchString)")
-                    return matchString
-                }
-            }
-        }
-        
-        let potentialDecimalPattern = "\\b(\\d+)\\s+(\\d{1,3})\\b"
-        if let regex = try? NSRegularExpression(pattern: potentialDecimalPattern, options: []) {
-            let nsString = text as NSString
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            for match in results {
-                if match.numberOfRanges >= 3 {
-                    let wholeNumber = nsString.substring(with: match.range(at: 1))
-                    let fraction = nsString.substring(with: match.range(at: 2))
-                    if fraction.count <= 3 {
-                        let reading = "\(wholeNumber).\(fraction)"
-                        print("Reconstructed decimal meter reading: \(reading)")
-                        return reading
-                    }
-                }
-            }
-        }
-        
-        let generalNumericPattern = "\\d+(\\.\\d+)?"
-        if let regex = try? NSRegularExpression(pattern: generalNumericPattern, options: []) {
-            let nsString = text as NSString
             let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
             if let match = results.first {
                 return nsString.substring(with: match.range)
@@ -283,94 +334,26 @@ class OCRManager {
     }
 }
 
-// MARK: - UIImage Extensions for OCR Preprocessing
-
+// UIImage extension for preprocessing methods used by OCRManager
 extension UIImage {
-    // Preprocess image by converting to grayscale, enhancing contrast, applying unsharp mask and noise reduction
-    func preprocessForOCR() -> UIImage? {
-        guard let ciImage = CIImage(image: self) else { return self }
-        let context = CIContext(options: nil)
-        
-        let grayscaleFilter = CIFilter(name: "CIColorControls")
-        grayscaleFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-        grayscaleFilter?.setValue(0.0, forKey: kCIInputSaturationKey)
-        guard let grayscaleImage = grayscaleFilter?.outputImage else { return self }
-        
-        let contrastFilter = CIFilter(name: "CIColorControls")
-        contrastFilter?.setValue(grayscaleImage, forKey: kCIInputImageKey)
-        contrastFilter?.setValue(1.5, forKey: kCIInputContrastKey)
-        contrastFilter?.setValue(0.05, forKey: kCIInputBrightnessKey)
-        guard let contrastedImage = contrastFilter?.outputImage else { return self }
-        
-        let unsharpFilter = CIFilter(name: "CIUnsharpMask")
-        unsharpFilter?.setValue(contrastedImage, forKey: kCIInputImageKey)
-        unsharpFilter?.setValue(1.5, forKey: kCIInputRadiusKey)
-        unsharpFilter?.setValue(1.0, forKey: kCIInputIntensityKey)
-        
-        let noiseReductionFilter = CIFilter(name: "CINoiseReduction")
-        noiseReductionFilter?.setValue(unsharpFilter?.outputImage ?? contrastedImage, forKey: kCIInputImageKey)
-        noiseReductionFilter?.setValue(0.02, forKey: "inputNoiseLevel")
-        noiseReductionFilter?.setValue(0.40, forKey: "inputSharpness")
-        
-        let outputImage = noiseReductionFilter?.outputImage ?? unsharpFilter?.outputImage ?? contrastedImage
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return self }
-        
-        return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
-    }
-    
-    // Preprocess image specifically for digital meter displays (LCD/LED)
-    func preprocessDigitalDisplay() -> UIImage? {
-        guard let ciImage = CIImage(image: self) else { return self }
-        let context = CIContext(options: nil)
-        
-        let colorFilter = CIFilter(name: "CIColorControls")
-        colorFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-        colorFilter?.setValue(0.0, forKey: kCIInputSaturationKey)
-        colorFilter?.setValue(1.8, forKey: kCIInputContrastKey)
-        colorFilter?.setValue(0.05, forKey: kCIInputBrightnessKey)
-        guard let bwImage = colorFilter?.outputImage else { return self }
-        
-        let unsharpFilter = CIFilter(name: "CIUnsharpMask")
-        unsharpFilter?.setValue(bwImage, forKey: kCIInputImageKey)
-        unsharpFilter?.setValue(1.0, forKey: kCIInputRadiusKey)
-        unsharpFilter?.setValue(2.0, forKey: kCIInputIntensityKey)
-        guard let sharpenedImage = unsharpFilter?.outputImage else { return self }
-        
-        let noiseReductionFilter = CIFilter(name: "CINoiseReduction")
-        noiseReductionFilter?.setValue(sharpenedImage, forKey: kCIInputImageKey)
-        noiseReductionFilter?.setValue(0.02, forKey: "inputNoiseLevel")
-        noiseReductionFilter?.setValue(0.40, forKey: "inputSharpness")
-        
-        let outputImage = noiseReductionFilter?.outputImage ?? sharpenedImage
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return self }
-        
-        return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
-    }
-    
-    // Preprocess image for analog water meters with odometer-style dials
     func preprocessAnalogMeter() -> UIImage? {
-        guard let ciImage = CIImage(image: self) else { return self }
-        let context = CIContext(options: nil)
-        
-        let grayscaleFilter = CIFilter(name: "CIColorControls")
-        grayscaleFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-        grayscaleFilter?.setValue(0.0, forKey: kCIInputSaturationKey)
-        grayscaleFilter?.setValue(1.3, forKey: kCIInputContrastKey)
-        guard let grayscaleImage = grayscaleFilter?.outputImage else { return self }
-        
-        let gammaFilter = CIFilter(name: "CIGammaAdjust")
-        gammaFilter?.setValue(grayscaleImage, forKey: kCIInputImageKey)
-        gammaFilter?.setValue(1.2, forKey: "inputPower")
-        guard let enhancedImage = gammaFilter?.outputImage else { return self }
-        
-        let unsharpFilter = CIFilter(name: "CIUnsharpMask")
-        unsharpFilter?.setValue(enhancedImage, forKey: kCIInputImageKey)
-        unsharpFilter?.setValue(1.5, forKey: kCIInputRadiusKey)
-        unsharpFilter?.setValue(0.8, forKey: kCIInputIntensityKey)
-        
-        let outputImage = unsharpFilter?.outputImage ?? enhancedImage
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return self }
-        
-        return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
+        // For analog meters, auto rotate and apply grayscale with contrast adjustment
+        guard let rotated = OpenCVWrapper.autoRotateImage(self) else { return nil }
+        return OpenCVWrapper.convertToGrayscaleAndAdjustContrast(rotated)
+    }
+    
+    func preprocessForOCR() -> UIImage? {
+        // For general OCR, convert image to grayscale and adjust contrast
+        return OpenCVWrapper.convertToGrayscaleAndAdjustContrast(self)
+    }
+    
+    func preprocessDigitalDisplay() -> UIImage? {
+        // For digital displays, invert colors to enhance visibility
+        return OpenCVWrapper.invertColors(self)
+    }
+    
+    func preprocessEnhancedForOCR() -> UIImage? {
+        // Use adaptive thresholding for enhanced OCR results
+        return OpenCVWrapper.adaptiveThresholdImage(self)
     }
 }

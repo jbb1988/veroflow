@@ -32,6 +32,7 @@
 		2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */; };
 		2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB46F792D7B5E5700FEE204 /* LocationManager.swift */; };
 		2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */; };
+		2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
 		2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */; };
 		CF1A1012B69D8F500123456 /* VF4TesterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1A1002B69D8F500123456 /* VF4TesterApp.swift */; };
@@ -72,6 +73,7 @@
 		2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffect.swift; sourceTree = "<group>"; };
 		2DB46F792D7B5E5700FEE204 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTestView.swift; sourceTree = "<group>"; };
+		2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVWrapper.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyToleranceView.swift; sourceTree = "<group>"; };
 		CF1A1002B69D8F500123456 /* VF4TesterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VF4TesterApp.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
 				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
 				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
+				2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */,
 				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
 				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
 				CF1A1112B69D91100123456 /* ViewModels */,
@@ -283,6 +286,7 @@
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
 				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
+				2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */,
 				2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */,
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
