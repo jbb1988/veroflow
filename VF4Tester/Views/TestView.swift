@@ -1314,11 +1314,70 @@ struct TestView: View {
                                         self.isProcessingImage = false
                                     }
                                     if let text = text {
-                                        if self.selectedSingleMeter == .small {
-                                            self.viewModel.smallMeterStart = text
-                                        } else {
-                                            self.viewModel.largeMeterStart = text
+                                        let nsString = text as NSString
+                                        var bestMeterReading: String? = nil
+                                        var allSerialNumbers: [String] = []
+                                        
+                                        // Try to find a decimal number (highest priority)
+                                        let decimalPattern = "\\b\\d+\\.\\d+\\b"
+                                        if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
+                                            let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                                            for match in matches {
+                                                let matchString = nsString.substring(with: match.range)
+                                                let surroundRange = NSRange(location: max(0, match.range.location - 1), length: min(nsString.length - match.range.location + 1, match.range.length + 2))
+                                                let surroundText = nsString.substring(with: surroundRange)
+                                                if surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) == nil, let value = Double(matchString), value > 0 {
+                                                    bestMeterReading = matchString
+                                                    break
+                                                }
+                                            }
                                         }
+                                        
+                                        // If no decimal reading was found, look for a sequence of 5-8 digits
+                                        if bestMeterReading == nil {
+                                            let digitPattern = "\\b\\d{5,8}\\b"
+                                            if let regex = try? NSRegularExpression(pattern: digitPattern, options: []) {
+                                                let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                                                for match in matches {
+                                                    let matchString = nsString.substring(with: match.range)
+                                                    let surroundRange = NSRange(location: max(0, match.range.location - 1), length: min(nsString.length - match.range.location + 1, match.range.length + 2))
+                                                    let surroundText = nsString.substring(with: surroundRange)
+                                                    if surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) == nil, let value = Double(matchString), value > 0 {
+                                                        bestMeterReading = matchString
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Extract potential serial numbers
+                                        let serialPattern = "\\b[A-Za-z0-9]{5,15}\\b"
+                                        if let regex = try? NSRegularExpression(pattern: serialPattern, options: []) {
+                                            let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                                            for match in matches {
+                                                let matchString = nsString.substring(with: match.range)
+                                                if matchString != bestMeterReading {
+                                                    allSerialNumbers.append(matchString)
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Assign the extracted best reading to the appropriate meter field
+                                        if let bestReading = bestMeterReading {
+                                            if self.selectedSingleMeter == .small {
+                                                self.viewModel.smallMeterStart = bestReading
+                                            } else {
+                                                self.viewModel.largeMeterStart = bestReading
+                                            }
+                                        }
+                                        
+                                        // Assign the first potential serial number to jobNumberText if available
+                                        if let serial = allSerialNumbers.first {
+                                            self.jobNumberText = serial
+                                        }
+                                        
+                                        // Append all OCR text to the Notes field
+                                        self.viewModel.notes += "\n\(text)"
                                     }
                                 }
                             }
