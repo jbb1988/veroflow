@@ -399,7 +399,7 @@ struct TestView: View {
                     Spacer()
                     HStack(spacing: 8) {
                         TextField("", text: $totalVolumeText)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(.default)
                             .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
@@ -431,7 +431,7 @@ struct TestView: View {
                     Spacer()
                     HStack(spacing: 8) {
                         TextField("", text: $flowRateText)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(.default)
                             .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
@@ -1151,7 +1151,7 @@ struct TestView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             TextField("", text: text)
-                .keyboardType(.decimalPad)
+                .keyboardType(.default)
                 .textFieldStyle(.roundedBorder)
                 .focused($focusedField, equals: field)
                 .overlay(
