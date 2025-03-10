@@ -299,7 +299,7 @@ struct TestView: View {
             }
             // Create a horizontal layout with the button and preview
             HStack(spacing: 12) {
-                // Smaller capture button
+                // Updated Capture Meter button with new styling
                 Button(action: {
                     showImageSourceSheet = true
                 }) {
@@ -309,17 +309,37 @@ struct TestView: View {
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
                     .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ))
-                            .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
-                            .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(primaryColor.opacity(0.7))
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(darkShadow, lineWidth: 4)
+                                .blur(radius: 4)
+                                .offset(x: 2, y: 2)
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.black, .clear]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                )
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(lightShadow, lineWidth: 4)
+                                .blur(radius: 4)
+                                .offset(x: -2, y: -2)
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.clear, .black]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                )
+                        }
                     )
                 }
                 
@@ -350,7 +370,7 @@ struct TestView: View {
             }
             // Create a horizontal layout with the button and preview
             HStack(spacing: 12) {
-                // Smaller capture button
+                // Updated Capture Meter button with new styling
                 Button(action: {
                     showImageSourceSheet = true
                 }) {
@@ -360,17 +380,37 @@ struct TestView: View {
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
                     .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [primaryColor.opacity(0.7), primaryColor.opacity(0.9)]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ))
-                            .shadow(color: darkShadow, radius: 4, x: 2, y: 2)
-                            .shadow(color: lightShadow, radius: 4, x: -2, y: -2)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(primaryColor.opacity(0.7))
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(darkShadow, lineWidth: 4)
+                                .blur(radius: 4)
+                                .offset(x: 2, y: 2)
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.black, .clear]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                )
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(lightShadow, lineWidth: 4)
+                                .blur(radius: 4)
+                                .offset(x: -2, y: -2)
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.clear, .black]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                )
+                        }
                     )
                 }
                 
