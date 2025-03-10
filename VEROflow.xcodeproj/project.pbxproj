@@ -10,7 +10,6 @@
 		2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D65A82D7B68B2003A10AE /* SafariView.swift */; };
 		2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0FE6042D79E831002A11EB /* CameraView.swift */; };
 		2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */; };
-		2D1597F42D7A1F9500F29B21 /* MeterReadingOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */; };
 		2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1597F52D7A1FD600F29B21 /* OCRManager.swift */; };
 		2D19639F2D4ED394009839D7 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */; };
 		2D1963A52D4ED511009839D7 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1963A42D4ED511009839D7 /* AnalyticsView.swift */; };
@@ -52,7 +51,6 @@
 		2D0D65A82D7B68B2003A10AE /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		2D0FE6042D79E831002A11EB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = VEROflowInfo.plist; sourceTree = "<group>"; };
-		2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterReadingOCR.swift; sourceTree = "<group>"; };
 		2D1597F52D7A1FD600F29B21 /* OCRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRManager.swift; sourceTree = "<group>"; };
 		2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		2D1963A42D4ED511009839D7 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
@@ -143,7 +141,6 @@
 				2D1963A02D4ED4B5009839D7 /* Connectivity */,
 				2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */,
 				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
-				2D1597F32D7A1F9500F29B21 /* MeterReadingOCR.swift */,
 				CF1A1132B69D91800123456 /* Models */,
 				2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */,
 				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
@@ -300,7 +297,6 @@
 				2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */,
 				2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */,
 				CF1A1182B69D94500123456 /* HelpView.swift in Sources */,
-				2D1597F42D7A1F9500F29B21 /* MeterReadingOCR.swift in Sources */,
 				2D5665F72D5E321200E9C404 /* TestDetailView.swift in Sources */,
 				2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */,
 				2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */,
