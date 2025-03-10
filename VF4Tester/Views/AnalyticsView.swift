@@ -13,6 +13,12 @@ struct AnalyticsView: View {
     @State private var showTrendLine: Bool = false
     @State private var showingExportSheet = false
     
+    // New state for chart filtering options (same as TestHistoryView filters)
+    @State private var chartHistoryFilter: TestHistoryView.FilterOption = .all
+    @State private var chartSortOrder: TestHistoryView.SortOrder = .descending
+    @State private var chartMeterSize: TestHistoryView.MeterSizeFilter = .all
+    @State private var chartManufacturer: TestHistoryView.MeterManufacturerFilter = .all
+    
     @Environment(\.presentationMode) var presentationMode
     
     enum FilterOption: String, CaseIterable, Identifiable {
@@ -42,9 +48,57 @@ struct AnalyticsView: View {
         max(chartEndDate, Date())
     }
     
-    // Chart filtering.
+    // Chart filtering using the new chart filter options.
     var chartFilteredResults: [TestResult] {
-        statFilteredResults.filter { $0.date >= chartStartDate && $0.date <= effectiveEndDate }
+        let filtered = viewModel.testResults.filter { result in
+            let inDateRange = (result.date >= chartStartDate) && (result.date <= effectiveEndDate)
+            let filterMatch: Bool = {
+                switch chartHistoryFilter {
+                case .all: return true
+                case .lowFlow: return result.testType == .lowFlow
+                case .midFlow: return result.testType == .midFlow
+                case .highFlow: return result.testType == .highFlow
+                case .compound: return result.reading.readingType == .compound
+                case .passed: return result.isPassing
+                case .failed: return !result.isPassing
+                }
+            }()
+            let meterSizeMatch: Bool = {
+                switch chartMeterSize {
+                case .all: return true
+                case .size5_8: return result.meterSize.contains("5/8") || result.meterSize.contains("0.625")
+                case .size3_4: return result.meterSize.contains("3/4") || result.meterSize.contains("0.75")
+                case .size1: return result.meterSize.contains("1\"") && !result.meterSize.contains("1-")
+                case .size1_5: return result.meterSize.contains("1-1/2") || result.meterSize.contains("1.5")
+                case .size2: return result.meterSize.contains("2")
+                case .size3: return result.meterSize.contains("3")
+                case .size4: return result.meterSize.contains("4")
+                case .size6: return result.meterSize.contains("6")
+                case .size8: return result.meterSize.contains("8")
+                case .custom: return true
+                }
+            }()
+            let manufacturerMatch: Bool = {
+                switch chartManufacturer {
+                case .all: return true
+                case .sensus: return result.meterType.lowercased().contains("sensus")
+                case .neptune: return result.meterType.lowercased().contains("neptune")
+                case .badger: return result.meterType.lowercased().contains("badger")
+                case .mueller: return result.meterType.lowercased().contains("mueller")
+                case .master: return result.meterType.lowercased().contains("master")
+                case .elster: return result.meterType.lowercased().contains("elster")
+                case .kamstrup: return result.meterType.lowercased().contains("kamstrup")
+                case .custom: return true
+                }
+            }()
+            return inDateRange && filterMatch && meterSizeMatch && manufacturerMatch
+        }
+        switch chartSortOrder {
+        case .ascending:
+            return filtered.sorted { $0.date < $1.date }
+        case .descending:
+            return filtered.sorted { $0.date > $1.date }
+        }
     }
     
     var totalVolumeAllTests: Double {
@@ -180,11 +234,15 @@ struct AnalyticsView: View {
                         }
                     }
                     
-                    // Chart Options Card.
+                    // Chart Options Card with updated filter bindings.
                     ChartOptionsView(
                         showTrendLine: $showTrendLine,
                         chartStartDate: $chartStartDate,
-                        chartEndDate: $chartEndDate
+                        chartEndDate: $chartEndDate,
+                        selectedHistoryFilter: $chartHistoryFilter,
+                        selectedSortOrder: $chartSortOrder,
+                        selectedMeterSize: $chartMeterSize,
+                        selectedManufacturer: $chartManufacturer
                     )
                     
                     // Chart Card.
@@ -259,8 +317,8 @@ struct AnalyticsView: View {
                         .foregroundColor(color)
                     Text(title)
                         .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Spacer()
                 }
                 Text(value)
@@ -284,55 +342,28 @@ struct AnalyticsView: View {
         @Binding var showTrendLine: Bool
         @Binding var chartStartDate: Date
         @Binding var chartEndDate: Date
-        @State private var isExpanded = false
+        
+        @Binding var selectedHistoryFilter: TestHistoryView.FilterOption
+        @Binding var selectedSortOrder: TestHistoryView.SortOrder
+        @Binding var selectedMeterSize: TestHistoryView.MeterSizeFilter
+        @Binding var selectedManufacturer: TestHistoryView.MeterManufacturerFilter
+        
+        @State private var isFilterExpanded: Bool = true
         
         var body: some View {
             DetailCard(title: "Chart Options") {
-                VStack(spacing: 12) {
-                    HStack {
-                        Button {
-                            withAnimation(.spring()) {
-                                isExpanded.toggle()
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "slider.horizontal.3")
-                                    .foregroundColor(.blue)
-                                Text("Filters")
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    
-                    if isExpanded {
-                        Divider()
-                        
-                        Toggle(isOn: $showTrendLine) {
-                            Label("Show Trend Line", systemImage: "chart.xyaxis.line")
-                                .foregroundColor(.primary)
-                        }
-                        .tint(.blue)
-                        
-                        Divider()
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Date Range")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            DatePicker("Start Date", selection: $chartStartDate, in: ...chartEndDate, displayedComponents: .date)
-                                .datePickerStyle(.compact)
-                            
-                            DatePicker("End Date", selection: $chartEndDate, in: chartStartDate..., displayedComponents: .date)
-                                .datePickerStyle(.compact)
-                        }
-                    }
-                }
+                CompactFilterPill(
+                    isExpanded: $isFilterExpanded,
+                    selectedFilter: $selectedHistoryFilter,
+                    selectedSort: $selectedSortOrder,
+                    startDate: $chartStartDate,
+                    endDate: $chartEndDate,
+                    selectedMeterSize: $selectedMeterSize,
+                    selectedManufacturer: $selectedManufacturer
+                )
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color.black)
             }
         }
     }
