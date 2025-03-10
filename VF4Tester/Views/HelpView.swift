@@ -271,7 +271,7 @@ struct AnimatedSafariButton: View {
             .blur(radius: 8)
             
             Button(action: action) {
-                Text("MARS AI Chat")
+                Text("MARS Chat AI")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 280, height: 80)
@@ -442,9 +442,10 @@ struct EnhancedSupportView: View {
             }
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("MARS Company AI Assistant")
-                    .font(.headline)
-                Text("Ask questions about using the app, like how often should water meters be tested? What are the economic implications of not maintaining water meters properly? Learn about the associated VEROflow-4 hardware steps to test, or just share feedback. If you need further assistance just give MARS a call or email - The MARS Company AI is here to help!")
+                Text("MARS Chat AI")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                Text("Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Reach out instantly for expert advice and support!")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }

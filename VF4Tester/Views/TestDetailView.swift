@@ -1,5 +1,4 @@
 import SwiftUI
- 
 
 struct TestDetailView: View {
     let result: TestResult
@@ -10,14 +9,14 @@ struct TestDetailView: View {
     @State private var showMapSheet = false
 
     private func debugPrintValues() {
-        print("Raw smallMeterStart: \\(result.reading.smallMeterStart)")
-        print("Raw smallMeterEnd: \\(result.reading.smallMeterEnd)")
-        print("Raw totalVolume: \\(result.reading.totalVolume)")
-        print("Raw flowRate: \\(result.reading.flowRate)")
-        print("Raw accuracy: \\(result.reading.accuracy)")
+        print("Raw smallMeterStart: \(result.reading.smallMeterStart)")
+        print("Raw smallMeterEnd: \(result.reading.smallMeterEnd)")
+        print("Raw totalVolume: \(result.reading.totalVolume)")
+        print("Raw flowRate: \(result.reading.flowRate)")
+        print("Raw accuracy: \(result.reading.accuracy)")
 
-        print("String smallMeterStart: \\(String(describing: result.reading.smallMeterStart))")
-        print("Default format smallMeterStart: \\(String(format: \"%f\", result.reading.smallMeterStart))")
+        print("String smallMeterStart: \(String(describing: result.reading.smallMeterStart))")
+        print("Default format smallMeterStart: \(String(format: "%f", result.reading.smallMeterStart))")
     }
 
     @State private var cardOffsets: [CGFloat] = [50, 50, 50, 50, 50]
@@ -138,9 +137,11 @@ struct TestDetailView: View {
                         offset: cardOffsets[3],
                         opacity: cardOpacities[3]
                     ) {
+                        // Make notes text selectable
                         Text(result.notes)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 8)
+                            .textSelection(.enabled) // <-- enables selection handles
                     }
                 }
 
@@ -161,6 +162,7 @@ struct TestDetailView: View {
             }
             .padding()
         }
+        .textSelection(.enabled) // enable text selection for the entire ScrollView
         .navigationTitle("Test Details")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(UIColor.systemGroupedBackground))

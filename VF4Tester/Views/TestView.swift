@@ -12,8 +12,8 @@ struct TestTypeButton: View {
     let isSelected: Bool
     let borderColor: Color
     let action: () -> Void
-    
-    // Add these properties for neumorphic effect
+
+    // Neumorphic effect properties
     private let darkShadow = Color.black.opacity(0.2)
     private let lightShadow = Color.white.opacity(0.7)
 
@@ -30,36 +30,32 @@ struct TestTypeButton: View {
             .foregroundColor(.white)
             .background(
                 ZStack {
-                    // Base color with more contrast between selected and unselected states
                     RoundedRectangle(cornerRadius: 20)
                         .fill(isSelected ? borderColor.opacity(0.8) : Color.blue.opacity(0.3))
-                    
-                    // Selection border
                     if isSelected {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(borderColor, lineWidth: 2)
                     }
-                    
-                    // Neumorphic shadows remain the same
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(darkShadow, lineWidth: 4)
                         .blur(radius: 4)
                         .offset(x: 2, y: 2)
-                        .mask(RoundedRectangle(cornerRadius: 20)
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [.black, .clear]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing)))
-                    
+                        .mask(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                     startPoint: .topLeading,
+                                                     endPoint: .bottomTrailing))
+                        )
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(lightShadow, lineWidth: 4)
                         .blur(radius: 4)
                         .offset(x: -2, y: -2)
-                        .mask(RoundedRectangle(cornerRadius: 20)
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [.clear, .black]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing)))
+                        .mask(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                     startPoint: .topLeading,
+                                                     endPoint: .bottomTrailing))
+                        )
                 }
             )
         }
@@ -79,14 +75,12 @@ struct TestView: View {
     @State private var showingValidationAlert = false
     @State private var validationErrors: [String] = []
 
-    // AppStorage properties
     @AppStorage("showMeterMfgInput") var showMeterMfgInput: Bool = true
     @AppStorage("showMeterModelInput") var showMeterModelInput: Bool = true
 
-    // Add spacing for the header
     private let headerSpacing: CGFloat = 60
 
-    // MARK: - Input State Variables
+    // Input State Variables
     @State private var totalVolumeText: String = ""
     @State private var flowRateText: String = ""
     @State private var selectedMeterSize: MeterSize = .one
@@ -130,58 +124,42 @@ struct TestView: View {
             switch model {
             case .positiveDisplacement, .singleJet:
                 switch test {
-                case .lowFlow:
-                    return (95.0, 101.5)
-                case .midFlow, .highFlow:
-                    return (98.5, 101.5)
+                case .lowFlow: return (95.0, 101.5)
+                case .midFlow, .highFlow: return (98.5, 101.5)
                 }
             case .multiJet:
                 switch test {
-                case .lowFlow:
-                    return (97.0, 103.0)
-                case .midFlow, .highFlow:
-                    return (98.5, 101.5)
+                case .lowFlow: return (97.0, 103.0)
+                case .midFlow, .highFlow: return (98.5, 101.5)
                 }
-            case .turbine:
-                return (98.5, 101.5)
+            case .turbine: return (98.5, 101.5)
             case .typeI, .typeII, .electromagnetic, .ultrasonic:
                 switch test {
-                case .lowFlow:
-                    return (95.0, 105.0)
-                case .midFlow, .highFlow:
-                    return (98.5, 101.5)
+                case .lowFlow: return (95.0, 105.0)
+                case .midFlow, .highFlow: return (98.5, 101.5)
                 }
             case .fireservice:
                 switch test {
-                case .lowFlow:
-                    return (95.0, 101.5)
-                case .midFlow, .highFlow:
-                    return (98.5, 101.5)
+                case .lowFlow: return (95.0, 101.5)
+                case .midFlow, .highFlow: return (98.5, 101.5)
                 }
             case .compound:
                 switch test {
-                case .lowFlow:
-                    return (95.0, 101.0)
-                case .midFlow:
-                    return (98.5, 101.5)
-                case .highFlow:
-                    return (97.0, 103.0)
+                case .lowFlow: return (95.0, 101.0)
+                case .midFlow: return (98.5, 101.5)
+                case .highFlow: return (97.0, 103.0)
                 }
             case .other:
                 switch test {
-                case .lowFlow:
-                    return (95.0, 101.0)
-                case .midFlow:
-                    return (97.0, 101.5)
-                case .highFlow:
-                    return (98.5, 101.5)
+                case .lowFlow: return (95.0, 101.0)
+                case .midFlow: return (97.0, 101.5)
+                case .highFlow: return (98.5, 101.5)
                 }
             }
         }()
         return String(format: "%.1f%% - %.1f%%", minTol, maxTol)
     }
 
-    // Helper for border color in test type filter.
     private func testTypeBorderColor(for test: TestType) -> Color {
         switch test {
         case .lowFlow: return .blue
@@ -190,7 +168,6 @@ struct TestView: View {
         }
     }
 
-    // Dummy implementation for validation – replace with actual logic if needed.
     private func validateFields() -> Bool {
         var isValid = true
         validationErrors.removeAll()
@@ -199,68 +176,59 @@ struct TestView: View {
             isValid = false
             validationErrors.append("Start Read")
         }
-        
         if viewModel.smallMeterEnd.isEmpty {
             isValid = false
             validationErrors.append("End Read")
         }
-        
         if totalVolumeText.isEmpty {
             isValid = false
             validationErrors.append("Total Volume")
         }
-        
         if flowRateText.isEmpty {
             isValid = false
             validationErrors.append("Flow Rate")
         }
-
         if !isValid {
             withAnimation {
                 showValidationOutlines = true
                 showingValidationAlert = true
             }
         }
-        
         return isValid
     }
-
-    // Define your two desired gradient colors:
-    private let gradientColor1 = Color(red: 0/255, green: 126/255, blue: 189/255) // #007EBD
-    private let gradientColor2 = Color(red: 20/255, green: 61/255, blue: 110/255)  // #143D6E
-
-    // MARK: - Updated Sections Using DetailCard
-
+    
+    private let gradientColor1 = Color(red: 0/255, green: 126/255, blue: 189/255)
+    private let gradientColor2 = Color(red: 20/255, green: 61/255, blue: 110/255)
+    
+    // MARK: - UI Sections
+    
     private var testTypeSection: some View {
         DetailCard(title: "Test Type") {
             VStack(spacing: 16) {
                 HStack(spacing: 8) {
-                    TestTypeButton(
-                        title: "Low Flow",
-                        subtitle: "(0.75-35 GPM)",
-                        isSelected: viewModel.currentTest == .lowFlow,
-                        borderColor: testTypeBorderColor(for: .lowFlow),
-                        action: { viewModel.currentTest = .lowFlow }
-                    )
-                    TestTypeButton(
-                        title: "Mid Flow",
-                        subtitle: "(15-100 GPM)",
-                        isSelected: viewModel.currentTest == .midFlow,
-                        borderColor: testTypeBorderColor(for: .midFlow),
-                        action: { viewModel.currentTest = .midFlow }
-                    )
-                    TestTypeButton(
-                        title: "High Flow",
-                        subtitle: "(25-650 GPM)",
-                        isSelected: viewModel.currentTest == .highFlow,
-                        borderColor: testTypeBorderColor(for: .highFlow),
-                        action: { viewModel.currentTest = .highFlow }
-                    )
+                    TestTypeButton(title: "Low Flow",
+                                   subtitle: "(0.75-35 GPM)",
+                                   isSelected: viewModel.currentTest == .lowFlow,
+                                   borderColor: testTypeBorderColor(for: .lowFlow)) {
+                        viewModel.currentTest = .lowFlow
+                    }
+                    TestTypeButton(title: "Mid Flow",
+                                   subtitle: "(15-100 GPM)",
+                                   isSelected: viewModel.currentTest == .midFlow,
+                                   borderColor: testTypeBorderColor(for: .midFlow)) {
+                        viewModel.currentTest = .midFlow
+                    }
+                    TestTypeButton(title: "High Flow",
+                                   subtitle: "(25-650 GPM)",
+                                   isSelected: viewModel.currentTest == .highFlow,
+                                   borderColor: testTypeBorderColor(for: .highFlow)) {
+                        viewModel.currentTest = .highFlow
+                    }
                 }
             }
         }
     }
-
+    
     private var meterReadingsSection: some View {
         DetailCard(title: "Meter Readings") {
             Toggle("Compound Meter", isOn: $isCompoundMeter)
@@ -276,7 +244,6 @@ struct TestView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.vertical, 4)
-
                 if selectedSingleMeter == .small {
                     smallMeterReadings
                 } else {
@@ -285,7 +252,7 @@ struct TestView: View {
             }
         }
     }
-
+    
     private var smallMeterReadings: some View {
         VStack(alignment: .leading) {
             Label("Small Meter Reading", systemImage: "speedometer")
@@ -297,12 +264,8 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
             }
-            // Create a horizontal layout with the button and preview
             HStack(spacing: 12) {
-                // Updated Capture Meter button with new styling
-                Button(action: {
-                    showImageSourceSheet = true
-                }) {
+                Button(action: { showImageSourceSheet = true }) {
                     HStack {
                         Image(systemName: "camera")
                         Text("Capture Meter")
@@ -321,11 +284,9 @@ struct TestView: View {
                                 .offset(x: 2, y: 2)
                                 .mask(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.black, .clear]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                             startPoint: .topLeading,
+                                                             endPoint: .bottomTrailing))
                                 )
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke(lightShadow, lineWidth: 4)
@@ -333,30 +294,23 @@ struct TestView: View {
                                 .offset(x: -2, y: -2)
                                 .mask(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.clear, .black]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                             startPoint: .topLeading,
+                                                             endPoint: .bottomTrailing))
                                 )
                         }
                     )
                 }
-                
                 Spacer()
-                
-                // Status indicator with image preview
                 VStack {
                     meterImageIndicator
-                    if hasStoredImage {
-                        capturedImagePreview
-                    }
+                    if hasStoredImage { capturedImagePreview }
                 }
             }
             .padding(.top, 8)
         }
     }
-
+    
     private var largeMeterReadings: some View {
         VStack(alignment: .leading) {
             Label("Large Meter Reading", systemImage: "dial.max")
@@ -368,12 +322,8 @@ struct TestView: View {
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
             }
-            // Create a horizontal layout with the button and preview
             HStack(spacing: 12) {
-                // Updated Capture Meter button with new styling
-                Button(action: {
-                    showImageSourceSheet = true
-                }) {
+                Button(action: { showImageSourceSheet = true }) {
                     HStack {
                         Image(systemName: "camera")
                         Text("Capture Meter")
@@ -392,11 +342,9 @@ struct TestView: View {
                                 .offset(x: 2, y: 2)
                                 .mask(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.black, .clear]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                             startPoint: .topLeading,
+                                                             endPoint: .bottomTrailing))
                                 )
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke(lightShadow, lineWidth: 4)
@@ -404,30 +352,23 @@ struct TestView: View {
                                 .offset(x: -2, y: -2)
                                 .mask(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.clear, .black]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
+                                        .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                             startPoint: .topLeading,
+                                                             endPoint: .bottomTrailing))
                                 )
                         }
                     )
                 }
-                
                 Spacer()
-                
-                // Status indicator with image preview
                 VStack {
                     meterImageIndicator
-                    if hasStoredImage {
-                        capturedImagePreview
-                    }
+                    if hasStoredImage { capturedImagePreview }
                 }
             }
             .padding(.top, 8)
         }
     }
-
+    
     private var testParametersSection: some View {
         DetailCard(title: "Test Parameters") {
             VStack(spacing: 12) {
@@ -444,14 +385,9 @@ struct TestView: View {
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding(8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.black)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(showValidationOutlines && totalVolumeText.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                            )
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.black))
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .stroke(showValidationOutlines && totalVolumeText.isEmpty ? Color.red : Color.clear, lineWidth: 2))
                             .focused($focusedField, equals: .totalVolume)
                             .onChange(of: totalVolumeText) { newValue in
                                 if let value = Double(sanitizeNumericInput(newValue)) {
@@ -476,14 +412,9 @@ struct TestView: View {
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding(8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.black)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(showValidationOutlines && flowRateText.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                            )
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.black))
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .stroke(showValidationOutlines && flowRateText.isEmpty ? Color.red : Color.clear, lineWidth: 2))
                             .focused($focusedField, equals: .flowRate)
                             .onChange(of: flowRateText) { newValue in
                                 if let value = Double(sanitizeNumericInput(newValue)) {
@@ -499,7 +430,7 @@ struct TestView: View {
             .frame(maxWidth: .infinity)
         }
     }
-
+    
     private var meterDetailsSection: some View {
         DetailCard(title: "Meter Details") {
             VStack(alignment: .leading, spacing: 8) {
@@ -514,7 +445,6 @@ struct TestView: View {
                                 }
                             }
                             .pickerStyle(MenuPickerStyle())
-
                             Picker("Large Meter", selection: $selectedCompoundLargeMeterSize) {
                                 ForEach(MeterSize.allCases, id: \.self) { size in
                                     Text(size.rawValue).tag(size)
@@ -563,7 +493,7 @@ struct TestView: View {
             .layoutPriority(1)
         }
     }
-
+    
     private var additionalDetailsSection: some View {
         DetailCard(title: "Additional Details") {
             HStack {
@@ -575,7 +505,7 @@ struct TestView: View {
             }
         }
     }
-
+    
     private var notesSection: some View {
         DetailCard(title: "Notes") {
             TextEditor(text: $viewModel.notes)
@@ -585,7 +515,7 @@ struct TestView: View {
         }
         .id("notesSection")
     }
-
+    
     // MARK: - Animated Record Test Button Section
     @State private var rotation: CGFloat = 0
     @State private var showingTestDetail = false
@@ -594,19 +524,17 @@ struct TestView: View {
     @State private var capturedImageData: Data? = nil
     @State private var hasStoredImage = false
     @State private var showOCRActionSheet = false
-
+    
     @State private var recognizedText: String? = nil
     @State private var showValidationOutlines = false
     @State private var rawInputs: [String: String] = [:]
     @State private var isProcessingImage = false
     @State private var showDetectionSuccess = false
     @State private var detectedReadingValue: String? = nil
-
+    
     private var recordTestSection: some View {
         DetailCard(title: "Record Test") {
-            // Changed VStack to HStack and adjusted spacing
             HStack(spacing: 16) {
-                // Record Test Button
                 Button(action: recordTest) {
                     Text(isRecordSuccess ? "Test Recorded!" : "Record Test")
                         .font(.headline)
@@ -615,32 +543,28 @@ struct TestView: View {
                         .frame(height: 56)
                         .background(
                             ZStack {
-                                // Your existing background remains
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(Color.blue.opacity(0.7))
-                                
-                                // Neumorphic shadows
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(darkShadow, lineWidth: 4)
                                     .blur(radius: 4)
                                     .offset(x: 2, y: 2)
-                                    .mask(RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.black, .clear]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing)))
-                                
+                                    .mask(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                                 startPoint: .topLeading,
+                                                                 endPoint: .bottomTrailing))
+                                    )
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(lightShadow, lineWidth: 4)
                                     .blur(radius: 4)
                                     .offset(x: -2, y: -2)
-                                    .mask(RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.clear, .black]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing)))
-                                
-                                // Add this glow effect
+                                    .mask(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                                 startPoint: .topLeading,
+                                                                 endPoint: .bottomTrailing))
+                                    )
                                 if isRecordSuccess {
                                     RoundedRectangle(cornerRadius: 20)
                                         .fill(Color.blue)
@@ -652,8 +576,6 @@ struct TestView: View {
                             }
                         )
                 }
-
-                // Clear Inputs Button with neumorphic style
                 Button(action: { showingClearConfirmation = true }) {
                     Text("Clear Inputs")
                         .font(.headline)
@@ -664,27 +586,26 @@ struct TestView: View {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(Color.red.opacity(0.7))
-                                
-                                // Neumorphic shadows
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(darkShadow, lineWidth: 4)
                                     .blur(radius: 4)
                                     .offset(x: 2, y: 2)
-                                    .mask(RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.black, .clear]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing)))
-                                
+                                    .mask(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                                 startPoint: .topLeading,
+                                                                 endPoint: .bottomTrailing))
+                                    )
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(lightShadow, lineWidth: 4)
                                     .blur(radius: 4)
                                     .offset(x: -2, y: -2)
-                                    .mask(RoundedRectangle(cornerRadius: 20)
-                                        .fill(LinearGradient(
-                                            gradient: Gradient(colors: [.clear, .black]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing)))
+                                    .mask(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                                 startPoint: .topLeading,
+                                                                 endPoint: .bottomTrailing))
+                                    )
                             }
                         )
                 }
@@ -695,14 +616,10 @@ struct TestView: View {
                 Text("Please fill in the following fields:\n" + validationErrors.joined(separator: "\n"))
             }
             .alert(isPresented: $showingClearConfirmation) {
-                Alert(
-                    title: Text("Clear All Inputs"),
-                    message: Text("Are you sure you want to clear all test inputs?"),
-                    primaryButton: .destructive(Text("Clear")) {
-                        clearAllFields()
-                    },
-                    secondaryButton: .cancel()
-                )
+                Alert(title: Text("Clear All Inputs"),
+                      message: Text("Are you sure you want to clear all test inputs?"),
+                      primaryButton: .destructive(Text("Clear")) { clearAllFields() },
+                      secondaryButton: .cancel())
             }
         }
     }
@@ -729,17 +646,14 @@ struct TestView: View {
             }
         }
     }
-
-    // MARK: - Animation Logic
+    
     @State private var isAnimating = false
-
     private func startAnimation() {
         withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
             isAnimating.toggle()
         }
     }
-
-
+    
     private func passRangeForResult(_ result: TestResult) -> String {
         let test = result.testType
         if let model = MeterModel(rawValue: result.meterModel) {
@@ -747,51 +661,36 @@ struct TestView: View {
                 switch model {
                 case .positiveDisplacement, .singleJet:
                     switch test {
-                    case .lowFlow:
-                        return (95.0, 101.5)
-                    case .midFlow, .highFlow:
-                        return (98.5, 101.5)
+                    case .lowFlow: return (95.0, 101.5)
+                    case .midFlow, .highFlow: return (98.5, 101.5)
                     }
                 case .multiJet:
                     switch test {
-                    case .lowFlow:
-                        return (97.0, 103.0)
-                    case .midFlow, .highFlow:
-                        return (98.5, 101.5)
+                    case .lowFlow: return (97.0, 103.0)
+                    case .midFlow, .highFlow: return (98.5, 101.5)
                     }
-                case .turbine:
-                    return (98.5, 101.5)
+                case .turbine: return (98.5, 101.5)
                 case .typeI, .typeII, .electromagnetic, .ultrasonic:
                     switch test {
-                    case .lowFlow:
-                        return (95.0, 105.0)
-                    case .midFlow, .highFlow:
-                        return (98.5, 101.5)
+                    case .lowFlow: return (95.0, 105.0)
+                    case .midFlow, .highFlow: return (98.5, 101.5)
                     }
                 case .fireservice:
                     switch test {
-                    case .lowFlow:
-                        return (95.0, 101.5)
-                    case .midFlow, .highFlow:
-                        return (98.5, 101.5)
+                    case .lowFlow: return (95.0, 101.5)
+                    case .midFlow, .highFlow: return (98.5, 101.5)
                     }
                 case .compound:
                     switch test {
-                    case .lowFlow:
-                        return (95.0, 101.0)
-                    case .midFlow:
-                        return (98.5, 101.5)
-                    case .highFlow:
-                        return (97.0, 103.0)
+                    case .lowFlow: return (95.0, 101.0)
+                    case .midFlow: return (98.5, 101.5)
+                    case .highFlow: return (97.0, 103.0)
                     }
                 case .other:
                     switch test {
-                    case .lowFlow:
-                        return (95.0, 101.0)
-                    case .midFlow:
-                        return (97.0, 101.5)
-                    case .highFlow:
-                        return (98.5, 101.5)
+                    case .lowFlow: return (95.0, 101.0)
+                    case .midFlow: return (97.0, 101.5)
+                    case .highFlow: return (98.5, 101.5)
                     }
                 }
             }()
@@ -804,19 +703,14 @@ struct TestView: View {
             }
         }
     }
-
+    
     private func latestResultSection(result: TestResult) -> some View {
         HStack(spacing: 16) {
-            // Status indicator
             Circle()
                 .fill(result.isPassing ? Color.green : Color.red)
                 .frame(width: 8, height: 8)
                 .padding(4)
-                .background(
-                    Circle()
-                        .fill(result.isPassing ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                )
-            
+                .background(Circle().fill(result.isPassing ? Color.green.opacity(0.2) : Color.red.opacity(0.2)))
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(result.testType.rawValue)
@@ -827,29 +721,19 @@ struct TestView: View {
                         .bold()
                         .foregroundColor(result.isPassing ? .green : .red)
                 }
-                
                 Text(result.date.formatted(date: .abbreviated, time: .shortened))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
                 HStack(spacing: 12) {
-                    Label(
-                        String(format: "%.1f", result.reading.smallMeterStart),
-                        systemImage: "arrow.forward.circle.fill"
-                    )
-                    .foregroundColor(.blue)
-                    
-                    Label(
-                        String(format: "%.1f", result.reading.smallMeterEnd),
-                        systemImage: "arrow.backward.circle.fill"
-                    )
-                    .foregroundColor(.purple)
-                    
-                    Label(
-                        String(format: "%.1f Gal", result.reading.totalVolume),
-                        systemImage: "drop.fill"
-                    )
-                    .foregroundColor(.cyan)
+                    Label(String(format: "%.1f", result.reading.smallMeterStart),
+                          systemImage: "arrow.forward.circle.fill")
+                        .foregroundColor(.blue)
+                    Label(String(format: "%.1f", result.reading.smallMeterEnd),
+                          systemImage: "arrow.backward.circle.fill")
+                        .foregroundColor(.purple)
+                    Label(String(format: "%.1f Gal", result.reading.totalVolume),
+                          systemImage: "drop.fill")
+                        .foregroundColor(.cyan)
                 }
                 .font(.footnote)
             }
@@ -860,7 +744,7 @@ struct TestView: View {
         .cornerRadius(12)
         .contentShape(Rectangle())
     }
-
+    
     private func sanitizeNumericInput(_ input: String) -> String {
         input
             .replacingOccurrences(of: "'", with: ".")
@@ -868,7 +752,7 @@ struct TestView: View {
             .replacingOccurrences(of: "٫", with: ".")
             .replacingOccurrences(of: "،", with: ".")
     }
-
+    
     private func clearAllFields() {
         totalVolumeText = ""
         flowRateText = ""
@@ -896,30 +780,23 @@ struct TestView: View {
         capturedImageData = nil
         hasStoredImage = false
     }
-
+    
     private func recordTest() {
         LocationManager.shared.fetchCurrentLocation()
         dismissKeyboard()
         showValidationOutlines = true
-
-        if !validateFields() {
-            return
-        }
-
+        if !validateFields() { return }
+        
         print("Recording test with raw inputs:")
-        rawInputs.forEach { key, value in
-            print("\(key): \(value)")
-        }
-
+        rawInputs.forEach { key, value in print("\(key): \(value)") }
+        
         viewModel.isCalculatingResults = true
-        withAnimation(.spring(response: 0.3)) {
-            isRecordSuccess = true
-        }
-
+        withAnimation(.spring(response: 0.3)) { isRecordSuccess = true }
+        
         let meterSizeValue = isCompoundMeter
             ? "\(selectedCompoundSmallMeterSize.rawValue)/\(selectedCompoundLargeMeterSize.rawValue)"
             : selectedMeterSize.rawValue
-
+        
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
             let fixedLatitude = self.viewModel.latitude
             let fixedLongitude = self.viewModel.longitude
@@ -937,27 +814,22 @@ struct TestView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.clearAllFields()
                 self.viewModel.isCalculatingResults = false
-                withAnimation {
-                    self.isRecordSuccess = false
-                }
+                withAnimation { self.isRecordSuccess = false }
             }
         }
     }
-
+    
     private func dismissKeyboard() {
         #if os(iOS)
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         #endif
     }
+    
     // Simplified OCR implementation focused on accurate meter reading detection
     private func performBasicOCR(for image: UIImage, completion: @escaping (Bool) -> Void) {
-        // Show that we're processing the image
         print("Starting water meter OCR process...")
-        
-        // Use the OCR manager to extract text
         OCRManager.shared.recognizeText(in: image) { text in
             var success = false
-            
             if let text = text {
                 print("OCR Raw Text: \(text)")
                 let normalizedText = text.lowercased().replacingOccurrences(of: " ", with: "")
@@ -985,54 +857,45 @@ struct TestView: View {
                     }
                 }
                 
-                // 1. Find meter readings - prioritize numbers with decimal points
                 var bestMeterReading: String? = nil
-                var allSerialNumbers: [String] = []
-                
-                // Use regular expressions to find decimal numbers (highest priority for meter readings)
+                let nsString = text as NSString
                 let decimalPattern = "\\b\\d+\\.\\d+\\b"
                 if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
-                    let nsString = text as NSString
                     let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                    
                     for match in matches {
                         let matchString = nsString.substring(with: match.range)
-                        
-                        // Check that it's not surrounded by special characters
-                        let surroundRange = NSRange(
-                            location: max(0, match.range.location - 1),
-                            length: min(nsString.length - match.range.location + 1, match.range.length + 2)
-                        )
+                        let surroundRange = NSRange(location: max(0, match.range.location - 1),
+                                                    length: min(nsString.length - match.range.location + 1, match.range.length + 2))
                         let surroundText = nsString.substring(with: surroundRange)
                         let hasSpecialChar = surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) != nil
-                        
                         if !hasSpecialChar, let value = Double(matchString), value > 0 {
-                            // Found a decimal number not adjacent to special chars - high priority meter reading
                             bestMeterReading = matchString
                             print("Found meter reading with decimal: \(matchString)")
                             break
                         }
                     }
                 }
-                
-                // If no decimal reading was found, try looking for a sequence of digits that might be a reading
                 if bestMeterReading == nil {
-                    let digitPattern = "\\b\\d{5,8}\\b" // 5-8 digit sequence typical for meter readings
-                    if let regex = try? NSRegularExpression(pattern: digitPattern, options: []) {
-                        let nsString = text as NSString
+                    let gallonsPattern = "(\\d+(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal(?:lon)?s?))"
+                    if let regex = try? NSRegularExpression(pattern: gallonsPattern, options: .caseInsensitive) {
                         let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                        
+                        if let match = matches.first {
+                            let matchString = nsString.substring(with: match.range)
+                            bestMeterReading = matchString.replacingOccurrences(of: ",", with: "")
+                            print("Found numeric preceding 'gal/gallon/gallons': \(matchString) normalized to \(bestMeterReading!)")
+                        }
+                    }
+                }
+                if bestMeterReading == nil {
+                    let digitPattern = "\\b\\d{5,8}\\b"
+                    if let regex = try? NSRegularExpression(pattern: digitPattern, options: []) {
+                        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
                         for match in matches {
                             let matchString = nsString.substring(with: match.range)
-                            
-                            // Check that it's not surrounded by special characters
-                            let surroundRange = NSRange(
-                                location: max(0, match.range.location - 1),
-                                length: min(nsString.length - match.range.location + 1, match.range.length + 2)
-                            )
+                            let surroundRange = NSRange(location: max(0, match.range.location - 1),
+                                                        length: min(nsString.length - match.range.location + 1, match.range.length + 2))
                             let surroundText = nsString.substring(with: surroundRange)
                             let hasSpecialChar = surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) != nil
-                            
                             if !hasSpecialChar, let value = Double(matchString), value > 0 {
                                 bestMeterReading = matchString
                                 print("Found digit sequence as meter reading: \(matchString)")
@@ -1040,19 +903,16 @@ struct TestView: View {
                             }
                         }
                     }
-                    
-                    // Check for digit space digit pattern which might be misread decimal point
+                }
+                if bestMeterReading == nil {
                     let potentialDecimalPattern = "\\b(\\d+)\\s+(\\d{1,3})\\b"
                     if let regex = try? NSRegularExpression(pattern: potentialDecimalPattern, options: []) {
-                        let nsString = text as NSString
                         let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                        
                         for match in matches {
                             if match.numberOfRanges >= 3 {
                                 let wholePart = nsString.substring(with: match.range(at: 1))
                                 let decimalPart = nsString.substring(with: match.range(at: 2))
-                                
-                                if decimalPart.count <= 3 { // Typical decimal precision for meters
+                                if decimalPart.count <= 3 {
                                     let combined = "\(wholePart).\(decimalPart)"
                                     bestMeterReading = combined
                                     print("Reconstructed decimal reading: \(combined)")
@@ -1063,59 +923,15 @@ struct TestView: View {
                     }
                 }
                 
-                // 2. Look for serial numbers - alphanumeric patterns without special characters
-                let serialPattern = "\\b[A-Za-z0-9]{5,15}\\b"
-                if let regex = try? NSRegularExpression(pattern: serialPattern, options: []) {
-                    let nsString = text as NSString
-                    let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                    
-                    for match in matches {
-                        let matchString = nsString.substring(with: match.range)
-                        
-                        // Check if the line containing this potential serial has special characters
-                        var lineHasSpecialChars = false
-                        
-                        // Find which line contains this match
-                        let lines = text.components(separatedBy: .newlines)
-                        for line in lines {
-                            if line.contains(matchString) {
-                                // Check if the line has special characters
-                                let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;/")
-                                lineHasSpecialChars = line.rangeOfCharacter(from: specialChars) != nil
-                                break
-                            }
-                        }
-                        
-                        // Only accept as a serial if it's not in a line with special characters
-                        if !lineHasSpecialChars {
-                            // Also check that it's not the same as the meter reading
-                            if matchString != bestMeterReading {
-                                // Final check: preferred format - either mixed alphanumeric or pure numeric but specific format
-                                let hasLetters = matchString.rangeOfCharacter(from: .letters) != nil
-                                let hasDigits = matchString.rangeOfCharacter(from: .decimalDigits) != nil
-                                
-                                if (hasLetters && hasDigits) || (matchString.count >= 5 && !matchString.contains(".")) {
-                                    allSerialNumbers.append(matchString)
-                                    print("Found potential serial number: \(matchString)")
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // 3. Collect all the detected text lines for notes
-                let allTextLines = text.components(separatedBy: .newlines)
-                let significantLines = allTextLines.filter { line in
-                    let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                    return !trimmed.isEmpty && trimmed.count >= 3
+                // Extract serial number using the helper method.
+                if let serial = self.extractSerialNumber(from: text) {
+                    self.jobNumberText = serial
+                    print("Extracted serial number: \(serial)")
                 }
                 
                 DispatchQueue.main.async {
                     var detectedInfo: [String] = []
-                    
-                    // Apply the best meter reading if found
                     if let reading = bestMeterReading {
-                        // Always put reading in START field as requested
                         if self.selectedSingleMeter == .small {
                             self.viewModel.smallMeterStart = reading
                         } else {
@@ -1125,120 +941,74 @@ struct TestView: View {
                         self.detectedReadingValue = reading
                         detectedInfo.append("Meter reading: \(reading)")
                     }
-                    
-                    // Apply serial number if found (and valid)
-                    if let serialNumber = allSerialNumbers.first {
-                        self.jobNumberText = serialNumber
-                        detectedInfo.append("Serial number: \(serialNumber)")
-                    }
-                    
-                    // Add all detected text lines to notes, each on its own line
                     detectedInfo.append("\nDetected Text:")
+                    let allTextLines = text.components(separatedBy: .newlines)
+                    let significantLines = allTextLines.filter { line in
+                        let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                        return !trimmed.isEmpty && trimmed.count >= 3
+                    }
                     for line in significantLines {
                         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if !trimmed.isEmpty {
-                            detectedInfo.append(trimmed)
-                        }
+                        if !trimmed.isEmpty { detectedInfo.append(trimmed) }
                     }
-                    
-                    // Add the detected info to notes, with each item on its own line
                     let existingNotes = self.viewModel.notes
                     let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
                     let newInfo = "--- Auto-Detected Information (\(timestamp)) ---\n" + detectedInfo.joined(separator: "\n")
-                    
                     if existingNotes.isEmpty {
                         self.viewModel.notes = newInfo
                     } else {
                         self.viewModel.notes = existingNotes + "\n\n" + newInfo
                     }
-                    
-                    // Update UI
                     withAnimation {
                         self.isProcessingImage = false
                         self.showDetectionSuccess = success
                     }
-                    
                     if success {
-                        // Hide success indicator after a delay
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            withAnimation {
-                                self.showDetectionSuccess = false
-                            }
+                            withAnimation { self.showDetectionSuccess = false }
                         }
                     } else {
-                        // Fall back to manual selection if automatic detection failed
                         self.recognizedText = text
                         self.showOCRActionSheet = true
                     }
-                    
                     completion(success)
                 }
             } else {
                 DispatchQueue.main.async {
-                    withAnimation {
-                        self.isProcessingImage = false
-                    }
+                    withAnimation { self.isProcessingImage = false }
                     completion(false)
                 }
             }
         }
     }
-
-    // Local implementation of MarsReadingField
-    private func MarsReadingField(title: String, text: Binding<String>, field: Field) -> some View {
-        VStack(alignment: .leading) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            TextField("", text: text)
-                .keyboardType(.default)
-                .textFieldStyle(.roundedBorder)
-                .focused($focusedField, equals: field)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(showValidationOutlines && text.wrappedValue.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                )
-                .onChange(of: text.wrappedValue) { newValue in
-                    let sanitized = sanitizeNumericInput(newValue)
-                    text.wrappedValue = sanitized
-                    Field.logAccess(field, value: sanitized)
-                }
-        }
-    }
-
+    
     @State private var showImageSourceSheet = false
     @State private var selectedImageSource: UIImagePickerController.SourceType?
     
     private var meterImageIndicator: some View {
         HStack {
             if isProcessingImage {
-                // Show loading indicator while processing
                 ProgressView()
                     .scaleEffect(0.8)
                     .padding(.trailing, 2)
                 Text("Analyzing meter...")
                     .foregroundColor(.orange)
             } else if showDetectionSuccess {
-                // Show success animation when detection succeeds
                 Image(systemName: "number.circle.fill")
                     .foregroundColor(.green)
                     .font(.system(size: 16, weight: .bold))
                     .scaleEffect(showDetectionSuccess ? 1.2 : 1.0)
                     .animation(Animation.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: showDetectionSuccess)
-                
-                // Show the specific reading value that was detected
                 if let detectedValue = detectedReadingValue {
                     Text("Reading \(detectedValue) detected!")
                         .foregroundColor(.green)
                         .font(.system(size: 14, weight: .medium))
                 } else {
-                    // Fallback if we somehow don't have the detected value stored
                     Text("Reading detected!")
                         .foregroundColor(.green)
                         .font(.system(size: 14, weight: .medium))
                 }
             } else {
-                // Default state
                 Image(systemName: hasStoredImage ? "checkmark.circle.fill" : "camera.circle")
                     .foregroundColor(hasStoredImage ? .green : .gray)
                 Text(hasStoredImage ? "Photo Saved" : "No Photo")
@@ -1247,7 +1017,7 @@ struct TestView: View {
         }
         .padding(.top, 4)
     }
-
+    
     private var capturedImagePreview: some View {
         Group {
             if let image = capturedImage {
@@ -1259,35 +1029,27 @@ struct TestView: View {
             }
         }
     }
-
+    
     var body: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
                 VStack(spacing: 16) {
-                    // Add spacing for the header
-                    Spacer()
-                        .frame(height: headerSpacing)
-    
+                    Spacer().frame(height: headerSpacing)
                     testTypeSection
                     meterReadingsSection
                     testParametersSection
                     meterDetailsSection
                     additionalDetailsSection
                     notesSection
-    
                     recordTestSection
                     recentTestSection
                 }
                 .padding()
             }
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: keyboardHeight)
-            }
+            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: keyboardHeight) }
             .onChange(of: isNotesFieldFocused) { focused in
                 if focused {
-                    withAnimation {
-                        scrollProxy.scrollTo("notesSection", anchor: .top)
-                    }
+                    withAnimation { scrollProxy.scrollTo("notesSection", anchor: .top) }
                 }
             }
             .simultaneousGesture(
@@ -1327,97 +1089,21 @@ struct TestView: View {
                     hasStoredImage = capturedImage != nil
                     selectedImageSource = nil
                     if let image = capturedImage {
-                        // Show loading indicator
-                        withAnimation {
-                            isProcessingImage = true
-                        }
-                        
-                        // Always use advanced OCR rules regardless of image source (Camera or Photo Library)
+                        withAnimation { isProcessingImage = true }
                         self.performBasicOCR(for: image) { success in
                             if success {
-                                // Advanced detection worked - show success
                                 withAnimation {
                                     isProcessingImage = false
                                     showDetectionSuccess = true
                                 }
-                                
-                                // Hide success indicator after a delay
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                    withAnimation {
-                                        self.showDetectionSuccess = false
-                                    }
+                                    withAnimation { self.showDetectionSuccess = false }
                                 }
                             } else {
-                                // Fall back to basic OCR if advanced detection failed
                                 OCRManager.shared.recognizeText(in: image) { text in
-                                    withAnimation {
-                                        self.isProcessingImage = false
-                                    }
+                                    withAnimation { isProcessingImage = false }
                                     if let text = text {
-                                        let nsString = text as NSString
-                                        var bestMeterReading: String? = nil
-                                        var allSerialNumbers: [String] = []
-                                        
-                                        // Try to find a decimal number (highest priority)
-                                        let decimalPattern = "\\b\\d+\\.\\d+\\b"
-                                        if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
-                                            let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                                            for match in matches {
-                                                let matchString = nsString.substring(with: match.range)
-                                                let surroundRange = NSRange(location: max(0, match.range.location - 1), length: min(nsString.length - match.range.location + 1, match.range.length + 2))
-                                                let surroundText = nsString.substring(with: surroundRange)
-                                                if surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) == nil, let value = Double(matchString), value > 0 {
-                                                    bestMeterReading = matchString
-                                                    break
-                                                }
-                                            }
-                                        }
-                                        
-                                        // If no decimal reading was found, look for a sequence of 5-8 digits
-                                        if bestMeterReading == nil {
-                                            let digitPattern = "\\b\\d{5,8}\\b"
-                                            if let regex = try? NSRegularExpression(pattern: digitPattern, options: []) {
-                                                let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                                                for match in matches {
-                                                    let matchString = nsString.substring(with: match.range)
-                                                    let surroundRange = NSRange(location: max(0, match.range.location - 1), length: min(nsString.length - match.range.location + 1, match.range.length + 2))
-                                                    let surroundText = nsString.substring(with: surroundRange)
-                                                    if surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) == nil, let value = Double(matchString), value > 0 {
-                                                        bestMeterReading = matchString
-                                                        break
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
-                                        // Extract potential serial numbers
-                                        let serialPattern = "\\b[A-Za-z0-9]{5,15}\\b"
-                                        if let regex = try? NSRegularExpression(pattern: serialPattern, options: []) {
-                                            let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-                                            for match in matches {
-                                                let matchString = nsString.substring(with: match.range)
-                                                if matchString != bestMeterReading {
-                                                    allSerialNumbers.append(matchString)
-                                                }
-                                            }
-                                        }
-                                        
-                                        // Assign the extracted best reading to the appropriate meter field
-                                        if let bestReading = bestMeterReading {
-                                            if self.selectedSingleMeter == .small {
-                                                self.viewModel.smallMeterStart = bestReading
-                                            } else {
-                                                self.viewModel.largeMeterStart = bestReading
-                                            }
-                                        }
-                                        
-                                        // Assign the first potential serial number to jobNumberText if available
-                                        if let serial = allSerialNumbers.first {
-                                            self.jobNumberText = serial
-                                        }
-                                        
-                                        // Append all OCR text to the Notes field
-                                        self.viewModel.notes += "\n\(text)"
+                                        self.processFallbackOCR(text)
                                     }
                                 }
                             }
@@ -1426,18 +1112,13 @@ struct TestView: View {
                 }
         }
         .gesture(
-            TapGesture()
-                .onEnded { _ in
-                    // Dismiss keyboard when tapping outside of text fields
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                  to: nil, from: nil, for: nil)
-                }
+            TapGesture().onEnded { _ in
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
         )
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .confirmationDialog("Select Image Source", isPresented: $showImageSourceSheet, titleVisibility: .visible) {
-            Button("Camera") {
-                selectedImageSource = .camera
-            }
+            Button("Camera") { selectedImageSource = .camera }
             Button("Cancel", role: .cancel) { }
         }
         .overlay(
@@ -1451,21 +1132,113 @@ struct TestView: View {
             alignment: .top
         )
     }
-}
-
-// Extension to make UIImagePickerController.SourceType conform to Identifiable
-extension UIImagePickerController.SourceType: Identifiable {
-    public var id: Int {
-        switch self {
-        case .camera: return 1
-        case .photoLibrary: return 2
-        case .savedPhotosAlbum: return 3
-        @unknown default: return 0
+    
+    // MARK: - Helper Function for Fallback OCR Processing
+    private func processFallbackOCR(_ text: String) {
+        let nsString = text as NSString
+        var bestMeterReading: String? = nil
+        let decimalPattern = "\\b\\d+\\.\\d+\\b"
+        if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
+            let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+            for match in matches {
+                let matchString = nsString.substring(with: match.range)
+                let surroundRange = NSRange(location: max(0, match.range.location - 1),
+                                            length: min(nsString.length - match.range.location + 1, match.range.length + 2))
+                let surroundText = nsString.substring(with: surroundRange)
+                if surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) == nil,
+                   let value = Double(matchString), value > 0 {
+                    bestMeterReading = matchString
+                    print("Found meter reading with decimal: \(matchString)")
+                    break
+                }
+            }
         }
+        if bestMeterReading == nil {
+            let gallonsPattern = "(\\d+(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal(?:lon)?s?))"
+            if let regex = try? NSRegularExpression(pattern: gallonsPattern, options: .caseInsensitive) {
+                let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                if let match = matches.first {
+                    let matchString = nsString.substring(with: match.range)
+                    bestMeterReading = matchString.replacingOccurrences(of: ",", with: "")
+                    print("Found numeric preceding 'gal/gallon/gallons': \(matchString) normalized to \(bestMeterReading!)")
+                }
+            }
+        }
+        if bestMeterReading == nil {
+            let digitPattern = "\\b\\d{5,8}\\b"
+            if let regex = try? NSRegularExpression(pattern: digitPattern, options: []) {
+                let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                for match in matches {
+                    let matchString = nsString.substring(with: match.range)
+                    let surroundRange = NSRange(location: max(0, match.range.location - 1),
+                                                length: min(nsString.length - match.range.location + 1, match.range.length + 2))
+                    let surroundText = nsString.substring(with: surroundRange)
+                    let hasSpecialChar = surroundText.rangeOfCharacter(from: CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;")) != nil
+                    if !hasSpecialChar, let value = Double(matchString), value > 0 {
+                        bestMeterReading = matchString
+                        print("Found digit sequence as meter reading: \(matchString)")
+                        break
+                    }
+                }
+            }
+        }
+        if bestMeterReading == nil {
+            let potentialDecimalPattern = "\\b(\\d+)\\s+(\\d{1,3})\\b"
+            if let regex = try? NSRegularExpression(pattern: potentialDecimalPattern, options: []) {
+                let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+                for match in matches {
+                    if match.numberOfRanges >= 3 {
+                        let wholePart = nsString.substring(with: match.range(at: 1))
+                        let decimalPart = nsString.substring(with: match.range(at: 2))
+                        if decimalPart.count <= 3 {
+                            let combined = "\(wholePart).\(decimalPart)"
+                            bestMeterReading = combined
+                            print("Reconstructed decimal reading: \(combined)")
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        // Extract serial number using helper
+        if let serial = self.extractSerialNumber(from: text) {
+            self.jobNumberText = serial
+            print("Extracted serial number: \(serial)")
+        }
+        DispatchQueue.main.async {
+            if let reading = bestMeterReading {
+                if self.selectedSingleMeter == .small {
+                    self.viewModel.smallMeterStart = reading
+                } else {
+                    self.viewModel.largeMeterStart = reading
+                }
+            }
+            self.viewModel.notes += "\n\(text)"
+        }
+    }
+    
+    // MARK: - Helper Method: Extract Serial Number from Text
+    private func extractSerialNumber(from text: String) -> String? {
+        let serialPattern = "\\b[A-Za-z0-9]{5,15}\\b"
+        guard let regex = try? NSRegularExpression(pattern: serialPattern, options: [.caseInsensitive]) else { return nil }
+        let nsString = text as NSString
+        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+        for match in matches {
+            let matchString = nsString.substring(with: match.range)
+            let specialChars = CharacterSet(charactersIn: "#@$%^&*+=<>{}[]|\\:;/")
+            if matchString.rangeOfCharacter(from: specialChars) == nil {
+                let hasLetters = matchString.rangeOfCharacter(from: .letters) != nil
+                let hasDigits = matchString.rangeOfCharacter(from: .decimalDigits) != nil
+                if (hasLetters && hasDigits) || (matchString.count >= 5 && !matchString.contains(".")) {
+                    return matchString
+                }
+            }
+        }
+        return nil
     }
 }
 
-// A helper view to provide a blur effect (glassmorphism)
+// MARK: - VisualEffectBlur for glassmorphism effect
 struct VisualEffectBlur: UIViewRepresentable {
     var blurStyle: UIBlurEffect.Style
     func makeUIView(context: Context) -> UIVisualEffectView {
@@ -1474,22 +1247,16 @@ struct VisualEffectBlur: UIViewRepresentable {
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) { }
 }
 
+// MARK: - TestRecordedNotification View
 struct TestRecordedNotification: View {
     var body: some View {
-        // A glassmorphism-style card with blur, rounded corners, and a subtle border
         ZStack {
-            // Background blur effect
             VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            // Gradient overlay for a modern, tech-inspired look
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color("AccentColorLight"), Color("AccentColorDark")]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(LinearGradient(gradient: Gradient(colors: [Color("AccentColorLight"), Color("AccentColorDark")]),
+                                     startPoint: .topLeading,
+                                     endPoint: .bottomTrailing))
                 .opacity(0.85)
                 .blendMode(.overlay)
             HStack(spacing: 10) {
@@ -1507,8 +1274,24 @@ struct TestRecordedNotification: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 20)
-        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20 + 16)
+        .padding(.top, (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20) + 16)
         .transition(.move(edge: .top).combined(with: .opacity))
         .zIndex(1)
+    }
+}
+
+// MARK: - Extension to make UIImagePickerController.SourceType Identifiable
+extension UIImagePickerController.SourceType: Identifiable {
+    public var id: Int {
+        switch self {
+        case .camera:
+            return 1
+        case .photoLibrary:
+            return 2
+        case .savedPhotosAlbum:
+            return 3
+        @unknown default:
+            return 0
+        }
     }
 }
