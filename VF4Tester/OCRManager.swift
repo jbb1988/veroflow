@@ -18,7 +18,6 @@ class OCRManager {
         var manufacturer: String?
         var confidence: Float
         var additionalInfo: [String: String] = [:]
-        
         // Raw recognition results before processing
         var rawResults: [VNRecognizedTextObservation] = []
     }
@@ -32,7 +31,19 @@ class OCRManager {
     }
     
     static let shared = OCRManager()
-    private(set) var isProcessing = false
+    
+    // Use a dispatch queue for thread-safe processing
+    private let processingQueue = DispatchQueue(label: "com.ocrmanager.processingQueue")
+    private var _isProcessing: Bool = false
+    private(set) var isProcessing: Bool {
+        get {
+            return processingQueue.sync { _isProcessing }
+        }
+        set {
+            processingQueue.sync { _isProcessing = newValue }
+        }
+    }
+    
     var confidenceThreshold: Float = 0.4
     private(set) var lastProcessingTime: TimeInterval = 0
     
@@ -42,7 +53,8 @@ class OCRManager {
     
     /// Comprehensive method that detects all meter information
     func detectMeterInfo(from image: UIImage, completion: @escaping (Result<MeterDetectionResult, Error>) -> Void) {
-        guard !isProcessing else {
+        // Ensure thread-safe check of processing status
+        if isProcessing {
             completion(.failure(OCRError.alreadyProcessing))
             return
         }
@@ -57,21 +69,25 @@ class OCRManager {
         let processedImage = preprocessImageForMeterType(image, meterType: meterType)
         
         // Perform OCR on the processed image
-        performOCR(on: processedImage) { [weak self] ocrText in
+        performOCR(on: processedImage) { [weak self] (ocrText, observations) in
             guard let self = self else { return }
-            
-            if let text = ocrText {
+            if let text = ocrText, !text.isEmpty {
                 // Extract structured information from the OCR text
                 let reading = self.extractNumericValue(from: text)
                 let serialNumber = self.extractSerialNumber(from: text)
                 let manufacturer = self.checkForManufacturer(in: text)
+                
+                // Compute average confidence from observations
+                let avgConfidence = observations?.compactMap { $0.topCandidates(1).first?.confidence }.reduce(0, +) ?? 0
+                let confidence = observations != nil && !observations!.isEmpty ? avgConfidence / Float(observations!.count) : 0.8
                 
                 // Create the result object
                 var result = MeterDetectionResult(
                     reading: reading,
                     serialNumber: serialNumber,
                     manufacturer: manufacturer,
-                    confidence: 0.8 // Default confidence - could be improved with actual metrics
+                    confidence: confidence,
+                    rawResults: observations ?? []
                 )
                 
                 self.lastProcessingTime = Date().timeIntervalSince(startTime)
@@ -89,40 +105,47 @@ class OCRManager {
         let meterType = classifyMeterType(in: image)
         switch meterType {
         case .digital:
-            // Digital path: use existing digital preprocessors
-            let processedImage1 = image.prepareForOCR() ?? image
-            let processedImage2 = image.preprocessDigitalDisplay() ?? image
-            let processedImage3 = image.prepareForOCR() ?? image
-            
-            // Try all processed versions sequentially
-            performOCR(on: processedImage1) { result1 in
-                if self.containsLikelyMeterReading(in: result1) {
-                    completion(self.postProcessOCRResult(text: result1 ?? ""))
-                } else {
-                    self.performOCR(on: processedImage2) { result2 in
-                        if self.containsLikelyMeterReading(in: result2) && (result1 == nil || !self.containsLikelyMeterReading(in: result1)) {
-                            completion(self.postProcessOCRResult(text: result2 ?? ""))
-                        } else {
-                            self.performOCR(on: processedImage3) { result3 in
-                                if self.containsLikelyMeterReading(in: result3) && (result2 == nil || !self.containsLikelyMeterReading(in: result2)) {
-                                    completion(self.postProcessOCRResult(text: result3 ?? ""))
-                                } else {
-                                    // Default to the best available result after post processing
-                                    let finalResult = result1 ?? result2 ?? result3
-                                    completion(self.postProcessOCRResult(text: finalResult ?? ""))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // Digital path: try an array of preprocessors sequentially
+            let preprocessors: [(UIImage) -> UIImage?] = [
+                { $0.preprocessDigitalDisplay() },
+                { $0.prepareForOCR() },
+                { $0.preprocessEnhancedForOCR() }
+            ]
+            tryPreprocessors(preprocessors, on: image, completion: completion)
         case .analog:
             // Analog path: process with analog-specific preprocessing
             processAnalogMeter(in: image, completion: completion)
         case .unknown:
-            // Fall back to default OCR processing if meter type is uncertain
-            performOCR(on: image, completion: completion)
+            // Fallback to default OCR processing if meter type is uncertain
+            performOCR(on: image) { result, _ in
+                completion(self.postProcessOCRResult(text: result ?? ""))
+            }
         }
+    }
+    
+    /// Helper method to iterate through preprocessors for digital meter
+    private func tryPreprocessors(_ preprocessors: [(UIImage) -> UIImage?], on image: UIImage, completion: @escaping (String?) -> Void) {
+        var index = 0
+        func attempt() {
+            if index >= preprocessors.count {
+                completion(nil)
+                return
+            }
+            if let processedImage = preprocessors[index](image) {
+                performOCR(on: processedImage) { result, _ in
+                    if self.containsLikelyMeterReading(in: result) {
+                        completion(self.postProcessOCRResult(text: result ?? ""))
+                    } else {
+                        index += 1
+                        attempt()
+                    }
+                }
+            } else {
+                index += 1
+                attempt()
+            }
+        }
+        attempt()
     }
     
     // Barcode detection method from the original version
@@ -150,12 +173,13 @@ class OCRManager {
     
     // MARK: - Meter Type Classification
     
-    /// Classify the meter type using a simple heuristic.
+    /// Classify the meter type using a heuristic based on aspect ratio and average brightness.
     func classifyMeterType(in image: UIImage) -> MeterType {
-        // A basic heuristic: if the image aspect ratio is nearly square,
-        // assume analog (e.g., circular gauge), else digital (rectangular LCD).
         let ratio = image.size.width / image.size.height
-        if ratio > 0.8 && ratio < 1.2 {
+        // Compute average brightness (simple approximation)
+        let brightness = image.averageBrightness() ?? 0.5
+        // Heuristic: if nearly square and darker (analog gauges tend to be darker), assume analog
+        if ratio > 0.8 && ratio < 1.2 && brightness < 0.6 {
             return .analog
         } else if ratio >= 1.2 {
             return .digital
@@ -167,11 +191,11 @@ class OCRManager {
     
     /// Process analog meter images.
     func processAnalogMeter(in image: UIImage, completion: @escaping (String?) -> Void) {
-        // For analog meters, we use the analog preprocessor.
         if let analogImage = image.preprocessAnalogMeter() {
-            // Optionally, additional processing can be added here,
-            // such as detecting needle angles or extracting digital readouts.
-            performOCR(on: analogImage, completion: completion)
+            // Wrap the completion to match expected parameters of performOCR
+            performOCR(on: analogImage) { result, _ in
+                completion(result)
+            }
         } else {
             completion(nil)
         }
@@ -192,9 +216,9 @@ class OCRManager {
     // MARK: - OCR Core Implementation
     
     /// Core OCR implementation that processes a single image using Vision
-    private func performOCR(on image: UIImage, completion: @escaping (String?) -> Void) {
+    private func performOCR(on image: UIImage, completion: @escaping (String?, [VNRecognizedTextObservation]?) -> Void) {
         guard let cgImage = image.cgImage else {
-            completion(nil)
+            completion(nil, nil)
             return
         }
         
@@ -202,13 +226,13 @@ class OCRManager {
         
         let request = VNRecognizeTextRequest { request, error in
             if let error = error {
-                print("OCR Error: \(error)")
-                completion(nil)
+                print("OCR Error: \(error.localizedDescription)")
+                completion(nil, nil)
                 return
             }
             
             guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                completion(nil)
+                completion(nil, nil)
                 return
             }
             
@@ -217,47 +241,21 @@ class OCRManager {
             // Process each observation and get up to 5 candidates
             for observation in observations {
                 let candidates = observation.topCandidates(5)
-                let decimalPattern = "\\b\\d+\\.\\d+\\b"  // Highest priority: decimals
-                let integerPattern = "\\b\\d{4,}\\b"       // Next: large integer sequences
-                
-                let decimalRegex = try? NSRegularExpression(pattern: decimalPattern, options: [])
-                let integerRegex = try? NSRegularExpression(pattern: integerPattern, options: [])
-                
-                var foundPrioritizedText = false
-                
-                // First priority: exact decimal numbers
-                for candidate in candidates where !foundPrioritizedText {
-                    let string = candidate.string
-                    let nsStringCandidate = string as NSString
-                    if let regex = decimalRegex,
-                       regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: nsStringCandidate.length)) != nil {
-                        recognizedStrings.append(string)
-                        foundPrioritizedText = true
-                        break
-                    }
+                var foundText: String?
+                // Use prioritized regex patterns
+                if let text = self.extractTextFromCandidates(candidates, withPattern: Self.decimalPattern) {
+                    foundText = text
+                } else if let text = self.extractTextFromCandidates(candidates, withPattern: Self.integerPattern) {
+                    foundText = text
+                } else if let topCandidate = candidates.first {
+                    foundText = topCandidate.string
                 }
-                
-                // Second priority: large integer sequences
-                if !foundPrioritizedText {
-                    for candidate in candidates {
-                        let string = candidate.string
-                        let nsStringCandidate = string as NSString
-                        if let regex = integerRegex,
-                           regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: nsStringCandidate.length)) != nil {
-                            recognizedStrings.append(string)
-                            foundPrioritizedText = true
-                            break
-                        }
-                    }
-                }
-                
-                // If no specific pattern matched, use the top candidate
-                if !foundPrioritizedText, let topCandidate = candidates.first {
-                    recognizedStrings.append(topCandidate.string)
+                if let textFound = foundText {
+                    recognizedStrings.append(textFound)
                 }
             }
             
-            // Reconstruct lines by grouping observations based on their Y position
+            // Group observations by Y position for line reconstruction
             var lines: [String] = []
             var currentLine: [String] = []
             var lastY: CGFloat = -1
@@ -266,6 +264,7 @@ class OCRManager {
                 if index < recognizedStrings.count {
                     let boundingBox = observation.boundingBox
                     let centerY = boundingBox.origin.y + boundingBox.height / 2
+                    // If within 3% of the last line's center, assume same line
                     if lastY == -1 || abs(centerY - lastY) < 0.03 {
                         currentLine.append(recognizedStrings[index])
                     } else {
@@ -277,11 +276,11 @@ class OCRManager {
             }
             
             if !currentLine.isEmpty {
-                lines.append(currentLine.joined(separator: " "))
+                lines.append(currentLine.joined(separator: "\n"))
             }
             
             let text = lines.joined(separator: "\n")
-            completion(text)
+            completion(text, observations)
         }
         
         // Configure request settings optimal for digit recognition
@@ -294,31 +293,43 @@ class OCRManager {
             try requestHandler.perform([request])
         } catch {
             print("OCR Request failed: \(error)")
-            completion(nil)
+            completion(nil, nil)
         }
     }
     
     // MARK: - Helper Methods
     
-    // Helper to check if recognized text likely contains a meter reading
+    private static let decimalPattern = "\\b\\d+\\.\\d+\\b"
+    private static let integerPattern = "\\b\\d{4,}\\b"
+    
+    /// Extract text from candidates using a regex pattern
+    private func extractTextFromCandidates(_ candidates: [VNRecognizedText], withPattern pattern: String) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        for candidate in candidates {
+            let string = candidate.string
+            let nsString = string as NSString
+            if regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: nsString.length)) != nil {
+                return string
+            }
+        }
+        return nil
+    }
+    
+    /// Helper to check if recognized text likely contains a meter reading
     private func containsLikelyMeterReading(in text: String?) -> Bool {
         guard let text = text else { return false }
-        // Updated pattern to allow comma-separated numbers and decimals
         let pattern = "\\b\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?\\b"
-        let regex = try? NSRegularExpression(pattern: pattern, options: [])
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return false }
         let nsString = text as NSString
-        let matches = regex?.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-        // Return true if any match contains either a comma or a decimal point
-        return matches?.contains(where: { match in
+        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+        return matches.contains { match in
             let matchedString = nsString.substring(with: match.range)
             return matchedString.contains(",") || matchedString.contains(".")
-        }) ?? false
+        }
     }
     
     // Post-process OCR result using additional heuristics
     func postProcessOCRResult(text: String) -> String {
-        // Additional logic to validate and correct OCR results could be implemented here.
-        // For now, we simply return the text unchanged.
         return text
     }
     
@@ -328,16 +339,17 @@ class OCRManager {
     func extractNumericValue(from text: String) -> String? {
         let nsString = text as NSString
         
-        // 1) First, specifically look for a number preceding "gallons" or "gal".
-        //    Pattern example: "227.79 gallons" or "12,345.67 gal"
-        let precedingGallonsPattern = "(\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal|gallons))"
+        // 1) Look for a number preceding "gallons"/"gal"/"gallon" (case-insensitive).
+        //    This pattern handles singular/plural and any digits or decimals.
+        //    Example: "000227279 gallons" or "12345.67 gal"
+        //    We also allow newlines/whitespace with \s*.
+        let precedingGallonsPattern = "(\\d+(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal(?:lon)?s?))"
         if let regex = try? NSRegularExpression(pattern: precedingGallonsPattern, options: .caseInsensitive) {
             let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
             if let match = results.first {
                 let matchString = nsString.substring(with: match.range)
-                // Remove commas for standard numeric parsing if needed
                 let normalized = matchString.replacingOccurrences(of: ",", with: "")
-                print("Found numeric preceding gallons: \(matchString) normalized to \(normalized)")
+                print("Found numeric preceding 'gal/gallon/gallons': \(matchString) normalized to \(normalized)")
                 return normalized
             }
         }
@@ -348,16 +360,14 @@ class OCRManager {
             let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
             if let match = results.first {
                 let matchString = nsString.substring(with: match.range)
-                // Remove commas so the number can be parsed correctly if needed
                 let normalized = matchString.replacingOccurrences(of: ",", with: "")
                 print("Found digital meter reading with comma: \(matchString) normalized to \(normalized)")
                 return normalized
             }
         }
         
-        // 3) Then, try to find a standard decimal number without commas.
-        let decimalPattern = "\\b\\d+\\.\\d+\\b"
-        if let regex = try? NSRegularExpression(pattern: decimalPattern, options: []) {
+        // 3) Try to find a standard decimal number without commas.
+        if let regex = try? NSRegularExpression(pattern: "\\b\\d+\\.\\d+\\b", options: []) {
             let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
             if let match = results.first {
                 return nsString.substring(with: match.range)
@@ -385,11 +395,11 @@ class OCRManager {
         }
         
         let serialPattern = "\\b[A-Z0-9]{5,15}\\b"
-        let regex = try? NSRegularExpression(pattern: serialPattern, options: [.caseInsensitive])
+        guard let regex = try? NSRegularExpression(pattern: serialPattern, options: [.caseInsensitive]) else { return nil }
         let nsString = text as NSString
-        let results = regex?.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+        let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
         
-        for match in results ?? [] {
+        for match in results {
             let matchRange = match.range
             let matchString = nsString.substring(with: matchRange)
             let contextStart = max(0, matchRange.location - 1)
@@ -416,27 +426,28 @@ class OCRManager {
     
     /// Check for manufacturer names in text
     func checkForManufacturer(in text: String) -> String? {
-        // List of common water meter manufacturers
         let manufacturers = [
             "Neptune", "Sensus", "Badger", "Kamstrup", "Zenner",
             "Mueller", "Arad", "Itron", "Diehl", "Master Meter"
         ]
         
         let lowercaseText = text.lowercased()
-        
         for manufacturer in manufacturers {
             if lowercaseText.contains(manufacturer.lowercased()) {
                 return manufacturer
             }
         }
-        
         return nil
     }
     
     // MARK: - Utility Methods for External Usage
     
     /// Apply detected information directly to a view model
-    static func applyDetectionToViewModel(_ viewModel: TestViewModel, from image: UIImage, selectedMeter: TestView.SingleMeterOption, completion: @escaping (Bool) -> Void) {
+    static func applyDetectionToViewModel(_ viewModel: TestViewModel,
+                                          from image: UIImage,
+                                          selectedMeter: TestView.SingleMeterOption,
+                                          completion: @escaping (Bool) -> Void)
+    {
         let processedImage = image.prepareForOCR() ?? image
         
         OCRManager.shared.detectMeterInfo(from: processedImage) { result in
@@ -445,7 +456,7 @@ class OCRManager {
                 DispatchQueue.main.async {
                     var detectedInfo: [String] = []
                     
-                    // Apply the reading to the START field
+                    // Apply the reading to the appropriate meter field
                     if let reading = detectionResult.reading {
                         if selectedMeter == .small {
                             viewModel.smallMeterStart = reading
@@ -466,21 +477,37 @@ class OCRManager {
                         detectedInfo.append("Detected serial number: \(serialNumber)")
                     }
                     
-                    // Add detected information to notes field if there's any info
+                    // Retrieve the entire recognized text (non-optional)
+                    let allText = detectionResult.rawResults
+                        .flatMap { $0.topCandidates(1).map { $0.string } }
+                        .joined(separator: "\n")
+                    
+                    var recognizedTextBlock = ""
+                    if !allText.isEmpty {
+                        recognizedTextBlock = "\nDetected Text:\n\(allText)"
+                    }
+                    
+                    // Build the new info block
+                    var newInfoBlock = "--- Auto-Detected Information (\(Date())) ---\n"
                     if !detectedInfo.isEmpty {
-                        let existingNotes = viewModel.notes
-                        let newInfo = "--- Auto-Detected Information ---\n" + detectedInfo.joined(separator: "\n")
-                        
+                        newInfoBlock += detectedInfo.joined(separator: "\n")
+                    }
+                    if !recognizedTextBlock.isEmpty {
+                        newInfoBlock += recognizedTextBlock
+                    }
+                    
+                    // Append only if this block is not already in existing notes
+                    let existingNotes = viewModel.notes
+                    if !newInfoBlock.isEmpty, !existingNotes.contains(newInfoBlock) {
                         if existingNotes.isEmpty {
-                            viewModel.notes = newInfo
+                            viewModel.notes = newInfoBlock
                         } else {
-                            viewModel.notes = existingNotes + "\n\n" + newInfo
+                            viewModel.notes = existingNotes + "\n\n" + newInfoBlock
                         }
                     }
                     
                     completion(detectionResult.reading != nil || detectionResult.serialNumber != nil)
                 }
-                
             case .failure(let error):
                 print("Meter detection failed: \(error.localizedDescription)")
                 completion(false)
@@ -491,7 +518,6 @@ class OCRManager {
 
 // MARK: - UIImage extensions for preprocessing
 
-// UIImage extension for preprocessing methods used by OCRManager
 extension UIImage {
     func preprocessAnalogMeter() -> UIImage? {
         // For analog meters, auto rotate and apply grayscale with contrast adjustment
@@ -515,31 +541,38 @@ extension UIImage {
     }
     
     func preprocessForSerialNumber() -> UIImage? {
-        // Simplified implementation to fix the error
-        // This applies higher contrast and sharpening to make text more readable
+        // Simplified implementation: apply standard OCR preprocessing
         return self.preprocessForOCR()
     }
     
     func perspectiveCorrection() -> UIImage? {
-        // Simplified implementation to fix the error
-        // For now, just return the original image since we can't implement the 
-        // full perspective correction without OpenCVWrapper support
+        guard let ciImage = CIImage(image: self) else { return self }
+        let filter = CIFilter(name: "CIPerspectiveCorrection")
+        filter?.setValue(ciImage, forKey: kCIInputImageKey)
+        // Use image corners as default for basic correction
+        filter?.setValue(CIVector(x: 0, y: 0), forKey: "inputTopLeft")
+        filter?.setValue(CIVector(x: ciImage.extent.width, y: 0), forKey: "inputTopRight")
+        filter?.setValue(CIVector(x: 0, y: ciImage.extent.height), forKey: "inputBottomLeft")
+        filter?.setValue(CIVector(x: ciImage.extent.width, y: ciImage.extent.height), forKey: "inputBottomRight")
+        
+        let context = CIContext()
+        if let outputImage = filter?.outputImage,
+           let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent) {
+            return UIImage(cgImage: outputCGImage)
+        }
         return self
     }
     
-    /// Prepare an image for optimal OCR detection
+    /// Prepare an image for optimal OCR detection by converting to grayscale and adjusting contrast.
     func prepareForOCR() -> UIImage? {
         guard let cgImage = self.cgImage else { return nil }
-        
-        // Convert to grayscale for better OCR
         let ciImage = CIImage(cgImage: cgImage)
         let context = CIContext()
         
-        // Apply grayscale filter
         let filter = CIFilter(name: "CIColorControls")
         filter?.setValue(ciImage, forKey: kCIInputImageKey)
         filter?.setValue(0, forKey: kCIInputSaturationKey) // Desaturate
-        filter?.setValue(1.1, forKey: kCIInputContrastKey) // Increase contrast
+        filter?.setValue(1.1, forKey: kCIInputContrastKey)   // Increase contrast
         
         guard let outputImage = filter?.outputImage,
               let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent) else {
@@ -547,5 +580,27 @@ extension UIImage {
         }
         
         return UIImage(cgImage: outputCGImage)
+    }
+    
+    /// Calculate average brightness of an image (simple approximation)
+    func averageBrightness() -> CGFloat? {
+        guard let inputImage = CIImage(image: self) else { return nil }
+        let extent = inputImage.extent
+        let filter = CIFilter(name: "CIAreaAverage",
+                              parameters: [kCIInputImageKey: inputImage,
+                                           kCIInputExtentKey: CIVector(cgRect: extent)])
+        guard let outputImage = filter?.outputImage else { return nil }
+        
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: NSNull()])
+        context.render(outputImage,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: nil)
+        
+        let brightness = CGFloat(bitmap[0]) / 255.0
+        return brightness
     }
 }
