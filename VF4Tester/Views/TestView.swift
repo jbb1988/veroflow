@@ -1425,8 +1425,6 @@ struct TestView: View {
                     }
                 }
         }
-
-
         .gesture(
             TapGesture()
                 .onEnded { _ in
@@ -1439,9 +1437,6 @@ struct TestView: View {
         .confirmationDialog("Select Image Source", isPresented: $showImageSourceSheet, titleVisibility: .visible) {
             Button("Camera") {
                 selectedImageSource = .camera
-            }
-            Button("Photo Library") {
-                selectedImageSource = .photoLibrary
             }
             Button("Cancel", role: .cancel) { }
         }
