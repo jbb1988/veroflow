@@ -5,24 +5,24 @@ import UIKit
 
 struct TestHistoryView: View {
     @EnvironmentObject var viewModel: TestViewModel
-    
+
     // Local State
     @State private var searchText = ""
     @State private var selectedResult: TestResult? = nil
     @State private var showingExportSheet = false
-    
+
     @State private var selectedHistoryFilter: FilterOption
     @State private var selectedSortOrder: SortOrder
     @State private var selectedMeterSize: MeterSizeFilter
     @State private var selectedManufacturer: MeterManufacturerFilter
     @State private var startDate: Date
     @State private var endDate: Date
-    
+
     @State private var isFilterExpanded = false
     @State private var exportedData: URL? = nil
     @State private var showShareSheet = false
     @Environment(\.presentationMode) var presentationMode
-    
+
     @State private var showingExportAllSheet = false
     @State private var exportAllData: URL? = nil
     @State private var showExportAllShareSheet = false
@@ -180,17 +180,12 @@ struct TestHistoryView: View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
                 Color.black.edgesIgnoringSafeArea(.all)
-                
                 VStack(spacing: 0) {
-                    Color.clear
-                        .frame(height: 100)
-                    
+                    Color.clear.frame(height: 100)
                     SearchBar(text: $searchText)
-                        .padding(Edge.Set.horizontal)
-                        .padding(Edge.Set.vertical, 8)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                         .background(Color.black)
-                    
-                    // The compact filter row (date range, sort, etc.)
                     CompactFilterPill(
                         isExpanded: $isFilterExpanded,
                         selectedFilter: $selectedHistoryFilter,
@@ -203,7 +198,6 @@ struct TestHistoryView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 8)
                     .background(Color.black)
-                    
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             if filteredResults.isEmpty {
@@ -233,7 +227,6 @@ struct TestHistoryView: View {
                         .padding(.vertical)
                     }
                 }
-                
                 Button(action: {
                     showingExportAllSheet = true
                 }) {
@@ -249,48 +242,33 @@ struct TestHistoryView: View {
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
             }
-            
-            // Modals and sheets
             .sheet(item: $selectedResult) { result in
                 TestDetailView(result: result)
-            }
-            .actionSheet(isPresented: $showingExportSheet) {
-                ActionSheet(
-                    title: Text("Export Test History"),
-                    buttons: [
-                        .default(Text("Export as PDF")) {
-                            if let url = generatePDF() {
-                                exportedData = url
-                                showShareSheet = true
-                            }
-                        },
-                        .default(Text("Export as CSV")) {
-                            if let url = generateCSV() {
-                                exportedData = url
-                                showShareSheet = true
-                            }
-                        },
-                        .cancel()
-                    ]
-                )
-            }
-            .sheet(isPresented: $showShareSheet) {
-                if let url = exportedData {
-                    ShareSheet(activityItems: [url])
-                }
             }
             .actionSheet(isPresented: $showingExportAllSheet) {
                 ActionSheet(
                     title: Text("Export All Test History"),
                     buttons: [
                         .default(Text("Export as PDF")) {
-                            if let url = generatePDF() {
+                            if let url = generatePDF(withNotes: true) {
+                                exportAllData = url
+                                showExportAllShareSheet = true
+                            }
+                        },
+                        .default(Text("Export as PDF w/o Notes")) {
+                            if let url = generatePDF(withNotes: false) {
                                 exportAllData = url
                                 showExportAllShareSheet = true
                             }
                         },
                         .default(Text("Export as CSV")) {
-                            if let url = generateCSV() {
+                            if let url = generateCSV(withNotes: true) {
+                                exportAllData = url
+                                showExportAllShareSheet = true
+                            }
+                        },
+                        .default(Text("Export as CSV w/o Notes")) {
+                            if let url = generateCSV(withNotes: false) {
                                 exportAllData = url
                                 showExportAllShareSheet = true
                             }
@@ -309,51 +287,92 @@ struct TestHistoryView: View {
     
     // MARK: - Export PDF & CSV
     
-    /// Export all filtered results to PDF
-    func generatePDF() -> URL? {
-        guard let pdfData = generatePDFData() else { return nil }
-        let fileName = "test_history_\(Date().timeIntervalSince1970).pdf"
+    func generatePDF(withNotes: Bool) -> URL? {
+        guard let pdfData = generatePDFData(withNotes: withNotes) else { return nil }
+        let fileName = withNotes ? "test_history_\(Date().timeIntervalSince1970).pdf" : "test_history_no_notes_\(Date().timeIntervalSince1970).pdf"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? pdfData.write(to: url)
         return url
     }
-
-    /// Export all filtered results to CSV
-    func generateCSV() -> URL? {
-        guard let csvData = generateCSVData() else { return nil }
-        let fileName = "test_history_\(Date().timeIntervalSince1970).csv"
+    
+    func generateCSV(withNotes: Bool) -> URL? {
+        guard let csvData = generateCSVData(withNotes: withNotes) else { return nil }
+        let fileName = withNotes ? "test_history_\(Date().timeIntervalSince1970).csv" : "test_history_no_notes_\(Date().timeIntervalSince1970).csv"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? csvData.write(to: url)
         return url
     }
-
-    /// Generate the PDF data for all filtered test results
-    func generatePDFData() -> Data? {
+    
+    // Modified escapeCSV function to properly handle multiline text for Excel compatibility
+    func escapeCSV(_ text: String) -> String {
+        // First escape quotes by doubling them
+        var escaped = text.replacingOccurrences(of: "\"", with: "\"\"")
+        
+        // For CSV to properly handle multilines in Excel and other tools,
+        // we need to preserve newlines but make sure they're preserved when opened in Excel
+        // We'll replace newlines with a special character sequence that Excel recognizes
+        escaped = escaped.replacingOccurrences(of: "\n", with: "\r")
+        
+        return escaped
+    }
+    
+    func generateCSVData(withNotes: Bool) -> Data? {
+        let df = DateFormatter()
+        df.dateFormat = "MM/dd/yy h:mm a"
+        if withNotes {
+            var csvString = "Date,Serial Number,Test Type,Meter Size,Meter MFG,Accuracy,Status,Notes\n"
+            for result in filteredResults {
+                let rowData = [
+                    df.string(from: result.date),
+                    result.jobNumber,
+                    result.testType.rawValue,
+                    result.meterSize,
+                    result.meterType,
+                    String(format: "%.1f%%", result.reading.accuracy),
+                    result.isPassing ? "PASS" : "FAIL",
+                    // If notes empty, use "-" otherwise use the full notes
+                    result.notes.isEmpty ? "-" : result.notes
+                ]
+                let row = rowData.map { "\"\(escapeCSV($0))\"" }.joined(separator: ",")
+                csvString += row + "\n"
+            }
+            return csvString.data(using: .utf8)
+        } else {
+            var csvString = "Date,Serial Number,Test Type,Meter Size,Meter MFG,Accuracy,Status\n"
+            for result in filteredResults {
+                let rowData = [
+                    df.string(from: result.date),
+                    result.jobNumber,
+                    result.testType.rawValue,
+                    result.meterSize,
+                    result.meterType,
+                    String(format: "%.1f%%", result.reading.accuracy),
+                    result.isPassing ? "PASS" : "FAIL"
+                ]
+                let row = rowData.map { "\"\(escapeCSV($0))\"" }.joined(separator: ",")
+                csvString += row + "\n"
+            }
+            return csvString.data(using: .utf8)
+        }
+    }
+    
+    func generatePDFData(withNotes: Bool) -> Data? {
         let pdfMetaData = [
             kCGPDFContextCreator: "MARS Company",
             kCGPDFContextAuthor: "VEROflow-4 Test System",
             kCGPDFContextTitle: "Test History Report",
             kCGPDFContextKeywords: "VEROflow, Test Results, Water Meter Testing"
         ]
-        
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
-        
-        // Landscape 11 x 8.5 inches, 72 points/inch
         let pageRect = CGRect(x: 0, y: 0, width: 11 * 72.0, height: 8.5 * 72.0)
         let margin: CGFloat = 36.0
-        
         let df = DateFormatter()
         df.dateFormat = "MM/dd/yy"
-        
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
-        
-        // Headers used in the table
         let headers = ["Date", "Serial Number", "Test Type", "Meter Size", "Meter MFG", "Accuracy", "Status", "Notes"]
-        // Adjust widths so that notes has extra space
         let columnWidths: [CGFloat] = [70, 100, 80, 60, 60, 60, 60, 210]
         let tableWidth = columnWidths.reduce(0, +)
-        
         var currentY: CGFloat = margin
         var currentPage = 1
         
@@ -366,104 +385,86 @@ struct TestHistoryView: View {
                 ] as CFArray,
                 locations: [0, 1]
             )!
-            
             let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
-            context.cgContext.drawLinearGradient(
-                headerGradient,
-                start: CGPoint(x: 0, y: 0),
-                end: CGPoint(x: 0, y: 80),
-                options: []
-            )
-            
+            context.cgContext.drawLinearGradient(headerGradient, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 80), options: [])
             let title = "VEROflow-4 Test Results"
             let titleAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: 24),
                 .foregroundColor: UIColor.white
             ]
-            title.draw(
-                at: CGPoint(x: margin, y: margin),
-                withAttributes: titleAttributes
-            )
-            
+            title.draw(at: CGPoint(x: margin, y: margin), withAttributes: titleAttributes)
             let pageText = "Page \(currentPage)"
             let pageAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 12),
                 .foregroundColor: UIColor.white
             ]
-            pageText.draw(
-                at: CGPoint(x: pageRect.width - margin - 50, y: margin),
-                withAttributes: pageAttributes
-            )
-            
+            pageText.draw(at: CGPoint(x: pageRect.width - margin - 50, y: margin), withAttributes: pageAttributes)
             currentY = 100
         }
         
         func drawTableHeader(context: UIGraphicsPDFRendererContext) {
             let headerBackgroundRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
-            context.cgContext.setFillColor(
-                UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor
-            )
+            context.cgContext.setFillColor(UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor)
             context.cgContext.fill(headerBackgroundRect)
-            
             var xPos = margin
             for (index, header) in headers.enumerated() {
                 let headerAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.boldSystemFont(ofSize: 12),
                     .foregroundColor: UIColor.black
                 ]
-                
                 let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: 25)
                 context.cgContext.stroke(cellRect)
-                
                 let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: 20)
                 let headerAttributedString = NSAttributedString(string: header, attributes: headerAttributes)
                 headerAttributedString.draw(in: textRect)
-                
                 xPos += columnWidths[index]
             }
             let fullHeaderRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
             context.cgContext.stroke(fullHeaderRect)
-            
             currentY += 25
+        }
+        
+        func drawFooter(context: UIGraphicsPDFRendererContext, pageRect: CGRect) {
+            let footerText = "VEROflow-4 Test Report"
+            let footerAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UIColor.gray
+            ]
+            let textSize = footerText.size(withAttributes: footerAttributes)
+            let textRect = CGRect(x: pageRect.width - textSize.width - 20,
+                                  y: pageRect.height - textSize.height - 20,
+                                  width: textSize.width,
+                                  height: textSize.height)
+            footerText.draw(in: textRect, withAttributes: footerAttributes)
         }
         
         return renderer.pdfData { context in
             context.beginPage()
             drawPageHeader(context: context)
-            
             let summaryAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 14),
                 .foregroundColor: UIColor.black
             ]
-            
             let summaryTexts = [
                 "Date Range: \(df.string(from: startDate)) - \(df.string(from: effectiveEndDate))",
                 "Total Tests: \(filteredResults.count)",
                 "Passed Tests: \(filteredResults.filter { $0.isPassing }.count)",
                 "Failed Tests: \(filteredResults.filter { !$0.isPassing }.count)"
             ]
-            
             for text in summaryTexts {
-                text.draw(
-                    at: CGPoint(x: margin, y: currentY),
-                    withAttributes: summaryAttributes
-                )
+                text.draw(at: CGPoint(x: margin, y: currentY), withAttributes: summaryAttributes)
                 currentY += 20
             }
-            
             currentY += 20
             drawTableHeader(context: context)
-            
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.alignment = .left
             paragraphStyle.lineBreakMode = .byWordWrapping
-            
             let baseAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 10),
                 .foregroundColor: UIColor.black,
                 .paragraphStyle: paragraphStyle
             ]
-            
             for result in filteredResults {
                 let rowData = [
                     df.string(from: result.date),
@@ -475,22 +476,18 @@ struct TestHistoryView: View {
                     result.isPassing ? "PASS" : "FAIL",
                     result.notes.isEmpty ? "-" : result.notes
                 ]
-                
-                // measure row height
                 var dynamicRowHeight: CGFloat = 0
                 for (i, text) in rowData.enumerated() {
                     let extraPadding: CGFloat = (i == headers.count - 1) ? 10 : 0
                     let boundingRect = (text as NSString).boundingRect(
                         with: CGSize(width: columnWidths[i] - 10, height: .greatestFiniteMagnitude),
-                        options: .usesLineFragmentOrigin,
+                        options: [.usesLineFragmentOrigin, .usesFontLeading],
                         attributes: baseAttributes,
                         context: nil
                     )
                     dynamicRowHeight = max(dynamicRowHeight, boundingRect.height + 10 + extraPadding)
                 }
                 dynamicRowHeight = max(dynamicRowHeight, 40)
-                
-                // check for page break
                 if currentY + dynamicRowHeight > pageRect.height - margin {
                     drawFooter(context: context, pageRect: pageRect)
                     currentPage += 1
@@ -498,76 +495,29 @@ struct TestHistoryView: View {
                     drawPageHeader(context: context)
                     drawTableHeader(context: context)
                 }
-                
                 let rowBackground = result.isPassing
                     ? UIColor(red: 0.9, green: 1.0, blue: 0.9, alpha: 0.2)
                     : UIColor(red: 1.0, green: 0.9, blue: 0.9, alpha: 0.2)
-                
                 let rowRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: dynamicRowHeight)
                 context.cgContext.setFillColor(rowBackground.cgColor)
                 context.cgContext.fill(rowRect)
-                
                 var xPos = margin
                 for (index, data) in rowData.enumerated() {
                     let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: dynamicRowHeight)
                     context.cgContext.stroke(cellRect)
-                    
                     let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: dynamicRowHeight - 10)
                     let attributedString = NSAttributedString(string: data, attributes: baseAttributes)
                     attributedString.draw(in: textRect)
-                    
                     xPos += columnWidths[index]
                 }
-                
                 currentY += dynamicRowHeight + 10
             }
-            
             drawFooter(context: context, pageRect: pageRect)
         }
     }
-
-    /// Generate CSV data for all filtered test results
-    func generateCSVData() -> Data? {
-        let df = DateFormatter()
-        df.dateFormat = "MM/dd/yy h:mm a"
-        
-        var csvString = "Date,Test Type,Accuracy,Status,Total Volume,Meter Size,Meter MFG,Meter Model,Serial Number\n"
-        for result in filteredResults {
-            let row = [
-                df.string(from: result.date),
-                result.testType.rawValue,
-                String(format: "%.1f%%", result.reading.accuracy),
-                result.isPassing ? "PASS" : "FAIL",
-                String(format: "%.1f Gal", result.reading.totalVolume),
-                result.meterSize,
-                result.meterType,
-                result.meterModel,
-                result.jobNumber
-            ].map { "\"\($0)\"" }.joined(separator: ",")
-            csvString += row + "\n"
-        }
-        
-        return csvString.data(using: .utf8)
-    }
-    
-    // MARK: - Footer Drawing Helper
-    func drawFooter(context: UIGraphicsPDFRendererContext, pageRect: CGRect) {
-        let footerText = "VEROflow-4 Test Report"
-        let footerAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 12),
-            .foregroundColor: UIColor.gray
-        ]
-        let textSize = footerText.size(withAttributes: footerAttributes)
-        let textRect = CGRect(
-            x: pageRect.width - textSize.width - 20,
-            y: pageRect.height - textSize.height - 20,
-            width: textSize.width,
-            height: textSize.height
-        )
-        footerText.draw(in: textRect, withAttributes: footerAttributes)
-    }
     
     // MARK: - TestResultRow
+    /// The custom row that displays each test result in a row with quick actions
     struct TestResultRow: View {
         let result: TestResult
         @State private var isMenuExpanded = false
@@ -593,7 +543,6 @@ struct TestHistoryView: View {
                         Circle()
                             .fill(result.isPassing ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
                     )
-                
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(result.testType.rawValue)
@@ -604,33 +553,22 @@ struct TestHistoryView: View {
                             .bold()
                             .foregroundColor(result.isPassing ? .green : .red)
                     }
-                    
                     Text(result.date.formatted(date: .abbreviated, time: .shortened))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                    
                     HStack(spacing: 12) {
-                        Label(
-                            String(format: "%.1f", result.reading.smallMeterStart),
-                            systemImage: "arrow.forward.circle.fill"
-                        )
-                        .foregroundColor(.blue)
-                        
-                        Label(
-                            String(format: "%.1f", result.reading.smallMeterEnd),
-                            systemImage: "arrow.backward.circle.fill"
-                        )
-                        .foregroundColor(.purple)
-                        
-                        Label(
-                            String(format: "%.1f Gal", result.reading.totalVolume),
-                            systemImage: "drop.fill"
-                        )
-                        .foregroundColor(.cyan)
+                        Label(String(format: "%.1f", result.reading.smallMeterStart),
+                              systemImage: "arrow.forward.circle.fill")
+                            .foregroundColor(.blue)
+                        Label(String(format: "%.1f", result.reading.smallMeterEnd),
+                              systemImage: "arrow.backward.circle.fill")
+                            .foregroundColor(.purple)
+                        Label(String(format: "%.1f Gal", result.reading.totalVolume),
+                              systemImage: "drop.fill")
+                            .foregroundColor(.cyan)
                     }
                     .font(.footnote)
                 }
-                
                 ZStack {
                     ForEach(0..<menuActions.count, id: \.self) { index in
                         Circle()
@@ -653,15 +591,10 @@ struct TestHistoryView: View {
                             }
                             .offset(x: isMenuExpanded ? -CGFloat(index + 1) * 40 : 0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isMenuExpanded)
-                            .onTapGesture {
-                                handleMenuAction(index)
-                            }
+                            .onTapGesture { handleMenuAction(index) }
                     }
-                    
                     Button {
-                        withAnimation {
-                            isMenuExpanded.toggle()
-                        }
+                        withAnimation { isMenuExpanded.toggle() }
                     } label: {
                         Image("Drop")
                             .resizable()
@@ -677,54 +610,51 @@ struct TestHistoryView: View {
                     .fill(Color(UIColor.secondarySystemBackground))
             )
             .contentShape(Rectangle())
-            .sheet(isPresented: $showShareSheet, onDismiss: {
-                exportURL = nil
-            }) {
-                if let url = exportURL {
-                    ShareSheet(activityItems: [url])
-                }
+            .sheet(isPresented: $showShareSheet, onDismiss: { exportURL = nil }) {
+                if let url = exportURL { ShareSheet(activityItems: [url]) }
             }
         }
         
         private func handleMenuAction(_ index: Int) {
             switch index {
-            case 0: // Delete
+            case 0:
+                // Delete
                 if let idx = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
                     viewModel.testResults.remove(at: idx)
                 }
-            case 1: // Share
+            case 1:
+                // Quick PDF share
                 if let pdfData = generatePDFForSingleTest() {
                     let url = FileManager.default.temporaryDirectory.appendingPathComponent("test_result_\(result.date.timeIntervalSince1970).pdf")
                     try? pdfData.write(to: url)
                     exportURL = url
                     showShareSheet = true
                 }
-            case 2: // Print
-                if let pdfData = generatePDFForSingleTest(),
-                   let _ = PDFDocument(data: pdfData) {
+            case 2:
+                // Print
+                if let pdfData = generatePDFForSingleTest(), let _ = PDFDocument(data: pdfData) {
                     let printInteractionController = UIPrintInteractionController.shared
                     let printInfo = UIPrintInfo(dictionary: nil)
                     printInfo.jobName = "Test Result - \(result.date.formatted())"
                     printInfo.outputType = .general
-                    
                     printInteractionController.printInfo = printInfo
                     printInteractionController.printingItem = pdfData
-                    
                     printInteractionController.present(animated: true)
                 }
-            case 3: // Export as PDF
+            case 3:
+                // PDF with name
                 if let pdfData = generatePDFForSingleTest() {
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
                     let dateString = dateFormatter.string(from: result.date)
-                    
                     let fileName = "MARS_VF4_TestReport_\(dateString).pdf"
                     let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                     try? pdfData.write(to: url)
                     exportURL = url
                     showShareSheet = true
                 }
-            case 4: // Export as CSV
+            case 4:
+                // CSV
                 if let csvData = generateCSVForSingleTest() {
                     let url = FileManager.default.temporaryDirectory.appendingPathComponent("test_result_\(result.date.timeIntervalSince1970).csv")
                     try? csvData.write(to: url)
@@ -734,13 +664,10 @@ struct TestHistoryView: View {
             default:
                 break
             }
-            
-            withAnimation {
-                isMenuExpanded = false
-            }
+            withAnimation { isMenuExpanded = false }
         }
         
-        /// Single-test PDF export, matching the "Export All" format
+        /// Single-test PDF export, matching the "Export All" format (using only 'result')
         func generatePDFForSingleTest() -> Data? {
             let pdfMetaData = [
                 kCGPDFContextCreator: "MARS Company",
@@ -748,23 +675,16 @@ struct TestHistoryView: View {
                 kCGPDFContextTitle: "Test History Report",
                 kCGPDFContextKeywords: "VEROflow, Test Results, Water Meter Testing"
             ]
-            
             let format = UIGraphicsPDFRendererFormat()
             format.documentInfo = pdfMetaData as [String: Any]
-            
             let pageRect = CGRect(x: 0, y: 0, width: 11 * 72.0, height: 8.5 * 72.0)
             let margin: CGFloat = 36.0
-            
             let df = DateFormatter()
             df.dateFormat = "MM/dd/yy"
-            
             let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
-            
-            // Same columns as "Export All"
             let headers = ["Date", "Serial Number", "Test Type", "Meter Size", "Meter MFG", "Accuracy", "Status", "Notes"]
             let columnWidths: [CGFloat] = [70, 100, 80, 60, 60, 60, 60, 210]
             let tableWidth = columnWidths.reduce(0, +)
-            
             var currentY: CGFloat = margin
             var currentPage = 1
             
@@ -777,117 +697,86 @@ struct TestHistoryView: View {
                     ] as CFArray,
                     locations: [0, 1]
                 )!
-                
                 let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
-                context.cgContext.drawLinearGradient(
-                    headerGradient,
-                    start: CGPoint(x: 0, y: 0),
-                    end: CGPoint(x: 0, y: 80),
-                    options: []
-                )
-                
+                context.cgContext.drawLinearGradient(headerGradient, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 80), options: [])
                 let title = "VEROflow-4 Test Results"
                 let titleAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.boldSystemFont(ofSize: 24),
                     .foregroundColor: UIColor.white
                 ]
-                title.draw(
-                    at: CGPoint(x: margin, y: margin),
-                    withAttributes: titleAttributes
-                )
-                
+                title.draw(at: CGPoint(x: margin, y: margin), withAttributes: titleAttributes)
                 let pageText = "Page \(currentPage)"
                 let pageAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 12),
                     .foregroundColor: UIColor.white
                 ]
-                pageText.draw(
-                    at: CGPoint(x: pageRect.width - margin - 50, y: margin),
-                    withAttributes: pageAttributes
-                )
-                
+                pageText.draw(at: CGPoint(x: pageRect.width - margin - 50, y: margin), withAttributes: pageAttributes)
                 currentY = 100
             }
             
             func drawTableHeader(context: UIGraphicsPDFRendererContext) {
                 let headerBackgroundRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
-                context.cgContext.setFillColor(
-                    UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor
-                )
+                context.cgContext.setFillColor(UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor)
                 context.cgContext.fill(headerBackgroundRect)
-                
                 var xPos = margin
                 for (index, header) in headers.enumerated() {
                     let headerAttributes: [NSAttributedString.Key: Any] = [
                         .font: UIFont.boldSystemFont(ofSize: 12),
                         .foregroundColor: UIColor.black
                     ]
-                    
                     let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: 25)
                     context.cgContext.stroke(cellRect)
-                    
                     let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: 20)
                     let headerAttributedString = NSAttributedString(string: header, attributes: headerAttributes)
                     headerAttributedString.draw(in: textRect)
-                    
                     xPos += columnWidths[index]
                 }
                 let fullHeaderRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
                 context.cgContext.stroke(fullHeaderRect)
-                
                 currentY += 25
             }
             
-            func drawFooter(context: UIGraphicsPDFRendererContext) {
+            func drawFooter(context: UIGraphicsPDFRendererContext, pageRect: CGRect) {
                 let footerText = "VEROflow-4 Test Report"
                 let footerAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 12),
                     .foregroundColor: UIColor.gray
                 ]
                 let textSize = footerText.size(withAttributes: footerAttributes)
-                let textRect = CGRect(
-                    x: pageRect.width - textSize.width - 20,
-                    y: pageRect.height - textSize.height - 20,
-                    width: textSize.width,
-                    height: textSize.height
-                )
+                let textRect = CGRect(x: pageRect.width - textSize.width - 20,
+                                      y: pageRect.height - textSize.height - 20,
+                                      width: textSize.width,
+                                      height: textSize.height)
                 footerText.draw(in: textRect, withAttributes: footerAttributes)
             }
-            
-            // Single test summary
-            let totalTests = 1
-            let passedTests = result.isPassing ? 1 : 0
-            let failedTests = result.isPassing ? 0 : 1
             
             return renderer.pdfData { context in
                 context.beginPage()
                 drawPageHeader(context: context)
-                
-                // Summaries
                 let summaryAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 14),
                     .foregroundColor: UIColor.black
                 ]
-                
                 let summaryTexts = [
                     "Date Range: \(df.string(from: result.date)) - \(df.string(from: result.date))",
-                    "Total Tests: \(totalTests)",
-                    "Passed Tests: \(passedTests)",
-                    "Failed Tests: \(failedTests)"
+                    "Total Tests: 1",
+                    "Passed Tests: \(result.isPassing ? 1 : 0)",
+                    "Failed Tests: \(result.isPassing ? 0 : 1)"
                 ]
-                
                 for text in summaryTexts {
-                    text.draw(
-                        at: CGPoint(x: margin, y: currentY),
-                        withAttributes: summaryAttributes
-                    )
+                    text.draw(at: CGPoint(x: margin, y: currentY), withAttributes: summaryAttributes)
                     currentY += 20
                 }
-                
                 currentY += 20
                 drawTableHeader(context: context)
-                
-                // Single row data
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .left
+                paragraphStyle.lineBreakMode = .byWordWrapping
+                let baseAttributes: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: 10),
+                    .foregroundColor: UIColor.black,
+                    .paragraphStyle: paragraphStyle
+                ]
                 let rowData = [
                     df.string(from: result.date),
                     result.jobNumber,
@@ -898,44 +787,31 @@ struct TestHistoryView: View {
                     result.isPassing ? "PASS" : "FAIL",
                     result.notes.isEmpty ? "-" : result.notes
                 ]
-                
-                let paragraphStyle = NSMutableParagraphStyle()
-                paragraphStyle.alignment = .left
-                paragraphStyle.lineBreakMode = .byWordWrapping
-                let baseAttributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 10),
-                    .foregroundColor: UIColor.black,
-                    .paragraphStyle: paragraphStyle
-                ]
-                
                 var dynamicRowHeight: CGFloat = 0
                 for (i, text) in rowData.enumerated() {
                     let extraPadding: CGFloat = (i == headers.count - 1) ? 10 : 0
                     let boundingRect = (text as NSString).boundingRect(
                         with: CGSize(width: columnWidths[i] - 10, height: .greatestFiniteMagnitude),
-                        options: .usesLineFragmentOrigin,
+                        options: [.usesLineFragmentOrigin, .usesFontLeading],
                         attributes: baseAttributes,
                         context: nil
                     )
                     dynamicRowHeight = max(dynamicRowHeight, boundingRect.height + 10 + extraPadding)
                 }
                 dynamicRowHeight = max(dynamicRowHeight, 40)
-                
-                if currentY + dynamicRowHeight > pageRect.height - margin {
-                    drawFooter(context: context)
+                if currentY + dynamicRowHeight > pageRect.height - 36.0 {
+                    drawFooter(context: context, pageRect: pageRect)
                     currentPage += 1
                     context.beginPage()
                     drawPageHeader(context: context)
                     drawTableHeader(context: context)
                 }
-                
                 let rowBackground = result.isPassing
                     ? UIColor(red: 0.9, green: 1.0, blue: 0.9, alpha: 0.2)
                     : UIColor(red: 1.0, green: 0.9, blue: 0.9, alpha: 0.2)
                 let rowRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: dynamicRowHeight)
                 context.cgContext.setFillColor(rowBackground.cgColor)
                 context.cgContext.fill(rowRect)
-                
                 var xPos = margin
                 for (index, data) in rowData.enumerated() {
                     let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: dynamicRowHeight)
@@ -945,19 +821,31 @@ struct TestHistoryView: View {
                     attributedString.draw(in: textRect)
                     xPos += columnWidths[index]
                 }
-                
                 currentY += dynamicRowHeight + 10
-                drawFooter(context: context)
+                drawFooter(context: context, pageRect: pageRect)
             }
         }
         
         /// Single-test CSV export, matching the "Export All" columns
         func generateCSVForSingleTest() -> Data? {
             let df = DateFormatter()
-            df.dateFormat = "MM/dd/yy"
+            df.dateFormat = "MM/dd/yy h:mm a"
+            
+            func escapeCSV(_ text: String) -> String {
+                // First escape quotes by doubling them
+                var escaped = text.replacingOccurrences(of: "\"", with: "\"\"")
+                
+                // For CSV to properly handle multilines in Excel and other tools,
+                // we need to preserve newlines but make sure they're preserved when opened in Excel
+                // We'll replace newlines with a special character sequence that Excel recognizes
+                escaped = escaped.replacingOccurrences(of: "\n", with: "\r")
+                
+                return escaped
+            }
             
             let header = "Date,Serial Number,Test Type,Meter Size,Meter MFG,Accuracy,Status,Notes\n"
-            let row = [
+            // Create an array of strings first
+            let rowData = [
                 df.string(from: result.date),
                 result.jobNumber,
                 result.testType.rawValue,
@@ -966,9 +854,11 @@ struct TestHistoryView: View {
                 String(format: "%.1f%%", result.reading.accuracy),
                 result.isPassing ? "PASS" : "FAIL",
                 result.notes.isEmpty ? "-" : result.notes
-            ].map { "\"\($0)\"" }.joined(separator: ",")
+            ]
+            // Then convert each string to CSV format
+            let formattedRow = rowData.map { "\"\(escapeCSV($0))\"" }.joined(separator: ",")
             
-            let csvString = header + row + "\n"
+            let csvString = header + formattedRow + "\n"
             return csvString.data(using: .utf8)
         }
     }
