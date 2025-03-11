@@ -354,6 +354,15 @@ struct AnalyticsView: View {
         @Binding var selectedManufacturer: TestHistoryView.MeterManufacturerFilter
         
         @State private var isFilterExpanded: Bool = false
+
+        private func clearAllFilters() {
+            selectedHistoryFilter = .all
+            selectedSortOrder = .descending
+            selectedMeterSize = .all
+            selectedManufacturer = .all
+            chartStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+            chartEndDate = Date()
+        }
         
         var body: some View {
             DetailCard(title: "Chart Options") {

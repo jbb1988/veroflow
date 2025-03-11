@@ -87,19 +87,41 @@ struct CompactFilterPill: View {
                         endDate: $endDate
                     )
                     
-                    // Close Button
-                    Button(action: {
-                        withAnimation {
-                            isExpanded = false
+                    // Close and Clear All buttons
+                    HStack(spacing: 12) {
+                        // Close button
+                        Button(action: {
+                            withAnimation {
+                                isExpanded = false
+                            }
+                        }) {
+                            Text("Close")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .cornerRadius(8)
                         }
-                    }) {
-                        Text("Close")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .cornerRadius(8)
+                        
+                        // Clear All button
+                        Button(action: {
+                            // Reset all filters
+                            selectedFilter = .all
+                            selectedSort = .descending
+                            selectedMeterSize = .all
+                            selectedManufacturer = .all
+                            startDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+                            endDate = Date()
+                        }) {
+                            Text("Clear All")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.red)
+                                .cornerRadius(8)
+                        }
                     }
                 }
                 .padding(16)
