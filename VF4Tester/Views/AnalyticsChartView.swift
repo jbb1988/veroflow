@@ -6,6 +6,9 @@ struct AnalyticsChartView: View {
     let averageAccuracy: Double
     let accuracyDomain: ClosedRange<Double>
     @Binding var showTrendLine: Bool
+
+    // New closure for handling taps on chart dots:
+    var onTestSelected: ((TestResult) -> Void)? = nil
     
     var body: some View {
         Chart {
@@ -47,6 +50,9 @@ struct AnalyticsChartView: View {
                         )
                         .frame(width: 10, height: 10)
                         .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .onTapGesture {
+                            onTestSelected?(result)
+                        }
                 }
             }
 
@@ -97,8 +103,25 @@ struct AnalyticsChartView: View {
                 }
             }
         }
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                Color.clear
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onEnded { value in
+                                let location = value.location
+                                if let tappedDate: Date = proxy.value(atX: location.x) {
+                                    // Find the test result with the nearest date to the tapped date
+                                    if let nearest = chartFilteredResults.min(by: { abs($0.date.timeIntervalSince1970 - tappedDate.timeIntervalSince1970) < abs($1.date.timeIntervalSince1970 - tappedDate.timeIntervalSince1970) }) {
+                                        onTestSelected?(nearest)
+                                    }
+                                }
+                            }
+                    )
+            }
+        }
         .frame(height: 300)
         .padding()
     }
 }
-

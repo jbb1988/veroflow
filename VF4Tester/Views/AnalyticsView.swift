@@ -45,13 +45,15 @@ struct AnalyticsView: View {
     
     // Effective end date.
     var effectiveEndDate: Date {
-        max(chartEndDate, Date())
+        chartEndDate
     }
     
     // Chart filtering using the new chart filter options.
     var chartFilteredResults: [TestResult] {
         let filtered = viewModel.testResults.filter { result in
-            let inDateRange = (result.date >= chartStartDate) && (result.date <= effectiveEndDate)
+            let startOfDay = Calendar.current.startOfDay(for: chartStartDate)
+            let endOfDay = Calendar.current.startOfDay(for: chartEndDate).addingTimeInterval(86399)
+            let inDateRange = (result.date >= startOfDay) && (result.date <= endOfDay)
             let filterMatch: Bool = {
                 switch chartHistoryFilter {
                 case .all: return true
@@ -257,7 +259,10 @@ struct AnalyticsView: View {
                                 chartFilteredResults: chartFilteredResults,
                                 averageAccuracy: averageAccuracy,
                                 accuracyDomain: accuracyDomain.lowerBound - 5...accuracyDomain.upperBound + 5,
-                                showTrendLine: $showTrendLine
+                                showTrendLine: $showTrendLine,
+                                onTestSelected: { test in
+                                    selectedTest = test
+                                }
                             )
                             .padding(.horizontal)
                             .padding(.vertical, 8)
@@ -265,7 +270,7 @@ struct AnalyticsView: View {
                     }
                     
                     // Recent Tests Card.
-                    RecentTestsView(results: statFilteredResults, selectedTest: $selectedTest)
+                    RecentTestsView(results: chartFilteredResults, selectedTest: $selectedTest)
                 }
                 .padding()
             }
@@ -352,18 +357,20 @@ struct AnalyticsView: View {
         
         var body: some View {
             DetailCard(title: "Chart Options") {
-                CompactFilterPill(
-                    isExpanded: $isFilterExpanded,
-                    selectedFilter: $selectedHistoryFilter,
-                    selectedSort: $selectedSortOrder,
-                    startDate: $chartStartDate,
-                    endDate: $chartEndDate,
-                    selectedMeterSize: $selectedMeterSize,
-                    selectedManufacturer: $selectedManufacturer
-                )
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color.black)
+                VStack {
+                    CompactFilterPill(
+                        isExpanded: $isFilterExpanded,
+                        selectedFilter: $selectedHistoryFilter,
+                        selectedSort: $selectedSortOrder,
+                        startDate: $chartStartDate,
+                        endDate: $chartEndDate,
+                        selectedMeterSize: $selectedMeterSize,
+                        selectedManufacturer: $selectedManufacturer
+                    )
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color.black)
+                }
             }
         }
     }

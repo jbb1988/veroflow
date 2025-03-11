@@ -34,7 +34,10 @@ class OCRManager {
     
     // Use a dispatch queue for thread-safe processing
     private let processingQueue = DispatchQueue(label: "com.ocrmanager.processingQueue")
+    
     private var _isProcessing: Bool = false
+    
+    // Provide public read, private write access
     private(set) var isProcessing: Bool {
         get {
             return processingQueue.sync { _isProcessing }
@@ -79,7 +82,9 @@ class OCRManager {
                 
                 // Compute average confidence from observations
                 let avgConfidence = observations?.compactMap { $0.topCandidates(1).first?.confidence }.reduce(0, +) ?? 0
-                let confidence = observations != nil && !observations!.isEmpty ? avgConfidence / Float(observations!.count) : 0.8
+                let confidence = (observations != nil && !observations!.isEmpty)
+                    ? avgConfidence / Float(observations!.count)
+                    : 0.8
                 
                 // Create the result object
                 var result = MeterDetectionResult(
@@ -162,16 +167,22 @@ class OCRManager {
         }
         
         let barcodeRequest = VNDetectBarcodesRequest { request, error in
-            if let observations = request.results as? [VNBarcodeObservation] {
-                let results = observations.compactMap { observation -> BarcodeResult? in
-                    guard let payload = observation.payloadStringValue, !payload.isEmpty else { return nil }
-                    let symbology = observation.symbology.rawValue
-                    return BarcodeResult(symbology: symbology, payload: payload)
-                }
-                completion(results.isEmpty ? nil : results)
-            } else {
+            if let error = error {
                 completion(nil)
+                return
             }
+            
+            guard let observations = request.results as? [VNBarcodeObservation] else {
+                completion(nil)
+                return
+            }
+            
+            let results = observations.compactMap { observation -> BarcodeResult? in
+                guard let payload = observation.payloadStringValue, !payload.isEmpty else { return nil }
+                let symbology = observation.symbology.rawValue
+                return BarcodeResult(symbology: symbology, payload: payload)
+            }
+            completion(results.isEmpty ? nil : results)
         }
         
         let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
@@ -266,6 +277,9 @@ class OCRManager {
                 }
             }
             
+            // Attempt to fix spacing in digital meter reads
+            recognizedStrings = self.fixDigitalSpacing(in: recognizedStrings)
+            
             // Group observations by Y position for line reconstruction
             var lines: [String] = []
             var currentLine: [String] = []
@@ -306,6 +320,41 @@ class OCRManager {
             print("OCR Request failed: \(error)")
             completion(nil, nil)
         }
+    }
+    
+    // MARK: - Helper Method to Fix Spacing in Digital Meter Reads
+    /// Attempt to fix spacing issues in digital meter reads. For example, if the OCR sees ["4", "13.60"]
+    /// we can merge them into ["413.60"] if it appears the first digit is part of the second number.
+    private func fixDigitalSpacing(in recognizedStrings: [String]) -> [String] {
+        // We'll look for consecutive numeric-like strings. If the first is 1 digit
+        // and the second is a decimal or multi-digit, we attempt to merge them.
+        // This is a heuristic approach that can be refined.
+        var output: [String] = []
+        var i = 0
+        while i < recognizedStrings.count {
+            if i < recognizedStrings.count - 1 {
+                let current = recognizedStrings[i]
+                let next = recognizedStrings[i + 1]
+                
+                // Pattern: current is a single digit, next is numeric with optional decimal
+                // e.g. current="4", next="13.60" -> merge -> "413.60"
+                let singleDigitPattern = #"^\d$"#
+                let numericPattern = #"^\d+(?:\.\d+)?$"#
+                
+                if let _ = current.range(of: singleDigitPattern, options: .regularExpression),
+                   let _ = next.range(of: numericPattern, options: .regularExpression) {
+                    // Merge them
+                    let merged = current + next
+                    output.append(merged)
+                    i += 2
+                    continue
+                }
+            }
+            // If no merge happened, just append
+            output.append(recognizedStrings[i])
+            i += 1
+        }
+        return output
     }
     
     // MARK: - Helper Methods
@@ -562,10 +611,11 @@ extension UIImage {
         let filter = CIFilter(name: "CIColorControls")
         filter?.setValue(ciImage, forKey: kCIInputImageKey)
         filter?.setValue(0, forKey: kCIInputSaturationKey) // Desaturate
-        filter?.setValue(1.1, forKey: kCIInputContrastKey)   // Increase contrast
+        filter?.setValue(1.1, forKey: kCIInputContrastKey)  // Increase contrast
         
         guard let outputImage = filter?.outputImage,
-              let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+              let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent)
+        else {
             return nil
         }
         

@@ -94,7 +94,9 @@ struct TestHistoryView: View {
     /// Filtered test results for the main list, used by PDF/CSV exports
     var filteredResults: [TestResult] {
         let filtered = viewModel.testResults.filter { result in
-            let inDateRange = (result.date >= startDate) && (result.date <= effectiveEndDate)
+            let startOfDay = Calendar.current.startOfDay(for: startDate)
+            let endOfDay = Calendar.current.startOfDay(for: endDate).addingTimeInterval(86399)
+            let inDateRange = (result.date >= startOfDay) && (result.date <= endOfDay)
             
             let filterMatch: Bool = {
                 switch selectedHistoryFilter {
@@ -186,6 +188,7 @@ struct TestHistoryView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 8)
                         .background(Color.black)
+                    
                     CompactFilterPill(
                         isExpanded: $isFilterExpanded,
                         selectedFilter: $selectedHistoryFilter,
@@ -198,6 +201,7 @@ struct TestHistoryView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 8)
                     .background(Color.black)
+                    
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             if filteredResults.isEmpty {
@@ -227,20 +231,6 @@ struct TestHistoryView: View {
                         .padding(.vertical)
                     }
                 }
-                Button(action: {
-                    showingExportAllSheet = true
-                }) {
-                    Circle()
-                        .fill(Color.blue)
-                        .frame(width: 60, height: 60)
-                        .overlay {
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundColor(.white)
-                                .font(.system(size: 24))
-                        }
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
             }
             .sheet(item: $selectedResult) { result in
                 TestDetailView(result: result)
@@ -318,7 +308,7 @@ struct TestHistoryView: View {
     
     func generateCSVData(withNotes: Bool) -> Data? {
         let df = DateFormatter()
-        df.dateFormat = "MM/dd/yy h:mm a"
+        df.dateFormat = "MM/dd/yy"
         if withNotes {
             var csvString = "Date,Serial Number,Test Type,Meter Size,Meter MFG,Accuracy,Status,Notes\n"
             for result in filteredResults {
