@@ -83,13 +83,13 @@ struct TestView: View {
     // Input State Variables
     @State private var totalVolumeText: String = ""
     @State private var flowRateText: String = ""
-    @State private var selectedMeterSize: MeterSize = .one
+    @State private var selectedMeterSize: MeterSize = .two
     @State private var selectedMeterType: MeterType = {
         if let defaultMfg = UserDefaults.standard.string(forKey: "defaultMeterManufacturer"),
            let meterType = MeterType(rawValue: defaultMfg) {
             return meterType
         }
-        return .neptune
+        return .other
     }()
     @State private var selectedMeterModel: MeterModel = .positiveDisplacement
     @State private var jobNumberText: String = ""
@@ -272,8 +272,8 @@ struct TestView: View {
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .frame(maxWidth: 175)
+                    .frame(height: 48)
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 20)
@@ -330,8 +330,8 @@ struct TestView: View {
                     }
                     .font(.headline)
                     .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .frame(maxWidth: 175)
+                    .frame(height: 48)
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 20)

@@ -335,58 +335,37 @@ class OCRManager {
     
     // MARK: - Advanced Text Extraction Methods
     
-    /// Advanced method to extract numeric value from OCR results - specialized for water meters
+    /// Advanced method to extract numeric value from OCR results - specialized for water meters.
+    /// This version first attempts to match a number preceding common unit keywords (e.g., "gal", "gallon(s)", "ft³").
+    /// If no such match is found, it falls back to a general pattern.
+    /// The returned number is normalized (commas removed) and remains exact.
     func extractNumericValue(from text: String) -> String? {
         let nsString = text as NSString
         
-        // 1) Look for a number preceding "gallons"/"gal"/"gallon" (case-insensitive).
-        //    This pattern handles singular/plural and any digits or decimals.
-        //    Example: "000227279 gallons" or "12345.67 gal"
-        //    We also allow newlines/whitespace with \s*.
-        let precedingGallonsPattern = "(\\d+(?:,\\d{3})*(?:\\.\\d+)?)(?=\\s*(?:gal(?:lon)?s?))"
-        if let regex = try? NSRegularExpression(pattern: precedingGallonsPattern, options: .caseInsensitive) {
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            if let match = results.first {
+        // Pattern 1: Number preceding unit keywords
+        let pattern1 = #"(\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?=\s*(?:gal(?:lon)?s?|ft³))"#
+        if let regex1 = try? NSRegularExpression(pattern: pattern1, options: .caseInsensitive) {
+            let results1 = regex1.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+            if let match = results1.first {
                 let matchString = nsString.substring(with: match.range)
-                let normalized = matchString.replacingOccurrences(of: ",", with: "")
-                print("Found numeric preceding 'gal/gallon/gallons': \(matchString) normalized to \(normalized)")
-                return normalized
+                return matchString.replacingOccurrences(of: ",", with: "")
             }
         }
         
-        // 2) Check for numbers with commas (digital meter readings)
-        let commaDecimalPattern = "\\b\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?\\b"
-        if let regex = try? NSRegularExpression(pattern: commaDecimalPattern, options: []) {
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            if let match = results.first {
+        // Pattern 2: Fallback general numeric pattern
+        let pattern2 = #"(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d{5,9})"#
+        if let regex2 = try? NSRegularExpression(pattern: pattern2, options: []) {
+            let results2 = regex2.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+            if let match = results2.first {
                 let matchString = nsString.substring(with: match.range)
-                let normalized = matchString.replacingOccurrences(of: ",", with: "")
-                print("Found digital meter reading with comma: \(matchString) normalized to \(normalized)")
-                return normalized
-            }
-        }
-        
-        // 3) Try to find a standard decimal number without commas.
-        if let regex = try? NSRegularExpression(pattern: "\\b\\d+\\.\\d+\\b", options: []) {
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            if let match = results.first {
-                return nsString.substring(with: match.range)
-            }
-        }
-        
-        // 4) Fallback: Look for analog meter readings (sequences of 5-9 digits)
-        let analogPattern = "\\b\\d{5,9}\\b"
-        if let regex = try? NSRegularExpression(pattern: analogPattern, options: []) {
-            let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-            if let match = results.first {
-                return nsString.substring(with: match.range)
+                return matchString.replacingOccurrences(of: ",", with: "")
             }
         }
         
         return nil
     }
     
-    /// Extract what might be a serial number from the OCR result
+    /// Extract what might be a serial number from the OCR result.
     func extractSerialNumber(from text: String) -> String? {
         let specialChars = CharacterSet(charactersIn: "#@$%^&*=<>{}[]|\\:;/")
         if text.rangeOfCharacter(from: specialChars) != nil {
@@ -424,7 +403,7 @@ class OCRManager {
         return nil
     }
     
-    /// Check for manufacturer names in text
+    /// Check for manufacturer names in text.
     func checkForManufacturer(in text: String) -> String? {
         let manufacturers = [
             "Neptune", "Sensus", "Badger", "Kamstrup", "Zenner",
@@ -442,7 +421,7 @@ class OCRManager {
     
     // MARK: - Utility Methods for External Usage
     
-    /// Apply detected information directly to a view model
+    /// Apply detected information directly to a view model.
     static func applyDetectionToViewModel(_ viewModel: TestViewModel,
                                           from image: UIImage,
                                           selectedMeter: TestView.SingleMeterOption,

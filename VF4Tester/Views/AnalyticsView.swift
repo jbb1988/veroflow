@@ -348,7 +348,7 @@ struct AnalyticsView: View {
         @Binding var selectedMeterSize: TestHistoryView.MeterSizeFilter
         @Binding var selectedManufacturer: TestHistoryView.MeterManufacturerFilter
         
-        @State private var isFilterExpanded: Bool = true
+        @State private var isFilterExpanded: Bool = false
         
         var body: some View {
             DetailCard(title: "Chart Options") {
