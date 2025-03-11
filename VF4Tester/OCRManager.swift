@@ -148,8 +148,14 @@ class OCRManager {
         attempt()
     }
     
-    // Barcode detection method from the original version
-    func detectBarcodes(in image: UIImage, completion: @escaping ([VNBarcodeObservation]?) -> Void) {
+    // Define a new struct to represent barcode results with symbology and payload
+    struct BarcodeResult {
+        let symbology: String
+        let payload: String
+    }
+    
+    // Updated barcode detection method that extracts barcode formats and their values
+    func detectBarcodes(in image: UIImage, completion: @escaping ([BarcodeResult]?) -> Void) {
         guard let cgImage = image.cgImage else {
             completion(nil)
             return
@@ -157,7 +163,12 @@ class OCRManager {
         
         let barcodeRequest = VNDetectBarcodesRequest { request, error in
             if let observations = request.results as? [VNBarcodeObservation] {
-                completion(observations)
+                let results = observations.compactMap { observation -> BarcodeResult? in
+                    guard let payload = observation.payloadStringValue, !payload.isEmpty else { return nil }
+                    let symbology = observation.symbology.rawValue
+                    return BarcodeResult(symbology: symbology, payload: payload)
+                }
+                completion(results.isEmpty ? nil : results)
             } else {
                 completion(nil)
             }
