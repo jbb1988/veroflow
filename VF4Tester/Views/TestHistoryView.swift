@@ -334,84 +334,74 @@ struct TestHistoryView: View {
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
         
+        // Landscape 11 x 8.5 inches, 72 points/inch
         let pageRect = CGRect(x: 0, y: 0, width: 11 * 72.0, height: 8.5 * 72.0)
         let margin: CGFloat = 36.0
         
         let df = DateFormatter()
         df.dateFormat = "MM/dd/yy"
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "h:mm a"
         
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
-        return renderer.pdfData { context in
-            var currentY: CGFloat = margin
-            var currentPage = 1
+        
+        // New headers without Time column and updated column widths:
+        let headers = ["Date", "Serial Number", "Test Type", "Meter Size", "Meter MFG", "Accuracy", "Status", "Notes"]
+        let columnWidths: [CGFloat] = [70, 100, 80, 60, 60, 60, 60, 210]
+        let tableWidth = columnWidths.reduce(0, +)
+        
+        var currentY: CGFloat = margin
+        var currentPage = 1
+        
+        func drawPageHeader(context: UIGraphicsPDFRendererContext) {
+            let headerGradient = CGGradient(
+                colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                colors: [
+                    UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
+                    UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor
+                ] as CFArray,
+                locations: [0, 1]
+            )!
             
-            func drawPageHeader() {
-                let headerGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                             colors: [UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
-                                                     UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
-                                             locations: [0, 1])!
-                
-                let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
-                context.cgContext.drawLinearGradient(headerGradient,
-                                                  start: CGPoint(x: 0, y: 0),
-                                                  end: CGPoint(x: 0, y: 80),
-                                                  options: [])
-                
-                let title = "VEROflow-4 Test Results"
-                let titleAttributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.boldSystemFont(ofSize: 24),
-                    .foregroundColor: UIColor.white
-                ]
-                title.draw(at: CGPoint(x: margin, y: margin),
-                         withAttributes: titleAttributes)
-                
-                let pageText = "Page \(currentPage)"
-                let pageAttributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 12),
-                    .foregroundColor: UIColor.white
-                ]
-                pageText.draw(at: CGPoint(x: pageRect.width - margin - 50, y: margin),
-                           withAttributes: pageAttributes)
-                
-                currentY = 100
-            }
+            let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
+            context.cgContext.drawLinearGradient(
+                headerGradient,
+                start: CGPoint(x: 0, y: 0),
+                end: CGPoint(x: 0, y: 80),
+                options: []
+            )
             
-            context.beginPage()
-            drawPageHeader()
-            
-            let summaryAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 14),
-                .foregroundColor: UIColor.black
+            let title = "VEROflow-4 Test Results"
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 24),
+                .foregroundColor: UIColor.white
             ]
+            title.draw(
+                at: CGPoint(x: margin, y: margin),
+                withAttributes: titleAttributes
+            )
             
-            let summaryTexts = [
-                "Date Range: \(df.string(from: startDate)) - \(df.string(from: effectiveEndDate))",
-                "Total Tests: \(filteredResults.count)",
-                "Passed Tests: \(filteredResults.filter { $0.isPassing }.count)",
-                "Failed Tests: \(filteredResults.filter { !$0.isPassing }.count)"
+            let pageText = "Page \(currentPage)"
+            let pageAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UIColor.white
             ]
+            pageText.draw(
+                at: CGPoint(x: pageRect.width - margin - 50, y: margin),
+                withAttributes: pageAttributes
+            )
             
-            for text in summaryTexts {
-                text.draw(at: CGPoint(x: margin, y: currentY),
-                        withAttributes: summaryAttributes)
-                currentY += 20
-            }
-            
-            currentY += 20
-            
-            let headers = ["Date", "Time", "Serial Number", "Test Type", "Meter Size", "Accuracy", "Status", "Notes"]
-            let columnWidths: [CGFloat] = [80, 70, 110, 90, 80, 70, 70, 180]
-            
-            let tableWidth = columnWidths.reduce(0, +)
-            
+            // Reset currentY to start below the header
+            currentY = 100
+        }
+        
+        func drawTableHeader(context: UIGraphicsPDFRendererContext) {
+            // Draw the table header background
             let headerBackgroundRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
-            context.cgContext.setFillColor(UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor)
+            context.cgContext.setFillColor(
+                UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).cgColor
+            )
             context.cgContext.fill(headerBackgroundRect)
             
             var xPos = margin
-            
             for (index, header) in headers.enumerated() {
                 let headerAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.boldSystemFont(ofSize: 12),
@@ -427,63 +417,113 @@ struct TestHistoryView: View {
                 
                 xPos += columnWidths[index]
             }
+            // Stroke the full header rectangle to ensure complete borders
+            let fullHeaderRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 25)
+            context.cgContext.stroke(fullHeaderRect)
             
             currentY += 25
+        }
+        
+        return renderer.pdfData { context in
+            context.beginPage()
+            drawPageHeader(context: context)
             
+            // Print summary info
+            let summaryAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 14),
+                .foregroundColor: UIColor.black
+            ]
+            
+            let summaryTexts = [
+                "Date Range: \(df.string(from: startDate)) - \(df.string(from: effectiveEndDate))",
+                "Total Tests: \(filteredResults.count)",
+                "Passed Tests: \(filteredResults.filter { $0.isPassing }.count)",
+                "Failed Tests: \(filteredResults.filter { !$0.isPassing }.count)"
+            ]
+            
+            for text in summaryTexts {
+                text.draw(
+                    at: CGPoint(x: margin, y: currentY),
+                    withAttributes: summaryAttributes
+                )
+                currentY += 20
+            }
+            
+            currentY += 20
+            drawTableHeader(context: context)
+            
+            // Attributes for row text
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.alignment = .left
+            paragraphStyle.lineBreakMode = .byWordWrapping
+            
+            let baseAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 10),
+                .foregroundColor: UIColor.black,
+                .paragraphStyle: paragraphStyle
+            ]
+            
+            // Iterate through filtered results
             for result in filteredResults {
-                if currentY > pageRect.height - 60 {
-                    self.drawFooter(context: context, pageRect: pageRect)
-                    
-                    currentPage += 1
-                    context.beginPage()
-                    drawPageHeader()
-                }
-                
+                // Build row data without time column
                 let rowData = [
                     df.string(from: result.date),
-                    timeFormatter.string(from: result.date),
                     result.jobNumber,
                     result.testType.rawValue,
                     result.meterSize,
+                    result.meterType,
                     String(format: "%.1f%%", result.reading.accuracy),
                     result.isPassing ? "PASS" : "FAIL",
                     result.notes.isEmpty ? "-" : result.notes
                 ]
                 
-                let rowBackground = result.isPassing ? 
-                    UIColor(red: 0.9, green: 1.0, blue: 0.9, alpha: 0.2) : 
-                    UIColor(red: 1.0, green: 0.9, blue: 0.9, alpha: 0.2)
+                // Compute dynamic row height by measuring each cell's text.
+                // For the Notes column (last column), add extra padding to avoid truncation.
+                var dynamicRowHeight: CGFloat = 0
+                for (i, text) in rowData.enumerated() {
+                    let extraPadding: CGFloat = (i == headers.count - 1) ? 10 : 0
+                    let boundingRect = (text as NSString).boundingRect(
+                        with: CGSize(width: columnWidths[i] - 10, height: .greatestFiniteMagnitude),
+                        options: .usesLineFragmentOrigin,
+                        attributes: baseAttributes,
+                        context: nil
+                    )
+                    dynamicRowHeight = max(dynamicRowHeight, boundingRect.height + 10 + extraPadding)
+                }
+                dynamicRowHeight = max(dynamicRowHeight, 40)
                 
-                let rowRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: 40)
+                // Check if this row fits on the current page; if not, start a new page.
+                if currentY + dynamicRowHeight > pageRect.height - margin {
+                    self.drawFooter(context: context, pageRect: pageRect)
+                    currentPage += 1
+                    context.beginPage()
+                    drawPageHeader(context: context)
+                    drawTableHeader(context: context)
+                }
+                
+                // Background color for row (light green for pass, light red for fail)
+                let rowBackground = result.isPassing
+                    ? UIColor(red: 0.9, green: 1.0, blue: 0.9, alpha: 0.2)
+                    : UIColor(red: 1.0, green: 0.9, blue: 0.9, alpha: 0.2)
+                
+                let rowRect = CGRect(x: margin, y: currentY - 5, width: tableWidth, height: dynamicRowHeight)
                 context.cgContext.setFillColor(rowBackground.cgColor)
                 context.cgContext.fill(rowRect)
                 
-                xPos = margin
+                // Draw cell borders and text
+                var xPos = margin
                 for (index, data) in rowData.enumerated() {
-                    let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: 40)
+                    let cellRect = CGRect(x: xPos, y: currentY - 5, width: columnWidths[index], height: dynamicRowHeight)
                     context.cgContext.stroke(cellRect)
                     
-                    let attributes: [NSAttributedString.Key: Any] = [
-                        .font: UIFont.systemFont(ofSize: 10),
-                        .foregroundColor: UIColor.black
-                    ]
-                    
-                    let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: 30)
-                    
-                    let paragraphStyle = NSMutableParagraphStyle()
-                    paragraphStyle.alignment = .left
-                    paragraphStyle.lineBreakMode = .byWordWrapping
-                    
-                    var textAttributes = attributes
-                    textAttributes[.paragraphStyle] = paragraphStyle
-                    
-                    let attributedString = NSAttributedString(string: data, attributes: textAttributes)
+                    let textRect = CGRect(x: xPos + 5, y: currentY, width: columnWidths[index] - 10, height: dynamicRowHeight - 10)
+                    let attributedString = NSAttributedString(string: data, attributes: baseAttributes)
                     attributedString.draw(in: textRect)
                     
                     xPos += columnWidths[index]
                 }
                 
-                currentY += 40
+                currentY += dynamicRowHeight + 10
             }
             
             self.drawFooter(context: context, pageRect: pageRect)
@@ -494,7 +534,7 @@ struct TestHistoryView: View {
         let df = DateFormatter()
         df.dateFormat = "MM/dd/yy h:mm a"
         
-        var csvString = "Date,Test Type,Accuracy,Status,Total Volume,Meter Size,Meter Type,Meter Model,Serial Number\n"
+        var csvString = "Date,Test Type,Accuracy,Status,Total Volume,Meter Size,Meter MFG,Meter Model,Serial Number\n"
         for result in filteredResults {
             let row = [
                 df.string(from: result.date),
@@ -521,10 +561,12 @@ struct TestHistoryView: View {
             .foregroundColor: UIColor.gray
         ]
         let textSize = footerText.size(withAttributes: footerAttributes)
-        let textRect = CGRect(x: pageRect.width - textSize.width - 20,
-                              y: pageRect.height - textSize.height - 20,
-                              width: textSize.width,
-                              height: textSize.height)
+        let textRect = CGRect(
+            x: pageRect.width - textSize.width - 20,
+            y: pageRect.height - textSize.height - 20,
+            width: textSize.width,
+            height: textSize.height
+        )
         footerText.draw(in: textRect, withAttributes: footerAttributes)
     }
     
@@ -650,8 +692,8 @@ struct TestHistoryView: View {
         private func handleMenuAction(_ index: Int) {
             switch index {
             case 0: // Delete
-                if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
-                    viewModel.testResults.remove(at: index)
+                if let idx = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
+                    viewModel.testResults.remove(at: idx)
                 }
             case 1: // Share
                 if let pdfData = generatePDFForSingleTest() {
@@ -662,7 +704,7 @@ struct TestHistoryView: View {
                 }
             case 2: // Print
                 if let pdfData = generatePDFForSingleTest(),
-                   let pdfDocument = PDFDocument(data: pdfData) {
+                   let _ = PDFDocument(data: pdfData) {
                     let printInteractionController = UIPrintInteractionController.shared
                     let printInfo = UIPrintInfo(dictionary: nil)
                     printInfo.jobName = "Test Result - \(result.date.formatted())"
@@ -706,15 +748,16 @@ struct TestHistoryView: View {
             df.dateFormat = "MM/dd/yy h:mm a"
             
             let csvString = "Date,Test Type,Accuracy,Status,Total Volume,Meter Size,Meter Type,Meter Model,Serial Number\n" +
-            [df.string(from: result.date),
-             result.testType.rawValue,
-             String(format: "%.1f%%", result.reading.accuracy),
-             result.isPassing ? "PASS" : "FAIL",
-             String(format: "%.1f Gal", result.reading.totalVolume),
-             result.meterSize,
-             result.meterType,
-             result.meterModel,
-             result.jobNumber
+            [
+                df.string(from: result.date),
+                result.testType.rawValue,
+                String(format: "%.1f%%", result.reading.accuracy),
+                result.isPassing ? "PASS" : "FAIL",
+                String(format: "%.1f Gal", result.reading.totalVolume),
+                result.meterSize,
+                result.meterType,
+                result.meterModel,
+                result.jobNumber
             ].joined(separator: ",")
             
             return csvString.data(using: .utf8)
@@ -740,23 +783,29 @@ struct TestHistoryView: View {
                 context.beginPage()
                 
                 let headerGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                             colors: [UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
-                                                     UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor] as CFArray,
-                                             locations: [0, 1])!
+                                                colors: [
+                                                    UIColor(red: 0.0, green: 0.2, blue: 0.4, alpha: 1.0).cgColor,
+                                                    UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0).cgColor
+                                                ] as CFArray,
+                                                locations: [0, 1])!
                 
                 let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
-                context.cgContext.drawLinearGradient(headerGradient,
-                                                 start: CGPoint(x: 0, y: 0),
-                                                 end: CGPoint(x: 0, y: 80),
-                                                 options: [])
+                context.cgContext.drawLinearGradient(
+                    headerGradient,
+                    start: CGPoint(x: 0, y: 0),
+                    end: CGPoint(x: 0, y: 80),
+                    options: []
+                )
                 
                 let titleAttributes: [NSAttributedString.Key: Any] = [
                     .font: UIFont.boldSystemFont(ofSize: 24),
                     .foregroundColor: UIColor.white
                 ]
                 let title = "VEROflow-4 Test Report"
-                title.draw(at: CGPoint(x: margin, y: margin),
-                         withAttributes: titleAttributes)
+                title.draw(
+                    at: CGPoint(x: margin, y: margin),
+                    withAttributes: titleAttributes
+                )
                 
                 let df = DateFormatter()
                 df.dateFormat = "MM/dd/yy h:mm a"
@@ -773,8 +822,10 @@ struct TestHistoryView: View {
                 
                 var currentY: CGFloat = 120
                 
-                "Test Details".draw(at: CGPoint(x: margin, y: currentY),
-                                  withAttributes: detailTitleAttributes)
+                "Test Details".draw(
+                    at: CGPoint(x: margin, y: currentY),
+                    withAttributes: detailTitleAttributes
+                )
                 currentY += 30
                 
                 let details = [
@@ -792,8 +843,10 @@ struct TestHistoryView: View {
                 ]
                 
                 for detail in details {
-                    detail.draw(at: CGPoint(x: margin + 20, y: currentY),
-                              withAttributes: detailAttributes)
+                    detail.draw(
+                        at: CGPoint(x: margin + 20, y: currentY),
+                        withAttributes: detailAttributes
+                    )
                     currentY += 25
                 }
                 
@@ -808,10 +861,12 @@ struct TestHistoryView: View {
                 .foregroundColor: UIColor.gray
             ]
             let textSize = footerText.size(withAttributes: footerAttributes)
-            let textRect = CGRect(x: pageRect.width - textSize.width - 20,
-                                  y: pageRect.height - textSize.height - 20,
-                                  width: textSize.width,
-                                  height: textSize.height)
+            let textRect = CGRect(
+                x: pageRect.width - textSize.width - 20,
+                y: pageRect.height - textSize.height - 20,
+                width: textSize.width,
+                height: textSize.height
+            )
             footerText.draw(in: textRect, withAttributes: footerAttributes)
         }
     }
