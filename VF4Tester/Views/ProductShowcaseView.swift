@@ -108,7 +108,7 @@ struct ProductShowcaseView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // Header
-                Text("VEROflow Product Line")
+                Text("")
                     .font(.system(size: 28, weight: .bold))
                     .padding(.top)
                 
