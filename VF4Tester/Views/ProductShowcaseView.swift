@@ -1,4 +1,5 @@
 import SwiftUI
+import WebKit
 
 // MARK: - Product Model
 struct VEROflowProduct: Identifiable {
@@ -40,7 +41,7 @@ let veroflowProducts = [
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://marswater.com/vf1-sheet.pdf") // Replace with actual URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=989") // Updated URL
     ),
     VEROflowProduct(
         name: "VEROflow-4 Touch",
@@ -67,7 +68,7 @@ let veroflowProducts = [
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://marswater.com/vf4-sheet.pdf") // Replace with actual URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=991") // Updated URL
     ),
     VEROflowProduct(
         name: "VEROflow-10",
@@ -94,7 +95,7 @@ let veroflowProducts = [
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://marswater.com/vf10-sheet.pdf") // Replace with actual URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=1694") // Updated URL
     )
 ]
 
@@ -273,7 +274,7 @@ struct ProductDetailView: View {
                             Button {
                                 showShareSheet = true
                             } label: {
-                                Label("Download Product Sheet", systemImage: "arrow.down.doc")
+                                Label("View Product Sheet", systemImage: "doc.text.fill")
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.bordered)
@@ -293,7 +294,16 @@ struct ProductDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 if let url = product.pdfURL {
-                    ShareSheet(activityItems: [url])
+                    NavigationView {
+                        WebView(url: url)
+                            .navigationTitle("Product Sheet")
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button("Done") { showShareSheet = false }
+                                }
+                            }
+                    }
                 }
             }
         }
