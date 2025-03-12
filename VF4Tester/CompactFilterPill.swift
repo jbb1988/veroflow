@@ -13,6 +13,9 @@ struct CompactFilterPill: View {
     @Binding var selectedMeterSize: TestHistoryView.MeterSizeFilter
     @Binding var selectedManufacturer: TestHistoryView.MeterManufacturerFilter
     
+    private let darkShadow = Color.black.opacity(0.2)
+    private let lightShadow = Color.white.opacity(0.7)
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: {
@@ -53,7 +56,7 @@ struct CompactFilterPill: View {
                         title: "Test Type",
                         options: Array(TestHistoryView.FilterOption.allCases),
                         selection: $selectedFilter,
-                        color: selectedFilter.borderColor
+                        color: .marsBlue
                     )
                     
                     // Meter Size Filter
@@ -61,7 +64,7 @@ struct CompactFilterPill: View {
                         title: "Meter Size",
                         options: Array(TestHistoryView.MeterSizeFilter.allCases),
                         selection: $selectedMeterSize,
-                        color: .green
+                        color: .marsBlue
                     )
                     
                     // Manufacturer Filter
@@ -69,7 +72,7 @@ struct CompactFilterPill: View {
                         title: "Manufacturer",
                         options: Array(TestHistoryView.MeterManufacturerFilter.allCases),
                         selection: $selectedManufacturer,
-                        color: .orange
+                        color: .marsBlue
                     )
                     
                     // Sort Order
@@ -77,7 +80,7 @@ struct CompactFilterPill: View {
                         title: "Sort By",
                         options: Array(TestHistoryView.SortOrder.allCases),
                         selection: $selectedSort,
-                        color: .purple
+                        color: .marsBlue
                     )
                     
                     // Date Range
@@ -89,22 +92,44 @@ struct CompactFilterPill: View {
                     
                     // Close and Clear All buttons
                     HStack(spacing: 12) {
-                        // Close button
                         Button(action: {
                             withAnimation {
                                 isExpanded = false
                             }
                         }) {
                             Text("Close")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color.blue)
-                                .cornerRadius(8)
+                                .frame(height: 56)
+                                .background(
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color.blue.opacity(0.7))
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(darkShadow, lineWidth: 4)
+                                            .blur(radius: 4)
+                                            .offset(x: 2, y: 2)
+                                            .mask(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                                       startPoint: .topLeading,
+                                                                       endPoint: .bottomTrailing))
+                                            )
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(lightShadow, lineWidth: 4)
+                                            .blur(radius: 4)
+                                            .offset(x: -2, y: -2)
+                                            .mask(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                                       startPoint: .topLeading,
+                                                                       endPoint: .bottomTrailing))
+                                            )
+                                    }
+                                )
                         }
                         
-                        // Clear All button
                         Button(action: {
                             // Reset all filters
                             selectedFilter = .all
@@ -115,12 +140,36 @@ struct CompactFilterPill: View {
                             endDate = Date()
                         }) {
                             Text("Clear All")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color.red)
-                                .cornerRadius(8)
+                                .frame(height: 56)
+                                .background(
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color.red.opacity(0.7))
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(darkShadow, lineWidth: 4)
+                                            .blur(radius: 4)
+                                            .offset(x: 2, y: 2)
+                                            .mask(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                                                       startPoint: .topLeading,
+                                                                       endPoint: .bottomTrailing))
+                                            )
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(lightShadow, lineWidth: 4)
+                                            .blur(radius: 4)
+                                            .offset(x: -2, y: -2)
+                                            .mask(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                                                       startPoint: .topLeading,
+                                                                       endPoint: .bottomTrailing))
+                                            )
+                                    }
+                                )
                         }
                     }
                 }
