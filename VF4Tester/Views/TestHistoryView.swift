@@ -28,6 +28,8 @@ struct TestHistoryView: View {
     @State private var showExportAllShareSheet = false
     @State private var documentController: UIDocumentInteractionController?
     @State private var exportURL: URL?
+    @State private var isExportMenuExpanded = false
+    @State private var dragAmount = CGSize.zero
     
     // MARK: - Filter and Sort Enums
     enum FilterOption: String, CaseIterable, Identifiable {
@@ -231,6 +233,35 @@ struct TestHistoryView: View {
                         .padding(.vertical)
                     }
                 }
+                ExportMenuButton(
+                    isExpanded: $isExportMenuExpanded,
+                    onPDFWithNotes: {
+                        if let url = generatePDF(withNotes: true) {
+                            exportAllData = url
+                            showExportAllShareSheet = true
+                        }
+                    },
+                    onPDFWithoutNotes: {
+                        if let url = generatePDF(withNotes: false) {
+                            exportAllData = url
+                            showExportAllShareSheet = true
+                        }
+                    },
+                    onCSVWithNotes: {
+                        if let url = generateCSV(withNotes: true) {
+                            exportAllData = url
+                            showExportAllShareSheet = true
+                        }
+                    },
+                    onCSVWithoutNotes: {
+                        if let url = generateCSV(withNotes: false) {
+                            exportAllData = url
+                            showExportAllShareSheet = true
+                        }
+                    }
+                )
+                .padding(.trailing, 24)
+                .padding(.bottom, 24)
             }
             .sheet(item: $selectedResult) { result in
                 TestDetailView(result: result)
@@ -272,6 +303,7 @@ struct TestHistoryView: View {
                     ShareSheet(activityItems: [url])
                 }
             }
+
         }
     }
     
@@ -852,4 +884,108 @@ struct TestHistoryView: View {
             return csvString.data(using: .utf8)
         }
     }
+    
+    // MARK: - Export Menu Button
+    struct ExportMenuButton: View {
+        @Binding var isExpanded: Bool
+        let onPDFWithNotes: () -> Void
+        let onPDFWithoutNotes: () -> Void
+        let onCSVWithNotes: () -> Void
+        let onCSVWithoutNotes: () -> Void
+        
+        private let buttonSize: CGFloat = 56
+        private let menuRadius: CGFloat = 120
+        
+        var body: some View {
+            ZStack {
+                // Menu items
+                ForEach(0..<4) { index in
+                    // Increase radius to spread items further
+                    let radius: CGFloat = 170
+                    // 4 items spaced on a 60° arc: 23°, 43°, 63°, 83°
+                    let startAngle: Double = 23
+                    let angleIncrement: Double = 23
+                    let angle = (startAngle + angleIncrement * Double(index)) * .pi / 180
+
+                    MenuButton(
+                        icon: index < 2 ? "doc.fill" : "tablecells.fill",
+                        color: index < 2
+                            ? Color(red: 162/255, green: 9/255, blue: 8/255)
+                            : Color(red: 16/255, green: 117/255, blue: 60/255),
+                        label: {
+                            switch index {
+                            case 0: return "PDF"
+                            case 1: return "PDF-"
+                            case 2: return "CSV"
+                            case 3: return "CSV-"
+                            default: return ""
+                            }
+                        }(),
+                        size: buttonSize
+                    )
+                    .offset(
+                        x: isExpanded ? -radius * CGFloat(cos(angle)) : 0,
+                        y: isExpanded ? -radius * CGFloat(sin(angle)) : 0
+                    )
+                    .opacity(isExpanded ? 1 : 0)
+                    .scaleEffect(isExpanded ? 1 : 0.5)
+                    .onTapGesture {
+                        switch index {
+                        case 0: onPDFWithNotes()
+                        case 1: onPDFWithoutNotes()
+                        case 2: onCSVWithNotes()
+                        case 3: onCSVWithoutNotes()
+                        default: break
+                        }
+                        withAnimation { isExpanded = false }
+                    }
+                }
+                
+                // Main button
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.gradient)
+                            .shadow(radius: 4)
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white)
+                            .rotationEffect(.degrees(isExpanded ? 45 : 0))
+                    }
+                }
+                .frame(width: buttonSize, height: buttonSize)
+            }
+        }
+        
+        // Add this view struct inside ExportMenuButton
+        struct MenuButton: View {
+            let icon: String
+            let color: Color
+            let label: String
+            let size: CGFloat
+            
+            var body: some View {
+                ZStack {
+                    Circle()
+                        .fill(color.gradient)
+                        .shadow(radius: 2)
+                    VStack(spacing: 2) {
+                        Image(systemName: icon)
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                        Text(label)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+                .frame(width: size, height: size)
+            }
+        }
+    }
 }
+
+// End of file
