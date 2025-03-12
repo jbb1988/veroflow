@@ -19,6 +19,33 @@ struct VEROflowProduct: Identifiable {
 // MARK: - Product Data
 let veroflowProducts = [
     VEROflowProduct(
+        name: "VEROflow Calibration Service",
+        subtitle: "Premium Testing Solution",
+        description: "Experience MARS's comprehensive calibration service with the power of our VEROflow-4 companion app. Unlock advanced features including OCR meter reading technology, GPS location tracking, MARS AI assistance, analytics dashboard, and customizable data exports - all with secure local data storage.",
+        features: [
+            "16-Point NIST Calibration",
+            "VEROflow App Features (VF-4 Only)",
+            "OCR & GPS Technology",
+            "MARS AI Integration",
+            "Advanced Analytics",
+            "Custom Data Export"
+        ],
+        specifications: [
+            "Service Type": "Premium Calibration",
+            "Supported Models": "VF-1 and VF-4",
+            "App Compatibility": "VF-4 Touch Only",
+            "Data Storage": "Local Device",
+            "Export Options": "CSV, PDF, Custom"
+        ],
+        imageName: "certified",
+        gradient: LinearGradient(
+            colors: [Color.purple, Color.blue],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        pdfURL: nil
+    ),
+    VEROflowProduct(
         name: "VEROflow-1",
         subtitle: "Residential Meter Tester",
         description: "The VEROflow-1 utilizes microprocessor technology for precise flow rate measurements up to 1/10 GPM, offering immediate, reliable readings with effortless installation.",
@@ -35,40 +62,40 @@ let veroflowProducts = [
             "Moving Parts": "1 Turbine Rotor",
             "Connections": "5/8\" x 3/4\" Meter Threads"
         ],
-        imageName: "vf1-product", // You'll need to add this image to assets
+        imageName: "vf1-product",
         gradient: LinearGradient(
             colors: [Color.blue, Color.blue.opacity(0.7)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=989") // Updated URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=989")
     ),
     VEROflowProduct(
         name: "VEROflow-4 Touch",
-        subtitle: "Mobile Meter Testing System",
-        description: "The VEROflow-4 Touch introduces a breakthrough in field meter testing with advanced features and a user-friendly touchscreen interface for unmatched accuracy.",
+        subtitle: "Advanced Mobile Testing System",
+        description: "The VEROflow-4 Touch represents the pinnacle of mobile meter testing technology. This advanced system features a user-friendly touchscreen interface, high-precision flow measurement, and compatibility with our exclusive companion app for comprehensive field testing solutions.",
         features: [
-            "Accurate To +/- 0.5%",
-            "16-Point Calibration Linearization",
-            "+/- 0.1% Repeatable Accuracy",
-            "Only NIST Traceable Field Test Unit",
-            "Test Meters up to 8\"",
-            "NEMA 4X Explosion Proof Enclosure"
+            "Intuitive Touchscreen Interface",
+            "High-Precision Flow Measurement",
+            "Companion App Compatible",
+            "Automatic Flow Rate Detection",
+            "Temperature Compensation",
+            "NEMA 4X Water Resistant"
         ],
         specifications: [
-            "Weight": "65 lbs",
-            "Min Flow": "0.75 GPM",
-            "Max Flow": "650 GPM",
+            "Flow Range": "0.1 to 400 GPM",
+            "Accuracy": "±1.5%",
             "Temperature Range": "32° F To 120° F",
-            "Max Pressure": "300 PSI"
+            "Max Pressure": "300 PSI",
+            "Display": "7\" Color Touchscreen"
         ],
-        imageName: "vf4-product", // You'll need to add this image to assets
+        imageName: "vf4-product",
         gradient: LinearGradient(
             colors: [Color.red, Color.blue],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=991") // Updated URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=991")
     ),
     VEROflowProduct(
         name: "VEROflow-10",
@@ -89,13 +116,13 @@ let veroflowProducts = [
             "Max Flow": "1250 GPM",
             "Max Pressure": "150 PSI"
         ],
-        imageName: "vf10-product", // You'll need to add this image to assets
+        imageName: "vf10-product",
         gradient: LinearGradient(
             colors: [Color.purple, Color.blue],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
-        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=1694") // Updated URL
+        pdfURL: URL(string: "https://www.marswater.com/?wpdmdl=1694")
     )
 ]
 
@@ -148,7 +175,7 @@ struct ProductCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Product Image
+            // Product Image section remains the same
             ZStack {
                 Circle()
                     .fill(product.gradient)
@@ -165,6 +192,7 @@ struct ProductCard: View {
             .frame(maxWidth: .infinity)
             .padding(.top)
             
+            // Content section remains the same
             VStack(alignment: .leading, spacing: 8) {
                 Text(product.name)
                     .font(.title2)
@@ -181,7 +209,7 @@ struct ProductCard: View {
                     .padding(.top, 4)
             }
             
-            // Key Features Preview
+            // Features section remains the same
             HStack {
                 ForEach(product.features.prefix(3), id: \.self) { feature in
                     Label(
@@ -199,9 +227,18 @@ struct ProductCard: View {
             .padding(.vertical, 8)
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(UIColor.secondarySystemBackground))
+                .shadow(color: isHovered ? .blue.opacity(0.3) : Color.black.opacity(0.1),
+                        radius: isHovered ? 15 : 10,
+                        x: 0,
+                        y: isHovered ? 8 : 5)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(product.gradient, lineWidth: isHovered ? 2 : 0)
+        )
         .offset(y: isAnimating ? 0 : 50)
         .opacity(isAnimating ? 1 : 0)
         .scaleEffect(isHovered ? 1.02 : 1.0)
