@@ -546,6 +546,7 @@ struct TestHistoryView: View {
         @EnvironmentObject var viewModel: TestViewModel
         @State private var showShareSheet = false
         @State private var exportURL: URL?
+        @State private var feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         
         let menuActions = [
             ("trash", Color.red),
@@ -616,6 +617,8 @@ struct TestHistoryView: View {
                             .onTapGesture { handleMenuAction(index) }
                     }
                     Button {
+                        feedbackGenerator.prepare()
+                        feedbackGenerator.impactOccurred()
                         withAnimation { isMenuExpanded.toggle() }
                     } label: {
                         Image("Drop")
@@ -943,6 +946,8 @@ struct TestHistoryView: View {
                 
                 // Main button
                 Button {
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.impactOccurred()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         isExpanded.toggle()
                     }

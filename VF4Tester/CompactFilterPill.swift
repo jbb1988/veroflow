@@ -16,9 +16,13 @@ struct CompactFilterPill: View {
     private let darkShadow = Color.black.opacity(0.2)
     private let lightShadow = Color.white.opacity(0.7)
     
+    @State private var feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: {
+                feedbackGenerator.prepare() 
+                feedbackGenerator.impactOccurred() 
                 withAnimation {
                     isExpanded.toggle()
                 }
