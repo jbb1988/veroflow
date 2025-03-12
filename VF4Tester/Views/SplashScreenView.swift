@@ -1,5 +1,14 @@
 import SwiftUI
 
+private let preloadedGradient = LinearGradient(
+    gradient: Gradient(colors: [
+        Color(hex: "004F89"),
+        Color(hex: "002A4A")
+    ]),
+    startPoint: .topLeading,
+    endPoint: .bottomTrailing
+)
+
 struct SplashScreenView: View {
     @State private var isLogoVisible = false
     @State private var circleScale = 0.3
@@ -22,15 +31,9 @@ struct SplashScreenView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "004F89"),
-                    Color(hex: "002A4A")
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            preloadedGradient
+                .ignoresSafeArea()
+                .drawingGroup()
             
             // Background circles
             GeometryReader { geometry in
@@ -88,46 +91,43 @@ struct SplashScreenView: View {
                     .scaleEffect(isLogoVisible ? 1 : 0.5)
             }
         }
-        .onAppear {
+        .task(priority: .userInitiated) {
             startRain()
-            startAnimationSequence()
+            await startAnimationSequence()
         }
         .onReceive(timer) { _ in
             updateDrops()
         }
     }
     
-    private func startAnimationSequence() {
+    private func startAnimationSequence() async {
         // Initial circle animation
         withAnimation(.easeOut(duration: 0.8)) {
             circleScale = 1
             circleOpacity = 1
         }
         
-        // Logo fade in
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.easeOut(duration: 0.8)) {
-                isLogoVisible = true
-            }
-            
-            // Start glow animation
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                glowOpacity = 0.6
-            }
-            
-            // Final dismiss
-            DispatchQueue.main.asyncAfter(deadline: .now() + 7.0) {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    glowOpacity = 0
-                    circleOpacity = 0
-                    isLogoVisible = false
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isFinished = false
-                }
-            }
+        try? await Task.sleep(nanoseconds: UInt64(0.3 * Double(NSEC_PER_SEC)))
+        
+        withAnimation(.easeOut(duration: 0.8)) {
+            isLogoVisible = true
         }
+        
+        // Start glow animation
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+            glowOpacity = 0.6
+        }
+        
+        // Final dismiss
+        try? await Task.sleep(nanoseconds: 7 * 1_000_000_000)
+        withAnimation(.easeOut(duration: 0.5)) {
+            glowOpacity = 0
+            circleOpacity = 0
+            isLogoVisible = false
+        }
+        
+        try? await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
+        isFinished = false
     }
     
     private func startRain() {
