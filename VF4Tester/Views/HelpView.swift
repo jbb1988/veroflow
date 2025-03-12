@@ -255,6 +255,7 @@ struct SafariView: UIViewControllerRepresentable {
 // MARK: - Animated Gradient Button
 struct AnimatedSafariButton: View {
     @State private var isAnimating = false
+    @State private var animateShine = false
     let gradient = Gradient(colors: [.red, .blue])
     let action: () -> Void
     
@@ -270,7 +271,17 @@ struct AnimatedSafariButton: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .blur(radius: 8)
             
-            Button(action: action) {
+            Button(action: {
+                withAnimation(.easeIn(duration: 0.3)) {
+                    animateShine = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        animateShine = false
+                    }
+                }
+                action()
+            }) {
                 Text("MARS Chat AI")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
@@ -278,6 +289,25 @@ struct AnimatedSafariButton: View {
                     .background(Color.black)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             }
+            .overlay(
+                GeometryReader { geometry in
+                    if animateShine {
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.white.opacity(0.0), Color.white.opacity(0.8), Color.white.opacity(0.0)]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .rotationEffect(.degrees(30))
+                            .offset(x: -geometry.size.width)
+                            .offset(x: animateShine ? geometry.size.width * 2 : -geometry.size.width)
+                            .animation(.linear(duration: 0.6), value: animateShine)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            )
         }
         .onAppear { isAnimating = true }
     }
@@ -442,9 +472,6 @@ struct EnhancedSupportView: View {
             }
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("MARS Chat AI")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
                 Text("Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Reach out instantly for expert advice and support!")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
