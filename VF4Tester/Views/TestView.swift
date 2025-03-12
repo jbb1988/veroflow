@@ -12,13 +12,18 @@ struct TestTypeButton: View {
     let isSelected: Bool
     let borderColor: Color
     let action: () -> Void
-
-    // Neumorphic effect properties
+        @State private var feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    
+        // Neumorphic effect properties
     private let darkShadow = Color.black.opacity(0.2)
     private let lightShadow = Color.white.opacity(0.7)
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+                    feedbackGenerator.prepare()
+                    feedbackGenerator.impactOccurred()
+                    action()
+                }) {
             VStack(spacing: 2) {
                 Text(title)
                     .font(.headline)
@@ -261,11 +266,24 @@ struct TestView: View {
                 .foregroundColor(primaryColor)
             HStack {
                 MarsReadingField(title: "Start Read", text: $viewModel.smallMeterStart, field: .smallStart)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(showValidationOutlines && viewModel.smallMeterStart.isEmpty ? Color.red : Color.clear, lineWidth: 2)
+                    )
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(showValidationOutlines && viewModel.smallMeterEnd.isEmpty ? Color.red : Color.clear, lineWidth: 2)
+                    )
             }
             HStack(spacing: 12) {
-                Button(action: { showImageSourceSheet = true }) {
+                Button(action: {
+                                    let feedback = UIImpactFeedbackGenerator(style: .medium)
+                                    feedback.prepare()
+                                    feedback.impactOccurred()
+                                    selectedImageSource = .camera
+}) {
                     HStack {
                         Image(systemName: "camera")
                         Text("Capture Meter")
@@ -319,8 +337,16 @@ struct TestView: View {
                 .foregroundColor(primaryColor)
             HStack {
                 MarsReadingField(title: "Start Read", text: $viewModel.largeMeterStart, field: .largeStart)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(showValidationOutlines && viewModel.largeMeterStart.isEmpty ? Color.red : Color.clear, lineWidth: 2)
+                    )
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(showValidationOutlines && viewModel.largeMeterEnd.isEmpty ? Color.red : Color.clear, lineWidth: 2)
+                    )
             }
             HStack(spacing: 12) {
                 Button(action: { showImageSourceSheet = true }) {
@@ -535,7 +561,12 @@ struct TestView: View {
     private var recordTestSection: some View {
         DetailCard(title: "Record Test") {
             HStack(spacing: 16) {
-                Button(action: recordTest) {
+        Button(action: {
+                    let feedback = UIImpactFeedbackGenerator(style: .medium)
+                    feedback.prepare()
+                    feedback.impactOccurred()
+                    recordTest()
+                }) {
                     Text(isRecordSuccess ? "Test Recorded!" : "Record Test")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -576,7 +607,12 @@ struct TestView: View {
                             }
                         )
                 }
-                Button(action: { showingClearConfirmation = true }) {
+        Button(action: {
+                    let feedback = UIImpactFeedbackGenerator(style: .medium)
+                    feedback.prepare()
+                    feedback.impactOccurred()
+                    showingClearConfirmation = true
+                }) {
                     Text("Clear Inputs")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -1117,10 +1153,7 @@ struct TestView: View {
             }
         )
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .confirmationDialog("Select Image Source", isPresented: $showImageSourceSheet, titleVisibility: .visible) {
-            Button("Camera") { selectedImageSource = .camera }
-            Button("Cancel", role: .cancel) { }
-        }
+ 
         .overlay(
             Group {
                 if isRecordSuccess {
