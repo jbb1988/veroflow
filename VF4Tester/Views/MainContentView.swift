@@ -139,7 +139,7 @@ enum NavigationItem: String, CaseIterable, Identifiable {
     case test = "Test"
     case analytics = "Analytics"
     case history = "History"
-    case products = "VEROflow Family"
+    case products = "Product Family"
     case settings = "Settings"
     case help = "Help"
     
