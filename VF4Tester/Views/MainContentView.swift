@@ -12,7 +12,7 @@ struct MainContentView: View {
     private var isIPad: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
-        let navigationItems: [NavigationItem] = [.home, .test, .analytics, .history, .settings, .help]
+        let navigationItems: [NavigationItem] = [.home, .test, .analytics, .history, .products, .settings, .help]
         let onItemSelected: (NavigationItem) -> Void = { item in
             navigationState.selectedTab = item
             isMenuOpen = false
@@ -126,11 +126,56 @@ struct MainContentView: View {
             leading: HamburgerIcon(isOpen: isMenuOpen)
         )
         .environmentObject(viewModel)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }
 
 class NavigationStateManager: ObservableObject {
     @Published var selectedTab: NavigationItem = .test
+}
+
+enum NavigationItem: String, CaseIterable, Identifiable {
+    case home = "Home"
+    case test = "Test"
+    case analytics = "Analytics"
+    case history = "History"
+    case products = "Product Family"
+    case settings = "Settings"
+    case help = "Help"
+    
+    var id: Self { self }
+    
+    var icon: String {
+        switch self {
+        case .home: return "house.fill"
+        case .test: return "pencil.and.outline"
+        case .analytics: return "chart.bar.fill"
+        case .history: return "clock.fill"
+        case .products: return "scale.3d"
+        case .settings: return "gear"
+        case .help: return "questionmark.circle.fill"
+        }
+    }
+    
+    @ViewBuilder
+    var view: some View {
+        switch self {
+        case .home:
+            HomeView()
+        case .test:
+            TestView()
+        case .analytics:
+            AnalyticsView()
+        case .history:
+            TestHistoryView()
+        case .products:
+            ProductShowcaseView()
+        case .settings:
+            SettingsView()
+        case .help:
+            HelpView()
+        }
+    }
 }
 
 struct CustomHeader: View {
@@ -433,8 +478,6 @@ struct NavigationMenuView: View {
             return updatedDrop
         }
     }
-    
-    // Rest of the view remains the same
 }
 
 struct ShimmerEffect: ViewModifier {
@@ -489,5 +532,11 @@ struct Modern3DEffect: ViewModifier {
                     isAnimating.toggle()
                 }
             }
+    }
+}
+
+struct HomeView: View {
+    var body: some View {
+        Text("Home View")
     }
 }

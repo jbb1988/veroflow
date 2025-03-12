@@ -23,6 +23,8 @@
 		2D354ACE2D6CCF830010AEFA /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 2D354ACD2D6CCF830010AEFA /* Clerk */; };
 		2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3B753E2D512D07002285C9 /* ImagePicker.swift */; };
 		2D5665F72D5E321200E9C404 /* TestDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5665F62D5E321200E9C404 /* TestDetailView.swift */; };
+		2D66945E2D81E4F000874762 /* ProductShowcaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66945D2D81E4F000874762 /* ProductShowcaseView.swift */; };
+		2D6694602D81ECDF00874762 /* NavigationMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */; };
 		2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */; };
 		2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */; };
 		2D66B52E2D726ED7008B6717 /* RecentTestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */; };
@@ -64,6 +66,8 @@
 		2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Error_Handling_Improvements.txt; sourceTree = "<group>"; };
 		2D3B753E2D512D07002285C9 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		2D5665F62D5E321200E9C404 /* TestDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDetailView.swift; sourceTree = "<group>"; };
+		2D66945D2D81E4F000874762 /* ProductShowcaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductShowcaseView.swift; sourceTree = "<group>"; };
+		2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationMenuView.swift; sourceTree = "<group>"; };
 		2D66B5282D7265F1008B6717 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartView.swift; sourceTree = "<group>"; };
 		2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartOptionsView.swift; sourceTree = "<group>"; };
@@ -179,12 +183,14 @@
 				CF1A1172B69D94500123456 /* HelpView.swift */,
 				2D3B753E2D512D07002285C9 /* ImagePicker.swift */,
 				2D1BBBDA2D7600BD002A6DC8 /* MainTabView.swift */,
+				2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */,
 				2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */,
 				2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */,
 				2D0D65A82D7B68B2003A10AE /* SafariView.swift */,
 				CF1A1182B69D94F00123456 /* SettingsView.swift */,
 				CF1A1192B69D95A00123456 /* SharedComponents.swift */,
 				2D88B32F2D777F8C0013216E /* SplashScreenView.swift */,
+				2D66945D2D81E4F000874762 /* ProductShowcaseView.swift */,
 				2D5665F62D5E321200E9C404 /* TestDetailView.swift */,
 				CF1A1162B69D93B00123456 /* TestHistoryView.swift */,
 				CF1A1152B69D93000123456 /* TestView.swift */,
@@ -289,9 +295,11 @@
 				2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
+				2D66945E2D81E4F000874762 /* ProductShowcaseView.swift in Sources */,
 				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
 				2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */,
 				2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */,
+				2D6694602D81ECDF00874762 /* NavigationMenuView.swift in Sources */,
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
 				2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */,

@@ -1,8 +1,9 @@
 import SwiftUI
 
+
 struct ContentView: View {
     @EnvironmentObject var viewModel: TestViewModel
-    @State private var selectedTab: NavigationItem = .test
+    @State private var selectedTab: AppNavigationItem = .test
     @State private var isMenuOpen = false
     
     var body: some View {
@@ -14,7 +15,7 @@ struct ContentView: View {
             
             // Menu overlay
             if isMenuOpen {
-                NavigationMenuView(isMenuOpen: $isMenuOpen, selectedTab: $selectedTab)
+                AppNavigationMenuView(isMenuOpen: $isMenuOpen, selectedTab: $selectedTab)
                     .frame(maxWidth: 300)
                     .transition(.move(edge: .leading))
             }
