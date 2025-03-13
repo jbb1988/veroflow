@@ -65,6 +65,41 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         currentLocation = location
+        
+        // Add reverse geocoding here
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            guard error == nil, let placemark = placemarks?.first else {
+                print("Reverse geocoding failed: \(error?.localizedDescription ?? "")")
+                return
+            }
+            
+            // Build a full address string
+            let street = placemark.thoroughfare ?? ""
+            let subThoroughfare = placemark.subThoroughfare ?? ""
+            let city = placemark.locality ?? ""
+            let state = placemark.administrativeArea ?? ""
+            let postalCode = placemark.postalCode ?? ""
+            let country = placemark.country ?? ""
+            
+            var addressComponents: [String] = []
+            let streetAddress = [subThoroughfare, street].filter { !$0.isEmpty }.joined(separator: " ")
+            if !streetAddress.isEmpty { addressComponents.append(streetAddress) }
+            if !city.isEmpty { addressComponents.append(city) }
+            if !state.isEmpty || !postalCode.isEmpty {
+                let stateZip = [state, postalCode].filter { !$0.isEmpty }.joined(separator: " ")
+                if !stateZip.isEmpty { addressComponents.append(stateZip) }
+            }
+            if !country.isEmpty { addressComponents.append(country) }
+            
+            let addressString = addressComponents.joined(separator: ", ")
+            
+            // Pass the address through the location update handler
+            DispatchQueue.main.async {
+                self.locationUpdateHandler?(location)
+            }
+        }
+        
         // Stop updating location after receiving it
         locationManager.stopUpdatingLocation()
     }

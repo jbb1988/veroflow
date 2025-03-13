@@ -82,7 +82,7 @@ struct TestDetailView: View {
                             Text("Lat: \(lat), Lon: \(lon)")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            if let locationDesc = viewModel.locationDescription, !locationDesc.isEmpty {
+                            if let locationDesc = result.locationDescription, !locationDesc.isEmpty {
                                 Text(locationDesc)
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)

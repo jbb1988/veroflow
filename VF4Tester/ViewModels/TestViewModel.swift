@@ -200,57 +200,31 @@ class TestViewModel: ObservableObject {
                 print("Failed to capture location")
                 return
             }
+            
             DispatchQueue.main.async {
                 self?.latitude = location.coordinate.latitude
                 self?.longitude = location.coordinate.longitude
-            }
-            
-            // Throttle reverse geocoding: only geocode if location changed > 100 meters
-            if let lastLocation = self?.lastGeocodedLocation {
-                let distance = location.distance(from: lastLocation)
-                if distance < 100 {
-                    return
-                }
-            }
-            self?.lastGeocodedLocation = location
-            
-            // Reverse geocoding to get address
-            let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(location) { placemarks, error in
-                guard error == nil, let placemark = placemarks?.first else {
-                    print("Reverse geocoding failed: \(error?.localizedDescription ?? "")")
-                    return
-                }
                 
-                // Build a full address string
-                let street = placemark.thoroughfare ?? ""
-                let subThoroughfare = placemark.subThoroughfare ?? ""
-                let city = placemark.locality ?? ""
-                let state = placemark.administrativeArea ?? ""
-                let postalCode = placemark.postalCode ?? ""
-                let country = placemark.country ?? ""
-                
-                var addressComponents: [String] = []
-                let streetAddress = [subThoroughfare, street].filter { !$0.isEmpty }.joined(separator: " ")
-                if !streetAddress.isEmpty {
-                    addressComponents.append(streetAddress)
-                }
-                if !city.isEmpty {
-                    addressComponents.append(city)
-                }
-                if !state.isEmpty || !postalCode.isEmpty {
-                    let stateZip = [state, postalCode].filter { !$0.isEmpty }.joined(separator: " ")
-                    if !stateZip.isEmpty {
-                        addressComponents.append(stateZip)
+                // Perform reverse geocoding
+                let geocoder = CLGeocoder()
+                geocoder.reverseGeocodeLocation(location) { placemarks, error in
+                    guard error == nil, let placemark = placemarks?.first else {
+                        print("Reverse geocoding failed: \(error?.localizedDescription ?? "")")
+                        return
                     }
-                }
-                if !country.isEmpty {
-                    addressComponents.append(country)
-                }
-                let addressString = addressComponents.joined(separator: ", ")
-                
-                DispatchQueue.main.async {
-                    self?.locationDescription = addressString
+                    
+                    // Build address string
+                    let address = [
+                        [placemark.subThoroughfare, placemark.thoroughfare].compactMap { $0 }.joined(separator: " "),
+                        placemark.locality,
+                        placemark.administrativeArea,
+                        placemark.postalCode,
+                        placemark.country
+                    ].compactMap { $0 }.joined(separator: ", ")
+                    
+                    DispatchQueue.main.async {
+                        self?.locationDescription = address
+                    }
                 }
             }
         }
