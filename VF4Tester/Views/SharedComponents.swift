@@ -313,6 +313,7 @@ struct FilterPill: View {
     @Binding var selectedSort: TestHistoryView.SortOrder
     @Binding var startDate: Date
     @Binding var endDate: Date
+    @Binding var selectedChartType: String
     
     // Add state to track animation
     @State private var isAnimating: Bool = false
@@ -362,6 +363,14 @@ struct FilterPill: View {
                         ForEach(TestHistoryView.SortOrder.allCases, id: \.self) { order in
                             Text(order.rawValue).tag(order)
                         }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+
+                    // Chart Type
+                    Picker("Chart Type", selection: $selectedChartType) {
+                        Text("line").tag("line")
+                        Text("bar").tag("bar")
+                        Text("pie").tag("pie")
                     }
                     .pickerStyle(SegmentedPickerStyle())
 

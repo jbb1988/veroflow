@@ -50,6 +50,12 @@ enum MeterModel: String, CaseIterable, Codable {
     case other = "Other"
 }
 
+enum ChartType: String, CaseIterable, Codable {
+    case line = "Line"
+    case bar = "Bar"
+    case scatter = "Scatter"
+}
+
 // MARK: - Volume Units
 enum VolumeUnit: String, CaseIterable, Identifiable, Codable {
     case gallons = "Gallons"
@@ -191,6 +197,11 @@ struct TestResult: Codable, Identifiable {
     }
 }
 
+extension TestResult: Equatable {
+    static func == (lhs: TestResult, rhs: TestResult) -> Bool {
+        lhs.id == rhs.id
+    }
+}
 
 // MARK: - Configuration
 struct Configuration: Codable {

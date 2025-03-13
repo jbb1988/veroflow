@@ -155,6 +155,8 @@ struct AnalyticsView: View {
     @State private var showHistorySheet = false
     @State private var historyFilter: TestHistoryView.FilterOption = .all
     
+    @State private var selectedChartType: ChartType = .line
+
     var body: some View {
         ScrollView {
             VStack {
@@ -244,8 +246,37 @@ struct AnalyticsView: View {
                         selectedHistoryFilter: $chartHistoryFilter,
                         selectedSortOrder: $chartSortOrder,
                         selectedMeterSize: $chartMeterSize,
-                        selectedManufacturer: $chartManufacturer
+                        selectedManufacturer: $chartManufacturer,
+                        selectedChartType: $selectedChartType
                     )
+                    
+                    // Chart Type Card
+                    DetailCard(title: "Chart Type") {
+                        HStack(spacing: 12) {
+                            ForEach([ChartType.line, .bar, .scatter], id: \.self) { type in
+                                Button(action: { selectedChartType = type }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: chartTypeIcon(type))
+                                            .font(.system(size: 16))
+                                        Text(chartTypeName(type))
+                                            .font(.subheadline)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(selectedChartType == type ? 
+                                                Color.blue : 
+                                                Color.blue.opacity(0.1)
+                                            )
+                                    )
+                                    .foregroundColor(selectedChartType == type ? .white : .blue)
+                                }
+                                .buttonStyle(ScaleButtonStyle())
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                     
                     // Chart Card.
                     DetailCard(title: "Test Results") {
@@ -260,9 +291,7 @@ struct AnalyticsView: View {
                                 averageAccuracy: averageAccuracy,
                                 accuracyDomain: accuracyDomain.lowerBound - 5...accuracyDomain.upperBound + 5,
                                 showTrendLine: $showTrendLine,
-                                onTestSelected: { test in
-                                    selectedTest = test
-                                }
+                                chartType: $selectedChartType
                             )
                             .padding(.horizontal)
                             .padding(.vertical, 8)
@@ -308,7 +337,23 @@ struct AnalyticsView: View {
             }
         }
     }
-    
+
+    private func chartTypeIcon(_ type: ChartType) -> String {
+        switch type {
+        case .line: return "chart.xyaxis.line"
+        case .bar: return "chart.bar"
+        case .scatter: return "chart.scatter"
+        }
+    }
+
+    private func chartTypeName(_ type: ChartType) -> String {
+        switch type {
+        case .line: return "Line"
+        case .bar: return "Bar"
+        case .scatter: return "Scatter"
+        }
+    }
+
     struct StatCard: View {
         let title: String
         let value: String
@@ -343,6 +388,14 @@ struct AnalyticsView: View {
         }
     }
     
+    struct ScaleButtonStyle: ButtonStyle {
+        func makeBody(configuration: ButtonStyleConfiguration) -> some View {
+            configuration.label
+                .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+        }
+    }
+    
     struct ChartOptionsView: View {
         @Binding var showTrendLine: Bool
         @Binding var chartStartDate: Date
@@ -352,6 +405,8 @@ struct AnalyticsView: View {
         @Binding var selectedSortOrder: TestHistoryView.SortOrder
         @Binding var selectedMeterSize: TestHistoryView.MeterSizeFilter
         @Binding var selectedManufacturer: TestHistoryView.MeterManufacturerFilter
+        
+        @Binding var selectedChartType: ChartType
         
         @State private var isFilterExpanded: Bool = false
 
