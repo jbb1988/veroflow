@@ -98,6 +98,7 @@ struct AnalyticsChartView: View {
 
     @ChartContentBuilder
     private func makeChartMarks(for result: TestResult) -> some ChartContent {
+        
         switch chartType {
         case .line:
             LineMark(
@@ -112,7 +113,7 @@ struct AnalyticsChartView: View {
                 y: .value("Accuracy", result.reading.accuracy)
             )
             .foregroundStyle(makeGradient(isPassing: result.isPassing))
-            .symbol { makeSmallSymbol(isPassing: result.isPassing) }
+            .interpolationMethod(.monotone)
         case .scatter:
             PointMark(
                 x: .value("Date", result.date),
@@ -200,10 +201,12 @@ struct AnalyticsChartView: View {
                   let maxDate = dateRange.max else {
                 return Date().addingTimeInterval(-86400)...Date()
             }
-            let startInterval = minDate.addingTimeInterval(-7200)
-            let endInterval = maxDate.addingTimeInterval(7200)
-            return startInterval...endInterval
+            return minDate...maxDate
         }())
+        .chartPlotStyle { plotArea in
+            plotArea.frame(height: 300)
+                .clipped()
+        }
         .chartXAxis {
             AxisMarks(values: .stride(by: .day)) { value in
                 if let date = value.as(Date.self) {
