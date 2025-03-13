@@ -161,11 +161,12 @@ struct AnalyticsChartView: View {
     }
 
     private func updateTooltipPosition(in geometry: GeometryProxy, proxy: ChartProxy, at xPosition: CGFloat) {
-        let padding: CGFloat = 20
+        let padding: CGFloat = 40 
         let tooltipWidth: CGFloat = 200
         let tooltipHeight: CGFloat = 160
-
+        
         var xPos = xPosition - tooltipWidth/2
+        
         xPos = max(padding, xPos)
         xPos = min(geometry.size.width - tooltipWidth - padding, xPos)
 
@@ -195,16 +196,23 @@ struct AnalyticsChartView: View {
                 makeChartMarks(for: result)
             }
         }
-        .chartYScale(domain: accuracyDomain)
+        .chartYScale(domain: {
+            let minValue = accuracyDomain.lowerBound - 1  
+            let maxValue = accuracyDomain.upperBound + 1  
+            return minValue...maxValue
+        }())
         .chartXScale(domain: {
             guard let minDate = dateRange.min,
                   let maxDate = dateRange.max else {
                 return Date().addingTimeInterval(-86400)...Date()
             }
-            return minDate...maxDate
+            let paddingInterval = TimeInterval(7200) 
+            return minDate.addingTimeInterval(-paddingInterval)...maxDate.addingTimeInterval(paddingInterval)
         }())
         .chartPlotStyle { plotArea in
-            plotArea.frame(height: 300)
+            plotArea
+                .frame(height: 300)
+                .padding(.horizontal, 5)  
                 .clipped()
         }
         .chartXAxis {
