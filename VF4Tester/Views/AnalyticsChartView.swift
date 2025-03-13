@@ -10,75 +10,110 @@ struct AnalyticsChartView: View {
 
     private let transitionDuration: Double = 0.3
 
+    private var dateRange: (min: Date?, max: Date?) {
+        let dates = chartFilteredResults.map { $0.date }
+        return (dates.min(), dates.max())
+    }
+
     private var sortedResults: [TestResult] {
         chartFilteredResults.sorted { $0.date < $1.date }
     }
 
+    @ChartContentBuilder
+    private func makeChartBackgroundArea(minDate: Date?, maxDate: Date?) -> some ChartContent {
+        if let minDate = minDate, let maxDate = maxDate {
+            RectangleMark(
+                xStart: .value("Start", minDate),
+                xEnd: .value("End", maxDate),
+                yStart: .value("Lower", 95),
+                yEnd: .value("Upper", 101)
+            )
+            .foregroundStyle(Color.green.opacity(0.1))
+        }
+    }
+
+    private func makeAverageLine() -> some ChartContent {
+        RuleMark(y: .value("Average", averageAccuracy))
+            .foregroundStyle(.blue.opacity(0.5))
+            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+    }
+
+    @ChartContentBuilder
+    private func makeChartMarks(for result: TestResult) -> some ChartContent {
+        switch chartType {
+        case .line:
+            LineMark(
+                x: .value("Date", result.date),
+                y: .value("Accuracy", result.reading.accuracy)
+            )
+            .foregroundStyle(result.isPassing ? Color.green.opacity(0.8) : Color.red.opacity(0.8))
+            .symbol { makeSymbol(isPassing: result.isPassing) }
+        case .area:
+            AreaMark(
+                x: .value("Date", result.date),
+                y: .value("Accuracy", result.reading.accuracy)
+            )
+            .foregroundStyle(makeGradient(isPassing: result.isPassing))
+            .symbol { makeSmallSymbol(isPassing: result.isPassing) }
+        case .scatter:
+            PointMark(
+                x: .value("Date", result.date),
+                y: .value("Accuracy", result.reading.accuracy)
+            )
+            .foregroundStyle(result.isPassing ? Color.green.opacity(0.8) : Color.red.opacity(0.8))
+        }
+    }
+
+    private func makeSymbol(isPassing: Bool) -> some View {
+        Circle()
+            .fill(
+                LinearGradient(
+                    colors: [
+                        isPassing ? .green : .red,
+                        isPassing ? .green.opacity(0.7) : .red.opacity(0.7)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: 10, height: 10)
+            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+    }
+
+    private func makeSmallSymbol(isPassing: Bool) -> some View {
+        Circle()
+            .fill(isPassing ? Color.green : Color.red)
+            .frame(width: 6, height: 6)
+    }
+
+    private func makeGradient(isPassing: Bool) -> LinearGradient {
+        LinearGradient(
+            colors: [
+                isPassing ? Color.green.opacity(0.3) : Color.red.opacity(0.3),
+                isPassing ? Color.green.opacity(0.1) : Color.red.opacity(0.1)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
     var body: some View {
         Chart {
-            // Draw background area once if available
-            if let minDate = chartFilteredResults.map({ $0.date }).min(),
-               let maxDate = chartFilteredResults.map({ $0.date }).max() {
-                RectangleMark(
-                    xStart: .value("Start", minDate),
-                    xEnd: .value("End", maxDate),
-                    yStart: .value("Lower", 95),
-                    yEnd: .value("Upper", 101)
-                )
-                .foregroundStyle(Color.green.opacity(0.1))
-            }
-            
-            // Simplified chart marks with better scaling
-            ForEach(chartFilteredResults.sorted(by: { $0.date < $1.date })) { result in
-                switch chartType {
-                case .line:
-                    LineMark(
-                        x: .value("Date", result.date),
-                        y: .value("Accuracy", result.reading.accuracy)
-                    )
-                    .foregroundStyle(result.isPassing ?
-                        Color.green.opacity(0.8) : Color.red.opacity(0.8))
-                    .symbol {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        result.isPassing ? .green : .red,
-                                        result.isPassing ? .green.opacity(0.7) : .red.opacity(0.7)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(width: 10, height: 10)
-                            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                    }
-                case .bar:
-                    BarMark(
-                        x: .value("Date", result.date),
-                        y: .value("Accuracy", result.reading.accuracy)
-                    )
-                    .foregroundStyle(result.isPassing ?
-                        Color.green.opacity(0.8) : Color.red.opacity(0.8))
-                    .cornerRadius(4)
-                case .scatter:
-                    PointMark(
-                        x: .value("Date", result.date),
-                        y: .value("Accuracy", result.reading.accuracy)
-                    )
-                    .foregroundStyle(result.isPassing ?
-                        Color.green.opacity(0.8) : Color.red.opacity(0.8))
-                }
+            makeChartBackgroundArea(minDate: dateRange.min, maxDate: dateRange.max)
+            makeAverageLine()
+            ForEach(sortedResults) { result in
+                makeChartMarks(for: result)
             }
         }
         .chartYScale(domain: accuracyDomain)
-        // Add padding to chart scale for better bar display
         .chartXScale(domain: {
-            let dates = chartFilteredResults.map { $0.date }
-            guard let minDate = dates.min(), let maxDate = dates.max() else {
+            guard let minDate = dateRange.min,
+                  let maxDate = dateRange.max else {
                 return Date().addingTimeInterval(-86400)...Date()
             }
-            return minDate.addingTimeInterval(-7200)...maxDate.addingTimeInterval(7200)
+            let startInterval = minDate.addingTimeInterval(-7200)
+            let endInterval = maxDate.addingTimeInterval(7200)
+            return startInterval...endInterval
         }())
         .chartXAxis {
             AxisMarks(values: .stride(by: .day)) { value in

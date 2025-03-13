@@ -50,56 +50,65 @@ struct AnalyticsView: View {
     
     // Chart filtering using the new chart filter options.
     var chartFilteredResults: [TestResult] {
-        let filtered = viewModel.testResults.filter { result in
-            let startOfDay = Calendar.current.startOfDay(for: chartStartDate)
-            let endOfDay = Calendar.current.startOfDay(for: chartEndDate).addingTimeInterval(86399)
-            let inDateRange = (result.date >= startOfDay) && (result.date <= endOfDay)
-            let filterMatch: Bool = {
-                switch chartHistoryFilter {
-                case .all: return true
-                case .lowFlow: return result.testType == .lowFlow
-                case .midFlow: return result.testType == .midFlow
-                case .highFlow: return result.testType == .highFlow
-                case .compound: return result.reading.readingType == .compound
-                case .passed: return result.isPassing
-                case .failed: return !result.isPassing
-                }
-            }()
-            let meterSizeMatch: Bool = {
-                switch chartMeterSize {
-                case .all: return true
-                case .size5_8: return result.meterSize.contains("5/8") || result.meterSize.contains("0.625")
-                case .size3_4: return result.meterSize.contains("3/4") || result.meterSize.contains("0.75")
-                case .size1: return result.meterSize.contains("1\"") && !result.meterSize.contains("1-")
-                case .size1_5: return result.meterSize.contains("1-1/2") || result.meterSize.contains("1.5")
-                case .size2: return result.meterSize.contains("2")
-                case .size3: return result.meterSize.contains("3")
-                case .size4: return result.meterSize.contains("4")
-                case .size6: return result.meterSize.contains("6")
-                case .size8: return result.meterSize.contains("8")
-                case .custom: return true
-                }
-            }()
-            let manufacturerMatch: Bool = {
-                switch chartManufacturer {
-                case .all: return true
-                case .sensus: return result.meterType.lowercased().contains("sensus")
-                case .neptune: return result.meterType.lowercased().contains("neptune")
-                case .badger: return result.meterType.lowercased().contains("badger")
-                case .mueller: return result.meterType.lowercased().contains("mueller")
-                case .master: return result.meterType.lowercased().contains("master")
-                case .elster: return result.meterType.lowercased().contains("elster")
-                case .kamstrup: return result.meterType.lowercased().contains("kamstrup")
-                case .custom: return true
-                }
-            }()
-            return inDateRange && filterMatch && meterSizeMatch && manufacturerMatch
+        // First filter by date range
+        let startOfDay = Calendar.current.startOfDay(for: chartStartDate)
+        let endOfDay = Calendar.current.startOfDay(for: chartEndDate).addingTimeInterval(86399)
+        
+        let dateFiltered = viewModel.testResults.filter { result in
+            (result.date >= startOfDay) && (result.date <= endOfDay)
         }
+        
+        // Then apply test type filter
+        let typeFiltered = dateFiltered.filter { result in
+            switch chartHistoryFilter {
+            case .all: return true
+            case .lowFlow: return result.testType == .lowFlow
+            case .midFlow: return result.testType == .midFlow
+            case .highFlow: return result.testType == .highFlow
+            case .compound: return result.reading.readingType == .compound
+            case .passed: return result.isPassing
+            case .failed: return !result.isPassing
+            }
+        }
+        
+        // Apply meter size filter
+        let sizeFiltered = typeFiltered.filter { result in
+            switch chartMeterSize {
+            case .all: return true
+            case .size5_8: return result.meterSize.contains("5/8") || result.meterSize.contains("0.625")
+            case .size3_4: return result.meterSize.contains("3/4") || result.meterSize.contains("0.75")
+            case .size1: return result.meterSize.contains("1\"") && !result.meterSize.contains("1-")
+            case .size1_5: return result.meterSize.contains("1-1/2") || result.meterSize.contains("1.5")
+            case .size2: return result.meterSize.contains("2")
+            case .size3: return result.meterSize.contains("3")
+            case .size4: return result.meterSize.contains("4")
+            case .size6: return result.meterSize.contains("6")
+            case .size8: return result.meterSize.contains("8")
+            case .custom: return true
+            }
+        }
+        
+        // Apply manufacturer filter
+        let manufacturerFiltered = sizeFiltered.filter { result in
+            switch chartManufacturer {
+            case .all: return true
+            case .sensus: return result.meterType.lowercased().contains("sensus")
+            case .neptune: return result.meterType.lowercased().contains("neptune")
+            case .badger: return result.meterType.lowercased().contains("badger")
+            case .mueller: return result.meterType.lowercased().contains("mueller")
+            case .master: return result.meterType.lowercased().contains("master")
+            case .elster: return result.meterType.lowercased().contains("elster")
+            case .kamstrup: return result.meterType.lowercased().contains("kamstrup")
+            case .custom: return true
+            }
+        }
+        
+        // Finally, apply sort order
         switch chartSortOrder {
         case .ascending:
-            return filtered.sorted { $0.date < $1.date }
+            return manufacturerFiltered.sorted { $0.date < $1.date }
         case .descending:
-            return filtered.sorted { $0.date > $1.date }
+            return manufacturerFiltered.sorted { $0.date > $1.date }
         }
     }
     
@@ -253,7 +262,7 @@ struct AnalyticsView: View {
                     // Chart Type Card
                     DetailCard(title: "Chart Type") {
                         HStack(spacing: 12) {
-                            ForEach([ChartType.line, .bar, .scatter], id: \.self) { type in
+                            ForEach([ChartType.line, .area, .scatter], id: \.self) { type in
                                 Button(action: { selectedChartType = type }) {
                                     HStack(spacing: 8) {
                                         Image(systemName: chartTypeIcon(type))
@@ -266,7 +275,7 @@ struct AnalyticsView: View {
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(selectedChartType == type ? 
-                                                Color.blue : 
+                                                Color.blue :
                                                 Color.blue.opacity(0.1)
                                             )
                                     )
@@ -341,7 +350,7 @@ struct AnalyticsView: View {
     private func chartTypeIcon(_ type: ChartType) -> String {
         switch type {
         case .line: return "chart.xyaxis.line"
-        case .bar: return "chart.bar"
+        case .area: return "chart.line.fill.down"
         case .scatter: return "chart.scatter"
         }
     }
@@ -349,7 +358,7 @@ struct AnalyticsView: View {
     private func chartTypeName(_ type: ChartType) -> String {
         switch type {
         case .line: return "Line"
-        case .bar: return "Bar"
+        case .area: return "Area"
         case .scatter: return "Scatter"
         }
     }

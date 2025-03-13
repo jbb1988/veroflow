@@ -52,7 +52,7 @@ enum MeterModel: String, CaseIterable, Codable {
 
 enum ChartType: String, CaseIterable, Codable {
     case line = "Line"
-    case bar = "Bar"
+    case area = "Area"
     case scatter = "Scatter"
 }
 
