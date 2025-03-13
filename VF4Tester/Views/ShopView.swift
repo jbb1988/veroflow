@@ -1,10 +1,28 @@
 import SwiftUI
 import MessageUI
+import WebKit
+
+struct FeatureItem: View {
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.blue)
+            Text(text)
+                .font(.system(size: 14))
+                .foregroundColor(.white)
+        }
+    }
+}
 
 struct ShopView: View {
     @State private var showingDetail = false
     @State private var showingStrainerDetail = false
     @State private var showingValveKeyDetail = false
+    @State private var showingRCMDetail = false
+    @State private var showingDrillTapsDetail = false
+    @State private var showingZincCapsDetail = false
     
     var body: some View {
         ScrollView {
@@ -207,6 +225,151 @@ struct ShopView: View {
                 .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
                 .padding(.horizontal)
                 
+                // RCM Card
+                VStack(spacing: 0) {
+                    ZStack(alignment: .center) {
+                        Image("rcm")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding(.top)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Remote Counter Module")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Universal remote display for smart meter reading")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                        
+                        HStack(spacing: 24) {
+                            FeatureItem(text: "CA Certified")
+                            FeatureItem(text: "LCD Display")
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(
+                    ZStack {
+                        Color(red: 21/255, green: 21/255, blue: 21/255)
+                        
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 60)
+                            .offset(y: -30)
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .onTapGesture {
+                    showingRCMDetail = true
+                }
+                .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+                .padding(.horizontal)
+                
+                // Drill Taps Card
+                VStack(spacing: 0) {
+                    // Remove NSF image, keep just the drill taps image
+                    ZStack(alignment: .center) {
+                        Image("taps")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding(.top)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Super Tuff Drill Taps")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Experience smoother drilling operations with MARS Super Tuff Drill Taps")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                        
+                        // Simplify to just two feature items
+                        HStack(spacing: 24) {
+                            FeatureItem(text: "30% Less Drag")
+                            FeatureItem(text: "High Grade Steel")
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(
+                    ZStack {
+                        Color(red: 21/255, green: 21/255, blue: 21/255)
+                        
+                        // Blue glow behind image
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 60)
+                            .offset(y: -30)
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .onTapGesture {
+                    showingDrillTapsDetail = true
+                }
+                .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+                .padding(.horizontal)
+                
+                // Zinc Caps Card
+                VStack(spacing: 0) {
+                    ZStack(alignment: .center) {
+                        Image("caps")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding(.top)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Zinc Anode Caps")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("MARS Zinc Anode Caps provide essential corrosion protection for buried and submerged pipeline fittings. Using advanced electrochemical technology, these caps act as sacrificial anodes, effectively preserving your water infrastructure investments and preventing costly repairs.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                        
+                        HStack(spacing: 24) {
+                            FeatureItem(text: "High Electrical Potential Protection")
+                            FeatureItem(text: "5,000-Hour Salt Water Testing")
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(
+                    ZStack {
+                        Color(red: 21/255, green: 21/255, blue: 21/255)
+                        
+                        // Blue glow behind image
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 60)
+                            .offset(y: -30)
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .onTapGesture {
+                    showingZincCapsDetail = true
+                }
+                .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+                .padding(.horizontal)
+                
                 Spacer()
             }
             .padding(.vertical)
@@ -221,6 +384,15 @@ struct ShopView: View {
         }
         .sheet(isPresented: $showingValveKeyDetail) {
             ValveKeyDetailView()
+        }
+        .sheet(isPresented: $showingRCMDetail) {
+            RCMDetailView()
+        }
+        .sheet(isPresented: $showingDrillTapsDetail) {
+            DrillTapsDetailView()
+        }
+        .sheet(isPresented: $showingZincCapsDetail) {
+            ZincCapsDetailView()
         }
     }
 }
@@ -659,63 +831,431 @@ struct ValveKeyDetailView: View {
     }
 }
 
-struct CharacteristicRow: View {
-    let title: String
-    let description: String
+struct DrillTapsDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var showShareSheet = false
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.white)
-            Text(description)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-struct FeatureItem: View {
-    let text: String
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.blue)
-            Text(text)
-                .font(.system(size: 14))
-                .foregroundColor(.white)
+    func composeEmail() {
+        let subject = "Request For Quote - Super Tuff Drill Taps"
+        let body = "Hello,\n\nI'm interested in getting a quote for Super Tuff Drill Taps.\n\nMy name is {name} from {company} and my number is {phone}."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailtoString = "mailto:support@marswater.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let mailtoUrl = URL(string: mailtoString), UIApplication.shared.canOpenURL(mailtoUrl) {
+            UIApplication.shared.open(mailtoUrl)
         }
     }
-}
-
-struct FeatureRow: View {
-    let icon: String
-    let title: String
-    let description: String
     
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-                .font(.title3)
-                .frame(width: 24)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Hero section
+                    ZStack {
+                        LinearGradient(
+                            colors: [.blue, .blue.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .frame(height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        
+                        Image("taps")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .shadow(radius: 10)
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Experience smoother drilling operations with MARS 'Super Tuff' Drill Taps")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                        
+                        // Features section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Key Features")
+                                .font(.headline)
+                            
+                            ForEach([
+                                "30% Less Drilling Resistance",
+                                "High-Quality Forged Steel",
+                                "Nitride Finish Protection",
+                                "Five Threading Flutes",
+                                "Easy Resharpening Design"
+                            ], id: \.self) { feature in
+                                Label(
+                                    title: { Text(feature) },
+                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                )
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        // Specifications section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Specifications")
+                                .font(.headline)
+                            
+                            let specs = [
+                                "Material": "High-speed forged steel",
+                                "Finish": "Nitride coating",
+                                "Handle": "Ergonomic polypropylene",
+                                "Threading": "Five-flute design",
+                                "Available Sizes": "3/4\", 1.0\", 1.5\", 2.0\""
+                            ]
+                            
+                            ForEach(Array(specs.keys.sorted()), id: \.self) { key in
+                                HStack {
+                                    Text(key)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(specs[key] ?? "")
+                                        .bold()
+                                }
+                            }
+                        }
+                        
+                        // Action buttons
+                        HStack(spacing: 12) {
+                            Button {
+                                showShareSheet = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                    Text("View\nProduct Sheet")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                            
+                            Button {
+                                composeEmail()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                    Text("Request\nFor Quote")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                        }
+                        .frame(maxHeight: 60)
+                        .padding(.top)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Super Tuff Drill Taps")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                NavigationView {
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=994")!)
+                        .navigationTitle("Product Sheet")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showShareSheet = false }
+                            }
+                        }
+                }
             }
         }
     }
 }
 
-struct ShopView_Previews: PreviewProvider {
-    static var previews: some View {
-        ShopView()
+struct RCMDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var showShareSheet = false
+    
+    func composeEmail() {
+        let subject = "Request For Quote - RCM-150 Remote Counter Module"
+        let body = "Hello,\n\nI'm interested in getting a quote for the RCM-150 Remote Counter Module.\n\nMy name is {name} from {company} and my number is {phone}."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailtoString = "mailto:support@marswater.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let mailtoUrl = URL(string: mailtoString), UIApplication.shared.canOpenURL(mailtoUrl) {
+            UIApplication.shared.open(mailtoUrl)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    ZStack {
+                        LinearGradient(
+                            colors: [.blue, .blue.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .frame(height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        
+                        Image("rcm")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .shadow(radius: 10)
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("The RCM-150 is a cutting-edge remote primary display designed to interface with all pulse metering devices. Available in both single and dual register configurations, it supports monitoring for both hot (red) and cold (blue) water usage, and Natural Gas (green) ensuring versatility across different utilities. The RCM-100 is California State certified for water and natural gas applications, adhering to rigorous standards.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Key Features")
+                                .font(.headline)
+                            
+                            ForEach([
+                                "Universal Meter Compatibility",
+                                "8-digit LCD Display",
+                                "California State Certified",
+                                "AMR System Ready with Pulse Output",
+                                "Security-sealed Setup Connector",
+                                "Field-replaceable Battery",
+                                "Tamper Detection Indicators"
+                            ], id: \.self) { feature in
+                                Label(
+                                    title: { Text(feature) },
+                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                )
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Construction")
+                                .font(.headline)
+                            
+                            let specs = [
+                                "Mounting": "Water-resistant wall mount",
+                                "Material": "Clear poly-carbonate cover",
+                                "Protection": "Conformal coated circuit board",
+                                "Connectivity": "Spring terminal blocks",
+                                "Size": "2.5\" x 4.5\" x 1.5\"",
+                                "Weight": "7.5oz"
+                            ]
+                            
+                            ForEach(Array(specs.keys.sorted()), id: \.self) { key in
+                                HStack {
+                                    Text(key)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(specs[key] ?? "")
+                                        .bold()
+                                }
+                            }
+                        }
+                        
+                        // Action buttons
+                        HStack(spacing: 12) {
+                            Button {
+                                showShareSheet = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                    Text("View\nProduct Sheet")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                            
+                            Button {
+                                composeEmail()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                    Text("Request\nFor Quote")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                        }
+                        .frame(maxHeight: 60)
+                        .padding(.top)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("RCM-150 Remote Counter Module")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                NavigationView {
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=993")!)
+                        .navigationTitle("Product Sheet")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showShareSheet = false }
+                            }
+                        }
+                }
+            }
+        }
+    }
+}
+
+struct ZincCapsDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var showShareSheet = false
+    
+    func composeEmail() {
+        let subject = "Request For Quote - Zinc Anode Caps"
+        let body = "Hello,\n\nI'm interested in getting a quote for Zinc Anode Caps.\n\nMy name is {name} from {company} and my number is {phone}."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailtoString = "mailto:support@marswater.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let mailtoUrl = URL(string: mailtoString), UIApplication.shared.canOpenURL(mailtoUrl) {
+            UIApplication.shared.open(mailtoUrl)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Hero section
+                    ZStack {
+                        LinearGradient(
+                            colors: [.blue, .blue.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .frame(height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        
+                        Image("caps")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .shadow(radius: 10)
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("MARS Zinc Anode Caps provide essential corrosion protection for buried and submerged pipeline fittings. Using advanced electrochemical technology, these caps act as sacrificial anodes, effectively preserving your water infrastructure investments and preventing costly repairs.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Key Features")
+                                .font(.headline)
+                            
+                            ForEach([
+                                "High Electrical Potential Protection",
+                                "5,000-Hour Salt Water Testing",
+                                "Multiple Size Configurations",
+                                "Easy Installation",
+                                "Long-Term Cost Savings"
+                            ], id: \.self) { feature in
+                                Label(
+                                    title: { Text(feature) },
+                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                )
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Available Sizes")
+                                .font(.headline)
+                            
+                            let specs = [
+                                "2.5 oz Hex": "1/2\", 3/8\", 5/8\", 3/4\"",
+                                "2.5 oz Tapered": "5/16\", 3/8\", 1/2\", 7/16\"",
+                                "6 oz Hexagon": "1/2\", 5/8\", 3/4\", 7/8\", 1\", 1 1/8\"",
+                                "14 oz Hexagon": "1 1/8\", 1 1/4\", 1 1/2\", 1 3/4\""
+                            ]
+                            
+                            ForEach(Array(specs.keys.sorted()), id: \.self) { key in
+                                HStack {
+                                    Text(key)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(specs[key] ?? "")
+                                        .bold()
+                                }
+                            }
+                        }
+                        
+                        // Action buttons
+                        HStack(spacing: 12) {
+                            Button {
+                                showShareSheet = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                    Text("View\nProduct Sheet")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                            
+                            Button {
+                                composeEmail()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                    Text("Request\nFor Quote")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                        }
+                        .frame(maxHeight: 60)
+                        .padding(.top)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Zinc Anode Caps")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                NavigationView {
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=995")!)
+                        .navigationTitle("Product Sheet")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showShareSheet = false }
+                            }
+                        }
+                }
+            }
+        }
     }
 }
