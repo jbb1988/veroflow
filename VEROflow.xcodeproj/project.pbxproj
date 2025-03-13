@@ -15,7 +15,6 @@
 		2D1963A52D4ED511009839D7 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1963A42D4ED511009839D7 /* AnalyticsView.swift */; };
 		2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */; };
 		2D1BBBD72D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBD62D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift */; };
-		2D1BBBDB2D7600BD002A6DC8 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBDA2D7600BD002A6DC8 /* MainTabView.swift */; };
 		2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */; };
 		2D1BBBE82D760521002A6DC8 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE72D760521002A6DC8 /* MainContentView.swift */; };
 		2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */; };
@@ -36,6 +35,7 @@
 		2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB46F792D7B5E5700FEE204 /* LocationManager.swift */; };
 		2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */; };
 		2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */; };
+		2DC2DB922D836DE300497AA8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2DB912D836DE300497AA8 /* ShopView.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
 		2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */; };
 		CF1A1012B69D8F500123456 /* VF4TesterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1A1002B69D8F500123456 /* VF4TesterApp.swift */; };
@@ -58,7 +58,6 @@
 		2D1963A42D4ED511009839D7 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineBannerView.swift; sourceTree = "<group>"; };
 		2D1BBBD62D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedOnboardingOverlayView.swift; sourceTree = "<group>"; };
-		2D1BBBDA2D7600BD002A6DC8 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		2D1BBBDC2D760178002A6DC8 /* NavigationComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationComponents.swift; sourceTree = "<group>"; };
 		2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2D1BBBE72D760521002A6DC8 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
@@ -83,6 +82,7 @@
 		2DB46F792D7B5E5700FEE204 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTestView.swift; sourceTree = "<group>"; };
 		2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVWrapper.swift; sourceTree = "<group>"; };
+		2DC2DB912D836DE300497AA8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyToleranceView.swift; sourceTree = "<group>"; };
 		CF1A1002B69D8F500123456 /* VF4TesterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VF4TesterApp.swift; sourceTree = "<group>"; };
@@ -188,7 +188,6 @@
 				2D9BCB9C2D74C9A200FF088F /* GeoView.swift */,
 				CF1A1172B69D94500123456 /* HelpView.swift */,
 				2D3B753E2D512D07002285C9 /* ImagePicker.swift */,
-				2D1BBBDA2D7600BD002A6DC8 /* MainTabView.swift */,
 				2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */,
 				2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */,
 				2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */,
@@ -203,6 +202,7 @@
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
 				2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */,
 				2D1BBBE72D760521002A6DC8 /* MainContentView.swift */,
+				2DC2DB912D836DE300497AA8 /* ShopView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -294,6 +294,7 @@
 				2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */,
 				CF1A1152B69D92500123456 /* Types.swift in Sources */,
 				2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */,
+				2DC2DB922D836DE300497AA8 /* ShopView.swift in Sources */,
 				CF1A1162B69D93000123456 /* TestView.swift in Sources */,
 				2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */,
 				2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */,
@@ -319,7 +320,6 @@
 				2D1963A52D4ED511009839D7 /* AnalyticsView.swift in Sources */,
 				CF1A11A2B69D95A00123456 /* SharedComponents.swift in Sources */,
 				2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */,
-				2D1BBBDB2D7600BD002A6DC8 /* MainTabView.swift in Sources */,
 				2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */,
 				2D1BBBD72D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift in Sources */,
 				CF1A11B2B69D96500123456 /* TestViewModel.swift in Sources */,

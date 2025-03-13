@@ -3,7 +3,6 @@ import SwiftUI
 
 // This will be our single source of truth for navigation
 enum AppNavigationItem: String, CaseIterable, Identifiable {
-    case home = "Home"
     case test = "Test"
     case analytics = "Analytics"
     case history = "History"
@@ -15,7 +14,6 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     
     var icon: String {
         switch self {
-        case .home: return "house.fill"
         case .test: return "pencil.and.outline"
         case .analytics: return "chart.bar.fill"
         case .history: return "clock.fill"
@@ -28,8 +26,6 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     @ViewBuilder
     var view: some View {
         switch self {
-        case .home: 
-            HomeView()
         case .test: 
             TestView()
         case .analytics: 
@@ -46,4 +42,5 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     }
 }
 
-// End of file
+// This file can be deleted as its functionality is handled by NavigationItem enum in MainContentView.swift
+// Delete this entire file
