@@ -253,6 +253,18 @@ struct ProductDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showShareSheet = false
     
+    func composeEmail(for product: VEROflowProduct) {
+        let subject = "Request For Quote - \(product.name)"
+        let body = "Hello,\n\nI'm interested in getting a quote for \(product.name).\n\nMy name is {name} from {company} and my number is {phone}."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailtoString = "mailto:support@marswater.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let mailtoUrl = URL(string: mailtoString), UIApplication.shared.canOpenURL(mailtoUrl) {
+            UIApplication.shared.open(mailtoUrl)
+        }
+    }
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -308,14 +320,49 @@ struct ProductDetailView: View {
                         }
                         
                         if let pdfURL = product.pdfURL {
-                            Button {
-                                showShareSheet = true
-                            } label: {
-                                Label("View Product Sheet", systemImage: "doc.text.fill")
+                            HStack(spacing: 12) {
+                                Button {
+                                    showShareSheet = true
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "doc.text.fill")
+                                        Text("View\nProduct Sheet")
+                                            .multilineTextAlignment(.center)
+                                    }
                                     .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
+                                
+                                Button {
+                                    composeEmail(for: product)
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "envelope.fill")
+                                        Text("Request\nFor Quote")
+                                            .multilineTextAlignment(.center)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
+                            }
+                            .frame(maxHeight: 60)
+                            .padding(.top)
+                        } else {
+                            Button {
+                                composeEmail(for: product)
+                            } label: {
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                    Text("Request\nFor Quote")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.bordered)
                             .tint(.blue)
+                            .frame(height: 60)
                             .padding(.top)
                         }
                     }
