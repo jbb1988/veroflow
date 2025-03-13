@@ -238,11 +238,26 @@ struct AnalyticsChartView: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
-                                guard let date = proxy.value(atX: value.location.x, as: Date.self),
-                                      let closestResult = sortedResults.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) else {
+                                let tapLocation = value.location
+                                guard let date = proxy.value(atX: tapLocation.x, as: Date.self),
+                                      let accuracy = proxy.value(atY: tapLocation.y, as: Double.self) else {
                                     return
                                 }
-                                if selectedResult?.id != closestResult.id {
+
+                                let closestResult = sortedResults.min(by: { result1, result2 in
+                                    let x1 = proxy.position(forX: result1.date) ?? 0
+                                    let y1 = proxy.position(forY: result1.reading.accuracy) ?? 0
+                                    let distance1 = sqrt(pow(x1 - tapLocation.x, 2) + pow(y1 - tapLocation.y, 2))
+
+                                    let x2 = proxy.position(forX: result2.date) ?? 0
+                                    let y2 = proxy.position(forY: result2.reading.accuracy) ?? 0
+                                    let distance2 = sqrt(pow(x2 - tapLocation.x, 2) + pow(y2 - tapLocation.y, 2))
+
+                                    return distance1 < distance2
+                                })
+
+                                if let closestResult = closestResult,
+                                   selectedResult?.id != closestResult.id {
                                     withAnimation(.easeInOut(duration: 0.2)) {
                                         selectedResult = closestResult
                                         if let xPosition = proxy.position(forX: closestResult.date) {

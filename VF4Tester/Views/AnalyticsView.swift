@@ -267,6 +267,7 @@ struct AnalyticsView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: chartTypeIcon(type))
                                             .font(.system(size: 16))
+                                            .foregroundColor(selectedChartType == type ? .white : .blue)
                                         Text(chartTypeName(type))
                                             .font(.subheadline)
                                     }
@@ -349,9 +350,9 @@ struct AnalyticsView: View {
 
     private func chartTypeIcon(_ type: ChartType) -> String {
         switch type {
-        case .line: return "chart.xyaxis.line"
-        case .area: return "chart.line.flattrend.xyaxis.fill"
-        case .scatter: return "circle.grid.3x3"
+        case .line: return "waveform.path.ecg"
+        case .area: return "waveform.path.badge.plus"
+        case .scatter: return "circle.grid.2x2.fill"
         }
     }
 
