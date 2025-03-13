@@ -274,7 +274,7 @@ struct AnalyticsView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(selectedChartType == type ? 
+                                            .fill(selectedChartType == type ?
                                                 Color.blue :
                                                 Color.blue.opacity(0.1)
                                             )
@@ -350,8 +350,8 @@ struct AnalyticsView: View {
     private func chartTypeIcon(_ type: ChartType) -> String {
         switch type {
         case .line: return "chart.xyaxis.line"
-        case .area: return "chart.line.fill.down"
-        case .scatter: return "chart.scatter"
+        case .area: return "chart.line.flattrend.xyaxis.fill"
+        case .scatter: return "circle.grid.3x3"
         }
     }
 

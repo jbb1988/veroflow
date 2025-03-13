@@ -1,6 +1,59 @@
 import SwiftUI
 import Charts
 
+struct ChartTooltip: View {
+    let date: Date
+    let accuracy: Double
+    let isPassing: Bool
+    let meterSize: String
+    let meterType: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(date.formatted(.dateTime.month().day()))
+                .font(.system(.headline, design: .rounded))
+            Text(date.formatted(.dateTime.hour().minute()))
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundColor(.secondary)
+            Divider()
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Accuracy")
+                        .font(.system(.subheadline, design: .rounded))
+                    Spacer()
+                    Text(String(format: "%.1f%%", accuracy))
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundColor(isPassing ? .green : .red)
+                }
+                HStack {
+                    Text("Meter Size")
+                        .font(.system(.subheadline, design: .rounded))
+                    Spacer()
+                    Text(meterSize)
+                        .font(.system(.subheadline, design: .rounded))
+                }
+                HStack {
+                    Text("Meter Mfg.")
+                        .font(.system(.subheadline, design: .rounded))
+                    Spacer()
+                    Text(meterType)
+                        .font(.system(.subheadline, design: .rounded))
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(UIColor.systemBackground))
+                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isPassing ? Color.green.opacity(0.3) : Color.red.opacity(0.3), lineWidth: 1)
+        )
+    }
+}
+
 struct AnalyticsChartView: View {
     let chartFilteredResults: [TestResult]
     let averageAccuracy: Double
@@ -19,6 +72,11 @@ struct AnalyticsChartView: View {
         chartFilteredResults.sorted { $0.date < $1.date }
     }
 
+    @State private var selectedResult: TestResult?
+    @GestureState private var scale: CGFloat = 1.0
+    @State private var tooltipPosition: CGPoint = .zero
+    @State private var chartSize: CGSize = .zero
+    
     @ChartContentBuilder
     private func makeChartBackgroundArea(minDate: Date?, maxDate: Date?) -> some ChartContent {
         if let minDate = minDate, let maxDate = maxDate {
@@ -97,6 +155,37 @@ struct AnalyticsChartView: View {
         )
     }
 
+    private func formatDate(_ date: Date) -> String {
+        date.formatted(.dateTime.month().day().hour().minute())
+    }
+
+    private func updateTooltipPosition(in geometry: GeometryProxy, proxy: ChartProxy, at xPosition: CGFloat) {
+        let padding: CGFloat = 20
+        let tooltipWidth: CGFloat = 200
+        let tooltipHeight: CGFloat = 160
+
+        var xPos = xPosition - tooltipWidth/2
+        xPos = max(padding, xPos)
+        xPos = min(geometry.size.width - tooltipWidth - padding, xPos)
+
+        var yPos: CGFloat
+        if let result = selectedResult,
+           let yPosition = proxy.position(forY: result.reading.accuracy) {
+            if yPosition < geometry.size.height / 2 {
+                yPos = yPosition + padding
+            } else {
+                yPos = yPosition - tooltipHeight - padding
+            }
+        } else {
+            yPos = padding
+        }
+
+        yPos = max(padding, yPos)
+        yPos = min(geometry.size.height - tooltipHeight - padding, yPos)
+
+        tooltipPosition = CGPoint(x: xPos, y: yPos)
+    }
+
     var body: some View {
         Chart {
             makeChartBackgroundArea(minDate: dateRange.min, maxDate: dateRange.max)
@@ -138,6 +227,51 @@ struct AnalyticsChartView: View {
                             .font(.system(.caption2, design: .rounded))
                             .foregroundColor(.secondary)
                     }
+                }
+            }
+        }
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                Rectangle()
+                    .fill(.clear)
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                guard let date = proxy.value(atX: value.location.x, as: Date.self),
+                                      let closestResult = sortedResults.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) else {
+                                    return
+                                }
+                                if selectedResult?.id != closestResult.id {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        selectedResult = closestResult
+                                        if let xPosition = proxy.position(forX: closestResult.date) {
+                                            updateTooltipPosition(in: geometry, proxy: proxy, at: xPosition)
+                                        }
+                                    }
+                                }
+                            }
+                            .onEnded { _ in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedResult = nil
+                                }
+                            }
+                    )
+            }
+        }
+        .chartBackground { proxy in
+            GeometryReader { geometry in
+                if let result = selectedResult {
+                    ChartTooltip(
+                        date: result.date,
+                        accuracy: result.reading.accuracy,
+                        isPassing: result.isPassing,
+                        meterSize: result.meterSize,
+                        meterType: result.meterType
+                    )
+                    .frame(width: 200)
+                    .position(tooltipPosition)
+                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 }
             }
         }
