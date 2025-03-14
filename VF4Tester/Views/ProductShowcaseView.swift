@@ -297,7 +297,7 @@ struct ProductDetailView: View {
                             ForEach(product.features, id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }

@@ -23,6 +23,7 @@ struct ShopView: View {
     @State private var showingRCMDetail = false
     @State private var showingDrillTapsDetail = false
     @State private var showingZincCapsDetail = false
+    @State private var showingThrustBusterDetail = false
     
     var body: some View {
         ScrollView {
@@ -370,6 +371,55 @@ struct ShopView: View {
                 .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
                 .padding(.horizontal)
                 
+                // ThrustBuster Card
+                VStack(spacing: 0) {
+                    ZStack(alignment: .center) {
+                        Image("thrust")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding(.top)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("ThrustBuster Diffuser")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("The MARS ThrustBuster hose diffuser stands out as a critical safety tool for water meter field testers. Designed to mitigate the dangers associated with high-pressure discharge of water, it effectively eliminates hazardous thrust of loose hoses while protecting both operators and property.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                        
+                        HStack(spacing: 24) {
+                            FeatureItem(text: "Dual Port Safety Design")
+                            FeatureItem(text: "Injury Prevention System")
+                            FeatureItem(text: "Erosion Control Technology")
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(
+                    ZStack {
+                        Color(red: 21/255, green: 21/255, blue: 21/255)
+                        
+                        // Blue glow behind image
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 60)
+                            .offset(y: -30)
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .onTapGesture {
+                    showingThrustBusterDetail = true
+                }
+                .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+                .padding(.horizontal)
+                
                 Spacer()
             }
             .padding(.vertical)
@@ -393,6 +443,9 @@ struct ShopView: View {
         }
         .sheet(isPresented: $showingZincCapsDetail) {
             ZincCapsDetailView()
+        }
+        .sheet(isPresented: $showingThrustBusterDetail) {
+            ThrustBusterDetailView()
         }
     }
 }
@@ -449,7 +502,7 @@ struct TestPortSpoolsDetailView: View {
                             ForEach(["Control Epoxy Coating", "Material Body", "AWWA C707 Class D Flanges", "150 PSI Operating Pressure", "Multiple Size Options"], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -600,7 +653,7 @@ struct StrainerDetailView: View {
                             ], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -744,7 +797,7 @@ struct ValveKeyDetailView: View {
                             ], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -888,7 +941,7 @@ struct DrillTapsDetailView: View {
                             ], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -1032,7 +1085,7 @@ struct RCMDetailView: View {
                             ], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -1175,7 +1228,7 @@ struct ZincCapsDetailView: View {
                             ], id: \.self) { feature in
                                 Label(
                                     title: { Text(feature) },
-                                    icon: { Image(systemName: "checkmark.circle.fill") }
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
                                 )
                                 .foregroundColor(.secondary)
                             }
@@ -1247,6 +1300,144 @@ struct ZincCapsDetailView: View {
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
                     WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=995")!)
+                        .navigationTitle("Product Sheet")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") { showShareSheet = false }
+                            }
+                        }
+                }
+            }
+        }
+    }
+}
+
+struct ThrustBusterDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var showShareSheet = false
+    
+    func composeEmail() {
+        let subject = "Request For Quote - ThrustBuster Diffuser"
+        let body = "Hello,\n\nI'm interested in getting a quote for the ThrustBuster Diffuser.\n\nMy name is {name} from {company} and my number is {phone}."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let mailtoString = "mailto:support@marswater.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let mailtoUrl = URL(string: mailtoString), UIApplication.shared.canOpenURL(mailtoUrl) {
+            UIApplication.shared.open(mailtoUrl)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    ZStack {
+                        LinearGradient(
+                            colors: [.blue, .blue.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .frame(height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        
+                        Image("thrust")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .shadow(radius: 10)
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("The MARS ThrustBuster hose diffuser stands out as a critical safety tool for water meter field testers. Designed to mitigate the dangers associated with high-pressure discharge of water, it effectively eliminates hazardous thrust of loose hoses while protecting both operators and property.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Key Features")
+                                .font(.headline)
+                            
+                            ForEach([
+                                "Dual Port Design",
+                                "VF-4 Compatible",
+                                "Erosion Control"
+                            ], id: \.self) { feature in
+                                Label(
+                                    title: { Text(feature) },
+                                    icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.green) }
+                                )
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Specifications")
+                                .font(.headline)
+                            
+                            let specs = [
+                                "Material": "Schedule 40 Steel",
+                                "Connection": "2.5° NST Bronze Female",
+                                "Coating": "Type II Fusion Nylon",
+                                "Weight": "21 lbs",
+                                "Design": "30° Hydraulic Model"
+                            ]
+                            
+                            ForEach(Array(specs.keys.sorted()), id: \.self) { key in
+                                HStack {
+                                    Text(key)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(specs[key] ?? "")
+                                        .bold()
+                                }
+                            }
+                        }
+                        
+                        HStack(spacing: 12) {
+                            Button {
+                                showShareSheet = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                    Text("View\nProduct Sheet")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                            
+                            Button {
+                                composeEmail()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                    Text("Request\nFor Quote")
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
+                        }
+                        .frame(maxHeight: 60)
+                        .padding(.top)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("ThrustBuster Diffuser")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                NavigationView {
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=996")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
