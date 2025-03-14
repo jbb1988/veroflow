@@ -20,22 +20,22 @@ struct VEROflowProduct: Identifiable {
 let veroflowProducts = [
     VEROflowProduct(
         name: "VEROflow Calibration Service",
-        subtitle: "Premium Testing Solution",
-        description: "Experience MARS's comprehensive calibration service with the power of our VEROflow-4 companion app. Unlock advanced features including OCR meter reading technology, GPS location tracking, MARS AI assistance, analytics dashboard, and customizable data exports - all with secure local data storage.",
+        subtitle: "Precision Calibration & Rapid Turnaround",
+        description: "MARS VEROflow Calibration delivers expert calibration services designed to enhance measurement accuracy and extend equipment life for your VF-1 and VF-4 field test units. Our comprehensive service includes a 16-point calibration linearization, detailed equipment assessments, and necessary battery replacement & repair—all executed by expert technicians using NIST-traceable procedures for minimal downtime and rapid turnaround. Also, companion app included for VF-4 units.",
         features: [
-            "16-Point NIST Calibration",
-            "VEROflow App Features (VF-4 Only)",
-            "OCR & GPS Technology",
-            "MARS AI Integration",
-            "Advanced Analytics",
-            "Custom Data Export"
+            "16-Point Calibration",
+            "Expert Technicians",
+            "Customer-Centric Service",
+            "NIST Traceable",
+            "Battery Replacement & Repair",
+            "Rapid Turnaround"
         ],
         specifications: [
-            "Service Type": "Premium Calibration",
+            "Service Type": "Full Calibration & Maintenance",
             "Supported Models": "VF-1 and VF-4",
-            "App Compatibility": "VF-4 Touch Only",
-            "Data Storage": "Local Device",
-            "Export Options": "CSV, PDF, Custom"
+            "Turnaround": "Rapid",
+            "Calibration Standard": "NIST Traceable",
+            "Additional Repairs": "Quoted Separately"
         ],
         imageName: "certified",
         gradient: LinearGradient(
@@ -50,14 +50,14 @@ let veroflowProducts = [
         subtitle: "Residential Meter Tester",
         description: "The VEROflow-1 utilizes microprocessor technology for precise flow rate measurements up to 1/10 GPM, offering immediate, reliable readings with effortless installation.",
         features: [
-            "Accurate To +/- 1.5%",
-            "Locate Pressure Problems",
-            "Resolve Customer Complaints",
+            "±1.5% Accuracy",
+            "Locate Pressure",
+            "Solve Complaints",
             "Precision Microprocessor Test Unit",
             "Lightweight & Portable Field Testing"
         ],
         specifications: [
-            "Flow Range": "3 to 50 GPM",
+            "Flow Range": "3 to 25 GPM",
             "Pressure": "150 PSI",
             "Moving Parts": "1 Turbine Rotor",
             "Connections": "5/8\" x 3/4\" Meter Threads"
@@ -75,16 +75,16 @@ let veroflowProducts = [
         subtitle: "Advanced Mobile Testing System",
         description: "The VEROflow-4 Touch represents the pinnacle of mobile meter testing technology. This advanced system features a user-friendly touchscreen interface, high-precision flow measurement, and compatibility with our exclusive companion app for comprehensive field testing solutions.",
         features: [
-            "Intuitive Touchscreen Interface",
-            "High-Precision Flow Measurement",
-            "Companion App Compatible",
+            "Touchscreen UI",
+            "Precision Flow",
+            "Companion App",
             "Automatic Flow Rate Detection",
             "Temperature Compensation",
             "NEMA 4X Water Resistant"
         ],
         specifications: [
-            "Flow Range": "0.1 to 400 GPM",
-            "Accuracy": "±1.5%",
+            "Flow Range": "0.75 to 650 GPM",
+            "Accuracy": "±0.5%",
             "Temperature Range": "32° F To 120° F",
             "Max Pressure": "300 PSI",
             "Display": "7\" Color Touchscreen"
@@ -102,9 +102,9 @@ let veroflowProducts = [
         subtitle: "Mobile, Large-Meter Tester",
         description: "The VEROflow-10 is the industry's most advanced M3 Enterprise software-driven mobile testing device, featuring state-of-the-art turbine technology with 22-point linearization.",
         features: [
-            "Test Large Meters (2\" to 10\")",
-            "22-Point Linearization",
-            "0.1% Repeatable Accuracy",
+            "2\"-10\" Meters",
+            "22-Pt Linearization",
+            "0.1% Accuracy",
             "Automatic Flow Rate Detection",
             "NEMA 4X Water Resistant",
             "Powered by MARS M3 Enterprise Software"
@@ -210,19 +210,22 @@ struct ProductCard: View {
             }
             
             // Features section remains the same
-            HStack {
-                ForEach(product.features.prefix(3), id: \.self) { feature in
-                    Label(
-                        title: { Text(feature).lineLimit(1) },
-                        icon: { Image(systemName: "checkmark.circle.fill") }
-                    )
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    
-                    if feature != product.features.prefix(3).last {
-                        Divider()
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(product.features.prefix(3), id: \.self) { feature in
+                        Label(
+                            title: { Text(feature) },
+                            icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.blue) }
+                        )
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        
+                        if feature != product.features.prefix(3).last {
+                            Divider()
+                        }
                     }
                 }
+                .padding(.vertical, 8)
             }
             .padding(.vertical, 8)
         }
