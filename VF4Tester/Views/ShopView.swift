@@ -575,7 +575,7 @@ struct TestPortSpoolsDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=989")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=986")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -726,7 +726,7 @@ struct StrainerDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=990")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=1003")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -870,7 +870,7 @@ struct ValveKeyDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=992")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=988")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -1014,7 +1014,7 @@ struct DrillTapsDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=994")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=984")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -1158,7 +1158,7 @@ struct RCMDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=993")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=1011")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -1437,7 +1437,7 @@ struct ThrustBusterDetailView: View {
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationView {
-                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=996")!)
+                    WebView(url: URL(string: "https://www.marswater.com/?wpdmdl=987")!)
                         .navigationTitle("Product Sheet")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
