@@ -1,4 +1,12 @@
+//
+//  ExampleView.swift
+//  SomeProject
+//
+//  Created by You on 3/20/25.
+//
+
 import SwiftUI
+import SceneKit
 
 private let preloadedGradient = LinearGradient(
     gradient: Gradient(colors: [
@@ -18,6 +26,10 @@ struct SplashScreenView: View {
     
     @State private var drops: [Drop] = []
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
+    @State private var rotation: Double = 0
+    @State private var scale: CGFloat = 0.8
+    @State private var rotationY: Double = 0
     
     struct Drop: Identifiable {
         let id = UUID()
@@ -84,11 +96,13 @@ struct SplashScreenView: View {
                 Image("veroflowLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
-                    .foregroundColor(.white)
-                    .shadow(color: .white.opacity(0.3), radius: 20)
+                    .frame(width: 160, height: 160)
+                    .rotation3DEffect(
+                        .degrees(rotationY),
+                        axis: (x: 0, y: 1, z: 0)
+                    )
+                    .scaleEffect(scale)
                     .opacity(isLogoVisible ? 1 : 0)
-                    .scaleEffect(isLogoVisible ? 1 : 0.5)
             }
         }
         .task(priority: .userInitiated) {
@@ -97,6 +111,21 @@ struct SplashScreenView: View {
         }
         .onReceive(timer) { _ in
             updateDrops()
+        }
+        .onAppear {
+            withAnimation(
+                .linear(duration: 5)
+                .repeatForever(autoreverses: false)
+            ) {
+                rotationY = 360
+            }
+            
+            withAnimation(
+                .easeInOut(duration: 1.5)
+                .repeatForever(autoreverses: true)
+            ) {
+                scale = 1.0
+            }
         }
     }
     
@@ -138,7 +167,7 @@ struct SplashScreenView: View {
         for _ in 0...25 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...screenWidth),
-                y: -50, 
+                y: -50,
                 scale: CGFloat.random(in: 0.6...1.2),
                 opacity: Double.random(in: 0.6...0.9),
                 speed: Double.random(in: 3...7)
@@ -155,7 +184,7 @@ struct SplashScreenView: View {
         if drops.count < 40 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...screenWidth),
-                y: -50, 
+                y: -50,
                 scale: CGFloat.random(in: 0.6...1.2),
                 opacity: Double.random(in: 0.6...0.9),
                 speed: Double.random(in: 3...7)

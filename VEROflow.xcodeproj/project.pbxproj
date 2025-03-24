@@ -108,10 +108,18 @@
 			);
 			target = CF1A0FC2B69D8F500123456 /* VEROflow */;
 		};
+		2DD472892D91C25E005BF616 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				vero3d.scn,
+			);
+			target = CF1A0FC2B69D8F500123456 /* VEROflow */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2D1963A02D4ED4B5009839D7 /* Connectivity */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2D1963A32D4ED4C9009839D7 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Connectivity; sourceTree = "<group>"; };
+		2DD472832D91BC6F005BF616 /* Assets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2DD472892D91C25E005BF616 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Assets; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +137,7 @@
 		CF1A0F42B69D8F500123456 = {
 			isa = PBXGroup;
 			children = (
+				2DD472832D91BC6F005BF616 /* Assets */,
 				CF1A0FE2B69D8F500123456 /* Products */,
 				CF1A0FF2B69D8F500123456 /* VF4Tester */,
 				2D5EBC332D830D6D00FC3A05 /* LineChartView.swift */,
