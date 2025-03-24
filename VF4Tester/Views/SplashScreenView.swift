@@ -53,11 +53,11 @@ struct SplashScreenView: View {
                 Image("Drop")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 30, height: 30) 
+                    .frame(width: 30, height: 30)
                     .scaleEffect(drop.scale)
                     .opacity(drop.opacity)
                     .position(x: drop.x, y: drop.y)
-                    .shadow(color: .white.opacity(0.5), radius: 4) 
+                    .shadow(color: .white.opacity(0.5), radius: 4)
             }
             
             // Logo and outer circle
@@ -65,20 +65,20 @@ struct SplashScreenView: View {
                 // Glow effect
                 Circle()
                     .fill(Color.white.opacity(0.3))
-                    .frame(width: 250, height: 250)
+                    .frame(width: 330, height: 330)
                     .blur(radius: 20)
                     .opacity(glowOpacity)
                 
                 Circle()
                     .stroke(.white.opacity(0.2), lineWidth: 2)
-                    .frame(width: 220, height: 220)
+                    .frame(width: 300, height: 300)
                     .scaleEffect(circleScale)
                     .opacity(circleOpacity)
                 
-                Image("veroflowLogo")
+                Image("vero3d")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
+                    .frame(width: 280, height: 280)
                     .foregroundColor(.white)
                     .shadow(color: .white.opacity(0.3), radius: 20)
                     .opacity(isLogoVisible ? 1 : 0)
@@ -98,13 +98,13 @@ struct SplashScreenView: View {
     
     private func startRain() {
         let screenWidth = UIScreen.main.bounds.width
-        for _ in 0...25 { 
+        for _ in 0...25 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...screenWidth),
                 y: -50,
-                scale: CGFloat.random(in: 0.6...1.0), 
-                opacity: Double.random(in: 0.4...0.8), 
-                speed: Double.random(in: 3...7) 
+                scale: CGFloat.random(in: 0.6...1.0),
+                opacity: Double.random(in: 0.4...0.8),
+                speed: Double.random(in: 3...7)
             ))
         }
     }
@@ -113,7 +113,7 @@ struct SplashScreenView: View {
         let screenWidth = UIScreen.main.bounds.width
         let screenHeight = UIScreen.main.bounds.height
         
-        if drops.count < 35 { 
+        if drops.count < 35 {
             drops.append(Drop(
                 x: CGFloat.random(in: 0...screenWidth),
                 y: -50,
