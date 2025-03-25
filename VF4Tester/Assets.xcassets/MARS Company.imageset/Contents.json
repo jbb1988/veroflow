@@ -1,12 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "MARS Logo.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "MARS-Logo White.png",
+      "filename" : "MARS Logo.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

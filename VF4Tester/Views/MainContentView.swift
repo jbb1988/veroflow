@@ -402,29 +402,16 @@ struct NavigationMenuView: View {
                 
                 Spacer()
 
-                // Enhanced logo with circular border and glow
-                ZStack {
-                    // Glow effect
-                    Circle()
-                        .fill(Color.white.opacity(0.3))
-                        .frame(width: 140, height: 140)
-                        .blur(radius: 20)
-                    
-                    // Circle border
-                    Circle()
-                        .stroke(.white.opacity(0.2), lineWidth: 2)
-                        .frame(width: 120, height: 120)
-                    
-                    Image("MARS Company")
+                // Logo section - Adjusted padding and increased size
+                VStack {
+                    Image("mars3d")
                         .resizable()
-                        .renderingMode(.template)
-                        .foregroundColor(.white.opacity(0.9))
                         .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .shadow(color: .white.opacity(0.3), radius: 15)
+                        .frame(width: 180, height: 180)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.bottom, 150)
+                .padding(.bottom, 100)
+                .padding(.top, -150)
 
             }
             .padding(.horizontal, 20)
