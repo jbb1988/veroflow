@@ -154,12 +154,105 @@ class OCRManager {
     }
     
     // Define a new struct to represent barcode results with symbology and payload
+    enum WaterMeterManufacturer {
+        case neptune
+        case sensus
+        case masterMeter
+        case diehl
+        case kamstrup
+        case zenner
+        case unknown
+    }
+    
+    private struct BarcodeSpec {
+        let manufacturer: WaterMeterManufacturer
+        let formats: [VNBarcodeSymbology]
+        let prefixPattern: String?
+        let serialPattern: String?
+    }
+    
+    private let manufacturerSpecs: [BarcodeSpec] = [
+        BarcodeSpec(manufacturer: .neptune,
+                   formats: [.code128, .dataMatrix],
+                   prefixPattern: "^(NT|NE)",
+                   serialPattern: "^[A-Z0-9]{8,12}$"),
+        BarcodeSpec(manufacturer: .sensus,
+                   formats: [.code128, .qr],
+                   prefixPattern: "^(SN|SS)",
+                   serialPattern: "^[A-Z0-9]{10,15}$"),
+        BarcodeSpec(manufacturer: .masterMeter,
+                   formats: [.code128, .code39, .qr],
+                   prefixPattern: "^(MM|MT)",
+                   serialPattern: "^[A-Z0-9]{7,14}$"),
+        BarcodeSpec(manufacturer: .diehl,
+                   formats: [.code128, .dataMatrix],
+                   prefixPattern: "^(DH|DL)",
+                   serialPattern: "^[A-Z0-9]{9,13}$"),
+        BarcodeSpec(manufacturer: .kamstrup,
+                   formats: [.dataMatrix, .qr],
+                   prefixPattern: "^(KM|KA)",
+                   serialPattern: "^[A-Z0-9]{10,16}$"),
+        BarcodeSpec(manufacturer: .zenner,
+                   formats: [.code128, .dataMatrix],
+                   prefixPattern: "^(ZN|ZR)",
+                   serialPattern: "^[A-Z0-9]{8,14}$")
+    ]
+
+    // Updated barcode detection method that extracts barcode formats and their values
     struct BarcodeResult {
         let symbology: String
         let payload: String
+        let manufacturer: WaterMeterManufacturer
+        let isValidFormat: Bool
+        var serialNumber: String?
+        var additionalInfo: [String: String] = [:]
     }
-    
-    // Updated barcode detection method that extracts barcode formats and their values
+
+    private func validateBarcode(_ observation: VNBarcodeObservation) -> BarcodeResult {
+        guard let payload = observation.payloadStringValue, !payload.isEmpty else {
+            return BarcodeResult(symbology: observation.symbology.rawValue,
+                               payload: "",
+                               manufacturer: .unknown,
+                               isValidFormat: false)
+        }
+
+        // Determine manufacturer and validate format
+        for spec in manufacturerSpecs {
+            if spec.formats.contains(observation.symbology) {
+                if let prefixPattern = spec.prefixPattern,
+                   let regex = try? NSRegularExpression(pattern: prefixPattern) {
+                    let range = NSRange(payload.startIndex..., in: payload)
+                    if regex.firstMatch(in: payload, range: range) != nil {
+                        // Extract serial number if pattern matches
+                        var serialNumber: String? = nil
+                        if let serialPattern = spec.serialPattern,
+                           let serialRegex = try? NSRegularExpression(pattern: serialPattern) {
+                            if let match = serialRegex.firstMatch(in: payload, range: range) {
+                                serialNumber = (payload as NSString).substring(with: match.range)
+                            }
+                        }
+                        
+                        return BarcodeResult(
+                            symbology: observation.symbology.rawValue,
+                            payload: payload,
+                            manufacturer: spec.manufacturer,
+                            isValidFormat: true,
+                            serialNumber: serialNumber
+                        )
+                    }
+                }
+            }
+        }
+
+        // Return unknown if no manufacturer pattern matches
+        return BarcodeResult(
+            symbology: observation.symbology.rawValue,
+            payload: payload,
+            manufacturer: .unknown,
+            isValidFormat: false
+        )
+    }
+
     func detectBarcodes(in image: UIImage, completion: @escaping ([BarcodeResult]?) -> Void) {
         guard let cgImage = image.cgImage else {
             completion(nil)
@@ -168,6 +261,7 @@ class OCRManager {
         
         let barcodeRequest = VNDetectBarcodesRequest { request, error in
             if let error = error {
+                print("Barcode detection error: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
@@ -177,18 +271,21 @@ class OCRManager {
                 return
             }
             
-            let results = observations.compactMap { observation -> BarcodeResult? in
-                guard let payload = observation.payloadStringValue, !payload.isEmpty else { return nil }
-                let symbology = observation.symbology.rawValue
-                return BarcodeResult(symbology: symbology, payload: payload)
-            }
+            let results = observations.map { observation -> BarcodeResult in
+                return self.validateBarcode(observation)
+            }.filter { !$0.payload.isEmpty }
+            
             completion(results.isEmpty ? nil : results)
         }
+        
+        // Configure request to look for specific symbologies
+        barcodeRequest.symbologies = manufacturerSpecs.flatMap { $0.formats }
         
         let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
             try requestHandler.perform([barcodeRequest])
         } catch {
+            print("Barcode request failed: \(error.localizedDescription)")
             completion(nil)
         }
     }

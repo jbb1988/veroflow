@@ -1,3 +1,10 @@
+//
+//  ExampleView.swift
+//  SomeProject
+//
+//  Created by You on 3/20/25.
+//
+
 import SwiftUI
 import AVKit
 import SafariServices
@@ -406,6 +413,13 @@ struct HelpView: View {
                                     title: "Getting Started",
                                     description: "Learn the basics of VEROflow testing",
                                     url: URL(string: "https://player.vimeo.com/video/1061388492")!,
+                                    thumbnailName: "getting-started-thumb"
+                                )
+
+                                VideoCard(
+                                    title: "VEROflow App Overview",
+                                    description: "Overview of the VEROflow App features",
+                                    url: URL(string: "https://player.vimeo.com/video/1069799610")!,
                                     thumbnailName: "getting-started-thumb"
                                 )
                             }
