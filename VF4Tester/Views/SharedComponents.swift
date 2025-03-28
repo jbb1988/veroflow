@@ -89,15 +89,39 @@ struct DetailCard<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             content()
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
-                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+            ZStack {
+                Color.black.opacity(0.5)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.2),
+                        Color.blue.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.blue.opacity(0.8),
+                            Color.blue.opacity(0.2)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: Color.blue.opacity(0.2), radius: 10, x: 0, y: 0)
         .frame(maxWidth: .infinity)
     }
 }
@@ -149,7 +173,7 @@ struct StatCard: View {
                     .foregroundColor(color)
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.7))
             }
             Text(value)
                 .font(.title2)
@@ -158,12 +182,35 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
+        .background(
+            ZStack {
+                Color.black.opacity(0.5)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        color.opacity(0.2),
+                        color.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(color.opacity(0.3), lineWidth: 1)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(0.8),
+                            color.opacity(0.2)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         )
+        .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 0)
     }
 }
 
@@ -271,18 +318,46 @@ struct WaveCircleShape: Shape {
 
 // MARK: - CardModifier and SectionHeader
 struct CardModifier: ViewModifier {
+    var color: Color = .blue
+    
     func body(content: Content) -> some View {
         content
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .background(
+                ZStack {
+                    Color.black.opacity(0.5)
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(0.2),
+                            color.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                color.opacity(0.8),
+                                color.opacity(0.2)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 0)
     }
 }
 
 extension View {
-    func cardStyle() -> some View {
-        self.modifier(CardModifier())
+    func cardStyle(color: Color = .blue) -> some View {
+        self.modifier(CardModifier(color: color))
     }
 }
 

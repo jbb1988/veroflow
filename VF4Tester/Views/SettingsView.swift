@@ -45,7 +45,7 @@ struct SettingsView: View {
             .overlay(WeavePattern())
             .ignoresSafeArea()
 
-            // Main list content (no extra NavigationView)
+            // Main list content
             List {
                 // Volume Settings
                 Section {
@@ -60,16 +60,9 @@ struct SettingsView: View {
                             .tag(unit)
                         }
                     }
+                    .listRowBackground(glassmorphicBackground)
                 } header: {
-                    HStack {
-                        Image(systemName: "cylinder.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                        Text("Volume")
-                            .textCase(nil)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    sectionHeader("Volume", systemImage: "cylinder.fill")
                 }
 
                 // Default Meter Settings
@@ -82,47 +75,27 @@ struct SettingsView: View {
                     .onChange(of: defaultMeterManufacturer) { newValue in
                         viewModel.configuration.defaultMeterManufacturer = newValue
                     }
+                    .listRowBackground(glassmorphicBackground)
                 } header: {
-                    HStack {
-                        Image(systemName: "gauge")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                        Text("Default Meter Settings")
-                            .textCase(nil)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    sectionHeader("Default Meter Settings", systemImage: "gauge")
                 }
 
                 // Test Input Options
                 Section {
                     Toggle("Show Meter Manufacturer Input", isOn: $showMeterMfgInput)
+                        .listRowBackground(glassmorphicBackground)
                     Toggle("Show Meter Model Input", isOn: $showMeterModelInput)
+                        .listRowBackground(glassmorphicBackground)
                 } header: {
-                    HStack {
-                        Image(systemName: "wrench.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                        Text("Test Input Options")
-                            .textCase(nil)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    sectionHeader("Test Input Options", systemImage: "wrench.fill")
                 }
 
                 // Onboarding
                 Section {
                     Toggle("Show Onboarding on Launch", isOn: $showOnboarding)
+                        .listRowBackground(glassmorphicBackground)
                 } header: {
-                    HStack {
-                        Image(systemName: "person.fill.questionmark")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                        Text("Onboarding")
-                            .textCase(nil)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    sectionHeader("Onboarding", systemImage: "person.fill.questionmark")
                 }
 
                 // Meter Tolerances
@@ -134,27 +107,21 @@ struct SettingsView: View {
                             Image(systemName: "chart.bar.doc.horizontal")
                                 .foregroundColor(.blue)
                             Text("Meter Tolerances")
+                                .foregroundColor(.white)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.gray)
                                 .font(.system(size: 14))
                         }
                     }
+                    .listRowBackground(glassmorphicBackground)
                 } header: {
-                    HStack {
-                        Image(systemName: "ruler")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                        Text("Reference")
-                            .textCase(nil)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    sectionHeader("Reference", systemImage: "ruler")
                 }
             }
             .padding(.top, 100)
-            .scrollContentBackground(.hidden)  // Hide default list background
-            .background(Color.clear)           // So we see the WeavePattern behind
+            .scrollContentBackground(.hidden)
+            .listStyle(InsetGroupedListStyle())
         }
         .preferredColorScheme(.dark)
         .onAppear {
@@ -165,5 +132,44 @@ struct SettingsView: View {
                 MeterToleranceView()
             }
         }
+    }
+    
+    // MARK: - Helper Views
+    private var glassmorphicBackground: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.2),
+                    Color.blue.opacity(0.05)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        .overlay(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.4),
+                    Color.blue.opacity(0.1)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .mask(Rectangle().stroke(lineWidth: 1))
+        )
+    }
+    
+    private func sectionHeader(_ title: String, systemImage: String) -> some View {
+        HStack {
+            Image(systemName: systemImage)
+                .foregroundColor(.blue)
+                .font(.system(size: 20))
+            Text(title)
+                .textCase(nil)
+                .font(.headline)
+                .foregroundColor(.white)
+        }
+        .padding(.vertical, 8)
     }
 }

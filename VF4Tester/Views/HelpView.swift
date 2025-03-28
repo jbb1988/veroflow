@@ -370,6 +370,7 @@ struct HelpView: View {
                 Color.clear
                     .frame(height: 110)
                 
+                // Category selection buttons with updated styling
                 HStack {
                     Spacer()
                     HStack(spacing: 0) {
@@ -384,11 +385,30 @@ struct HelpView: View {
                                 }
                                 .frame(width: UIScreen.main.bounds.width / CGFloat(HelpSection.allCases.count) - 12)
                                 .frame(height: 52)
-                                .background(selectedSection == section ? Color.blue : Color(UIColor.secondarySystemBackground))
-                                .foregroundColor(selectedSection == section ? .white : .primary)
+                                .background(
+                                    ZStack {
+                                        if selectedSection == section {
+                                            Color.blue.opacity(0.3)
+                                        } else {
+                                            Color.black.opacity(0.5)
+                                        }
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.blue.opacity(selectedSection == section ? 0.4 : 0.2),
+                                                Color.blue.opacity(selectedSection == section ? 0.2 : 0.05)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    }
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.blue.opacity(selectedSection == section ? 0.8 : 0.3), lineWidth: 1)
+                                        .blur(radius: selectedSection == section ? 0.5 : 0)
+                                )
                                 .cornerRadius(10)
-                                .shadow(color: selectedSection == section ? Color.blue.opacity(0.3) : Color.clear,
-                                        radius: 4, x: 0, y: 2)
+                                .foregroundColor(selectedSection == section ? .white : .gray)
                             }
                         }
                     }
@@ -418,6 +438,7 @@ struct HelpView: View {
                                 Text("Tutorial Videos")
                                     .font(.title2)
                                     .bold()
+                                    .foregroundColor(.white)
                                 
                                 VStack(spacing: 20) {
                                     VideoCard(
@@ -522,7 +543,6 @@ struct ContactSupportView: View {
     @Environment(\.openURL) var openURL
     var body: some View {
         VStack(spacing: 20) {
-            // Header section
             HStack {
                 Image(systemName: "headphones.circle.fill")
                     .font(.system(size: 28))
@@ -530,11 +550,11 @@ struct ContactSupportView: View {
                 Text("Contact Support")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundColor(.white)
                 Spacer()
             }
             .padding(.bottom, 8)
             
-            // Info Cards
             VStack(spacing: 16) {
                 ContactCard(
                     icon: "building.2.fill",
@@ -549,10 +569,9 @@ struct ContactSupportView: View {
                 )
             }
             
-            // Contact Buttons
             VStack(spacing: 12) {
                 ContactButton(
-                    action: { if let url = URL(string: "tel://8777MYMARS") { openURL(url) } },
+                    action: { if let url = URL(string: "tel://18777MYMARS") { openURL(url) } },
                     icon: "phone.circle.fill",
                     title: "Call Support",
                     subtitle: "1-877-7MY-MARS",
@@ -577,7 +596,19 @@ struct ContactSupportView: View {
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(
+            ZStack {
+                Color.black.opacity(0.3)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.1),
+                        Color.blue.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
         .cornerRadius(16)
     }
 }
@@ -598,16 +629,34 @@ struct ContactCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .foregroundColor(.white)
                 ForEach(details, id: \.self) { detail in
                     Text(detail)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                 }
             }
             Spacer()
         }
         .padding()
-        .background(Color(UIColor.systemBackground))
+        .background(
+            ZStack {
+                Color.black.opacity(0.5)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.2),
+                        Color.blue.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                .blur(radius: 0.5)
+        )
         .cornerRadius(12)
     }
 }
@@ -630,19 +679,37 @@ struct ContactButton: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.headline)
+                        .foregroundColor(.white)
                     Text(subtitle)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
             }
             .padding()
-            .background(Color(UIColor.systemBackground))
+            .background(
+                ZStack {
+                    Color.black.opacity(0.5)
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(0.2),
+                            color.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(color.opacity(0.3), lineWidth: 1)
+                    .blur(radius: 0.5)
+            )
             .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
@@ -660,6 +727,7 @@ struct InteractiveTestingGuide: View {
             Text("Interactive Testing Guide")
                 .font(.title2)
                 .bold()
+                .foregroundColor(.white)
                 .padding(.bottom, 8)
             
             VStack(spacing: 16) {
@@ -694,12 +762,12 @@ struct InteractiveTestingGuide: View {
                 if !testSteps.isEmpty {
                     HStack {
                         Image(systemName: testSteps.allSatisfy({ $0.isComplete }) ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(testSteps.allSatisfy({ $0.isComplete }) ? .green : .gray)
                         Text("Complete All Steps")
+                            .foregroundColor(testSteps.allSatisfy({ $0.isComplete }) ? .white : .gray)
                         Spacer()
                     }
-                    .foregroundStyle(testSteps.allSatisfy({ $0.isComplete }) ? .green : .gray)
-                    .font(.title2)
-                    .padding(.top)
+                    .padding(.vertical, 16)
                     .onTapGesture {
                         withAnimation(.spring(duration: 0.3)) {
                             let allComplete = testSteps.allSatisfy({ $0.isComplete })
@@ -755,12 +823,11 @@ struct TestingSection: View {
                     HStack {
                         Text(section.title)
                             .font(.headline)
-                            .strikethrough(section.isComplete)
-                            .foregroundColor(section.isComplete ? .secondary : .primary)
+                            .foregroundColor(.white)
                         Spacer()
                         Image(systemName: section.isComplete ? "checkmark.circle.fill" : "chevron.right")
                             .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                            .foregroundColor(section.isComplete ? .green : .secondary)
+                            .foregroundColor(section.isComplete ? .green : .gray)
                     }
                 }
                 
@@ -792,7 +859,24 @@ struct TestingSection: View {
             }
             .padding()
             .padding(.leading, 24)
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(
+                ZStack {
+                    Color.black.opacity(0.5)
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.blue.opacity(0.2),
+                            Color.blue.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                    .blur(radius: 0.5)
+            )
             .cornerRadius(12)
         }
     }
@@ -802,14 +886,15 @@ struct StepRow: View {
     let step: String
     let isCompleted: Bool
     let onToggle: () -> Void
+    
     var body: some View {
         Button(action: onToggle) {
             HStack(alignment: .top) {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isCompleted ? .green : .secondary)
+                    .foregroundColor(isCompleted ? .green : .gray)
                 Text(step)
                     .strikethrough(isCompleted)
-                    .foregroundColor(isCompleted ? .secondary : .primary)
+                    .foregroundColor(isCompleted ? .gray : .white)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
                 Spacer()
@@ -909,8 +994,28 @@ struct CategoryPill: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(isSelected ? color : color.opacity(0.1))
-            .foregroundColor(isSelected ? .white : .primary)
+            .background(
+                ZStack {
+                    if isSelected {
+                        color.opacity(0.3)
+                    } else {
+                        Color.black.opacity(0.5)
+                    }
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(isSelected ? 0.4 : 0.2),
+                            color.opacity(isSelected ? 0.2 : 0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(color.opacity(isSelected ? 0.8 : 0.3), lineWidth: 1)
+                    .blur(radius: isSelected ? 0.5 : 0)
+            )
             .cornerRadius(20)
         }
         .buttonStyle(PlainButtonStyle())
@@ -934,23 +1039,42 @@ struct FAQItemView: View {
                     Text(item.question)
                         .font(.headline)
                         .multilineTextAlignment(.leading)
+                        .foregroundColor(.white)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                 }
             }
             
             if isExpanded {
                 Text(item.answer)
                     .padding(.leading, 32)
+                    .foregroundColor(.gray)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(
+            ZStack {
+                Color.black.opacity(0.5)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        item.category.color.opacity(0.2),
+                        item.category.color.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(item.category.color.opacity(0.3), lineWidth: 1)
+                .blur(radius: 0.5)
+        )
         .cornerRadius(12)
         .shadow(color: item.category.color.opacity(isHovered ? 0.2 : 0.1),
                 radius: isHovered ? 12 : 8,
@@ -958,7 +1082,6 @@ struct FAQItemView: View {
                 y: isHovered ? 6 : 4)
         .scaleEffect(isHovered ? 1.02 : 1.0)
         .animation(.spring(response: 0.3), value: isHovered)
-        .onHover { isHovered = $0 }
     }
 }
 
@@ -967,11 +1090,12 @@ struct EmptyStateView: View {
         VStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 40))
-                .foregroundColor(.secondary)
+                .foregroundColor(.blue)
             Text("No matching questions found")
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(glassmorphicBackground)
     }
 }
 
@@ -1151,15 +1275,21 @@ struct VideoCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.headline)
+                        .foregroundColor(.white)
                     Text(description)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                 }
                 Spacer()
             }
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(glassmorphicBackground)
             .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                    .blur(radius: 0.5)
+            )
         }
         .sheet(isPresented: $showingVideo) {
             WebView(url: url)
@@ -1352,4 +1482,29 @@ struct ToleranceRow: View {
         }
         .font(.system(.body, design: .rounded))
     }
+}
+
+private var glassmorphicBackground: some View {
+    ZStack {
+        Color.black.opacity(0.5)
+        LinearGradient(
+            gradient: Gradient(colors: [
+                Color.blue.opacity(0.2),
+                Color.blue.opacity(0.05)
+            ]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    .overlay(
+        LinearGradient(
+            gradient: Gradient(colors: [
+                Color.blue.opacity(0.4),
+                Color.blue.opacity(0.1)
+            ]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .mask(Rectangle().stroke(lineWidth: 1))
+    )
 }

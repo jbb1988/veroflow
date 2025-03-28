@@ -3,29 +3,24 @@ import SwiftUI
 struct MenuBackgroundView: View {
     var body: some View {
         ZStack {
-            // Simplified gradient background
+            // Main background color
+            Color(hex: "003D6A")
+                .ignoresSafeArea()
+            
+            // Glassmorphic overlay
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 0/255, green: 79/255, blue: 137/255),
-                    Color(red: 0/255, green: 100/255, blue: 160/255).opacity(0.8)
+                    Color.blue.opacity(0.2),
+                    Color.blue.opacity(0.05)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+            .ignoresSafeArea()
             
-            // Simplified blur with reduced opacity
-            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                .opacity(0.3)
-            
-            // Simple overlay gradient
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.white.opacity(0.05),
-                    Color.clear
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            // Subtle pattern overlay
+            WeavePattern()
+                .ignoresSafeArea()
         }
     }
 }
