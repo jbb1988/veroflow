@@ -17,7 +17,38 @@ struct TestTypeButton: View {
         // Neumorphic effect properties
     private let darkShadow = Color.black.opacity(0.2)
     private let lightShadow = Color.white.opacity(0.7)
-
+    
+    private var neumorphicBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(isSelected ? borderColor.opacity(0.8) : Color.blue.opacity(0.3))
+            if isSelected {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(borderColor, lineWidth: 2)
+            }
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(darkShadow, lineWidth: 4)
+                .blur(radius: 4)
+                .offset(x: 2, y: 2)
+                .mask(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
+                                             startPoint: .topLeading,
+                                             endPoint: .bottomTrailing))
+                )
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(lightShadow, lineWidth: 4)
+                .blur(radius: 4)
+                .offset(x: -2, y: -2)
+                .mask(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
+                                             startPoint: .topLeading,
+                                             endPoint: .bottomTrailing))
+                )
+        }
+    }
+    
     var body: some View {
         Button(action: {
                     feedbackGenerator.prepare()
@@ -33,38 +64,176 @@ struct TestTypeButton: View {
             .frame(maxWidth: .infinity)
             .padding(8)
             .foregroundColor(.white)
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? borderColor.opacity(0.8) : Color.blue.opacity(0.3))
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(borderColor, lineWidth: 2)
-                    }
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(darkShadow, lineWidth: 4)
-                        .blur(radius: 4)
-                        .offset(x: 2, y: 2)
-                        .mask(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
-                                                     startPoint: .topLeading,
-                                                     endPoint: .bottomTrailing))
-                        )
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(lightShadow, lineWidth: 4)
-                        .blur(radius: 4)
-                        .offset(x: -2, y: -2)
-                        .mask(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
-                                                     startPoint: .topLeading,
-                                                     endPoint: .bottomTrailing))
-                        )
-                }
-            )
+            .background(neumorphicBackground)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct WeavePattern: View {
+    var body: some View {
+        GeometryReader { geometry in
+            let rowUpperBound = Int(geometry.size.height / 8) + 20
+            let colUpperBound = Int(geometry.size.width / 8) + 20
+            ForEach(-20...rowUpperBound, id: \.self) { row in
+                ForEach(-20...colUpperBound, id: \.self) { col in
+                    Rectangle()
+                        .fill(Color.blue.opacity(0.08))
+                        .frame(width: 3, height: 3)
+                        .offset(
+                            x: CGFloat(col) * 16 + CGFloat(row) * 8,
+                            y: CGFloat(row) * 16
+                        )
+                }
+            }
+        }
+        .drawingGroup() // For better performance
+    }
+}
+
+func sanitizeNumericInput(_ input: String) -> String {
+    input
+        .replacingOccurrences(of: "'", with: ".")
+        .replacingOccurrences(of: "`", with: "")
+        .replacingOccurrences(of: "٫", with: ".")
+        .replacingOccurrences(of: "،", with: ".")
+}
+
+private struct DotPattern: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ForEach(0...Int(geometry.size.width/15), id: \.self) { x in
+                ForEach(0...Int(geometry.size.height/15), id: \.self) { y in
+                    Circle()
+                        .fill(Color.white.opacity(0.05))
+                        .frame(width: 2, height: 2)
+                        .position(x: CGFloat(x) * 15 + 7.5,
+                                  y: CGFloat(y) * 15 + 7.5)
+                }
+            }
+        }
+    }
+}
+
+private struct GradientBackground: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "004F89"),
+                        Color(hex: "002A4A")
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+            DotPattern()
+        }
+    }
+}
+
+private struct ParameterTextField: View {
+    let text: Binding<String>
+    let field: Field
+    let showValidation: Bool
+    let onChangeHandler: (String) -> Void
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        TextField("", text: text)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.leading)
+            .frame(width: 100)
+            .textFieldStyle(PlainTextFieldStyle())
+            .padding(8)
+            .background(Color.black)
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .stroke(showValidation && text.wrappedValue.isEmpty ? Color.red : Color.clear, lineWidth: 2))
+            .focused($isFocused)
+            .onChange(of: text.wrappedValue) { onChangeHandler($0) }
+    }
+}
+
+private struct ParameterRow: View {
+    let title: String
+    let icon: String
+    let text: Binding<String>
+    let field: Field
+    let showValidation: Bool
+    let unit: String
+    let onChangeHandler: (String) -> Void
+    let primaryColor: Color
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Label(title, systemImage: icon)
+                .foregroundColor(primaryColor)
+                .lineLimit(1)
+                .frame(width: 150, alignment: .leading)
+            Spacer()
+            HStack(spacing: 8) {
+                ParameterTextField(
+                    text: text,
+                    field: field,
+                    showValidation: showValidation,
+                    onChangeHandler: onChangeHandler
+                )
+                Text(unit)
+                    .foregroundColor(.secondary)
+                    .frame(width: 60, alignment: .leading)
+            }
+        }
+    }
+}
+
+private struct TotalVolumeParameterView: View {
+    let totalVolumeText: Binding<String>
+    let field: Field
+    let showValidation: Bool
+    let unit: String
+    let viewModel: TestViewModel
+    let primaryColor: Color
+    
+    var body: some View {
+        ParameterRow(
+            title: "Total Volume",
+            icon: "drop",
+            text: totalVolumeText,
+            field: field,
+            showValidation: showValidation,
+            unit: unit,
+            onChangeHandler: { newValue in
+                if let value = Double(sanitizeNumericInput(newValue)) {
+                    viewModel.totalVolume = value
+                }
+            },
+            primaryColor: primaryColor
+        )
+    }
+}
+
+private struct FlowRateParameterView: View {
+    let flowRateText: Binding<String>
+    let field: Field
+    let showValidation: Bool
+    let viewModel: TestViewModel
+    let primaryColor: Color
+    
+    var body: some View {
+        ParameterRow(
+            title: "Flow Rate",
+            icon: "water.waves",
+            text: flowRateText,
+            field: field,
+            showValidation: showValidation,
+            unit: "GPM",
+            onChangeHandler: { newValue in
+                if let value = Double(sanitizeNumericInput(newValue)) {
+                    viewModel.flowRate = value
+                }
+            },
+            primaryColor: primaryColor
+        )
     }
 }
 
@@ -125,7 +294,7 @@ struct TestView: View {
     var passRangeText: String {
         let model = selectedMeterModel
         let test = viewModel.currentTest
-        let (minTol, maxTol) = {
+        let (minTol, maxTol): (Double, Double) = {
             switch model {
             case .positiveDisplacement, .singleJet:
                 switch test {
@@ -395,63 +564,27 @@ struct TestView: View {
         }
     }
     
+     
+
     private var testParametersSection: some View {
         DetailCard(title: "Test Parameters") {
             VStack(spacing: 12) {
-                HStack(spacing: 0) {
-                    Label("Total Volume", systemImage: "drop")
-                        .foregroundColor(primaryColor)
-                        .lineLimit(1)
-                        .frame(width: 150, alignment: .leading)
-                    Spacer()
-                    HStack(spacing: 8) {
-                        TextField("", text: $totalVolumeText)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.leading)
-                            .frame(width: 100)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .padding(8)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.black))
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .stroke(showValidationOutlines && totalVolumeText.isEmpty ? Color.red : Color.clear, lineWidth: 2))
-                            .focused($focusedField, equals: .totalVolume)
-                            .onChange(of: totalVolumeText) { newValue in
-                                if let value = Double(sanitizeNumericInput(newValue)) {
-                                    viewModel.totalVolume = value
-                                }
-                            }
-                        Text(viewModel.configuration.preferredVolumeUnit.rawValue)
-                            .foregroundColor(.secondary)
-                            .frame(width: 60, alignment: .leading)
-                    }
-                }
-                HStack(spacing: 0) {
-                    Label("Flow Rate", systemImage: "water.waves")
-                        .foregroundColor(primaryColor)
-                        .lineLimit(1)
-                        .frame(width: 150, alignment: .leading)
-                    Spacer()
-                    HStack(spacing: 8) {
-                        TextField("", text: $flowRateText)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.leading)
-                            .frame(width: 100)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .padding(8)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.black))
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .stroke(showValidationOutlines && flowRateText.isEmpty ? Color.red : Color.clear, lineWidth: 2))
-                            .focused($focusedField, equals: .flowRate)
-                            .onChange(of: flowRateText) { newValue in
-                                if let value = Double(sanitizeNumericInput(newValue)) {
-                                    viewModel.flowRate = value
-                                }
-                            }
-                        Text("GPM")
-                            .foregroundColor(.secondary)
-                            .frame(width: 60, alignment: .leading)
-                    }
-                }
+                TotalVolumeParameterView(
+                    totalVolumeText: $totalVolumeText,
+                    field: .totalVolume,
+                    showValidation: showValidationOutlines,
+                    unit: viewModel.configuration.preferredVolumeUnit.rawValue,
+                    viewModel: viewModel,
+                    primaryColor: primaryColor
+                )
+                
+                FlowRateParameterView(
+                    flowRateText: $flowRateText,
+                    field: .flowRate,
+                    showValidation: showValidationOutlines,
+                    viewModel: viewModel,
+                    primaryColor: primaryColor
+                )
             }
             .frame(maxWidth: .infinity)
         }
@@ -781,13 +914,7 @@ struct TestView: View {
         .contentShape(Rectangle())
     }
     
-    private func sanitizeNumericInput(_ input: String) -> String {
-        input
-            .replacingOccurrences(of: "'", with: ".")
-            .replacingOccurrences(of: "`", with: "")
-            .replacingOccurrences(of: "٫", with: ".")
-            .replacingOccurrences(of: "،", with: ".")
-    }
+ 
     
     private func clearAllFields() {
         totalVolumeText = ""
@@ -1068,33 +1195,50 @@ struct TestView: View {
     
     var body: some View {
         ScrollViewReader { scrollProxy in
-            ScrollView {
-                VStack(spacing: 16) {
-                    Spacer().frame(height: headerSpacing)
-                    testTypeSection
-                    meterReadingsSection
-                    testParametersSection
-                    meterDetailsSection
-                    additionalDetailsSection
-                    notesSection
-                    recordTestSection
-                    recentTestSection
+            ZStack {
+                // Background with darker blue
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "001830"),
+                        Color(hex: "000C18")
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .overlay(WeavePattern())
+                .ignoresSafeArea()
+                
+                // Existing ScrollView content
+                ScrollView {
+                    VStack(spacing: 16) {
+                        Spacer().frame(height: headerSpacing)
+                        testTypeSection
+                        meterReadingsSection
+                        testParametersSection
+                        meterDetailsSection
+                        additionalDetailsSection
+                        notesSection
+                        recordTestSection
+                        recentTestSection
+                    }
+                    .padding()
                 }
-                .padding()
-            }
-            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: keyboardHeight) }
-            .onChange(of: isNotesFieldFocused) { focused in
-                if focused {
-                    withAnimation { scrollProxy.scrollTo("notesSection", anchor: .top) }
-                }
-            }
-            .simultaneousGesture(
-                DragGesture().onChanged { _ in
-                    if keyboardHeight > 0 {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                // Existing modifiers remain unchanged
+                .safeAreaInset(edge: .bottom) { Color.clear.frame(height: keyboardHeight) }
+                .onChange(of: isNotesFieldFocused) { focused in
+                    if focused {
+                        withAnimation { scrollProxy.scrollTo("notesSection", anchor: .top) }
                     }
                 }
-            )
+                .simultaneousGesture(
+                    DragGesture().onChanged { _ in
+                        if keyboardHeight > 0 {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                    }
+                )
+            }
+            // Rest of the existing view modifiers remain the same...
         }
         .onAppear {
             let notificationCenter = NotificationCenter.default

@@ -353,82 +353,95 @@ struct HelpView: View {
     @State private var searchQuery = ""
     
     var body: some View {
-        VStack(spacing: 0) {
-            Color.clear
-                .frame(height: 110)
-                .background(Color.black)
+        ZStack {
+            // Background gradient + weave pattern
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "001830"),
+                    Color(hex: "000C18")
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay(WeavePattern())
+            .ignoresSafeArea()
             
-            HStack {
-                Spacer()
-                HStack(spacing: 0) {
-                    ForEach(HelpSection.allCases, id: \.self) { section in
-                        Button(action: { selectedSection = section }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: section.icon)
-                                    .font(.system(size: 18))
-                                Text(section.rawValue)
-                                    .font(.subheadline)
-                                    .minimumScaleFactor(0.8)
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(height: 110)
+                
+                HStack {
+                    Spacer()
+                    HStack(spacing: 0) {
+                        ForEach(HelpSection.allCases, id: \.self) { section in
+                            Button(action: { selectedSection = section }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: section.icon)
+                                        .font(.system(size: 18))
+                                    Text(section.rawValue)
+                                        .font(.subheadline)
+                                        .minimumScaleFactor(0.8)
+                                }
+                                .frame(width: UIScreen.main.bounds.width / CGFloat(HelpSection.allCases.count) - 12)
+                                .frame(height: 52)
+                                .background(selectedSection == section ? Color.blue : Color(UIColor.secondarySystemBackground))
+                                .foregroundColor(selectedSection == section ? .white : .primary)
+                                .cornerRadius(10)
+                                .shadow(color: selectedSection == section ? Color.blue.opacity(0.3) : Color.clear,
+                                        radius: 4, x: 0, y: 2)
                             }
-                            .frame(width: UIScreen.main.bounds.width / CGFloat(HelpSection.allCases.count) - 12)
-                            .frame(height: 52)
-                            .background(selectedSection == section ? Color.blue : Color(UIColor.secondarySystemBackground))
-                            .foregroundColor(selectedSection == section ? .white : .primary)
-                            .cornerRadius(10)
-                            .shadow(color: selectedSection == section ? Color.blue.opacity(0.3) : Color.clear,
-                                    radius: 4, x: 0, y: 2)
                         }
                     }
+                    Spacer()
                 }
-                Spacer()
-            }
-            .padding(.vertical, 4)
-            .padding(.bottom, 8)
-            .background(Color(UIColor.systemBackground))
-            
-            if selectedSection == .faq {
-                SearchBar(text: $searchQuery)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-            }
-            
-            ScrollView {
-                VStack(spacing: 20) {
-                    switch selectedSection {
-                    case .support:
-                        EnhancedSupportView()
-                    case .testing:
-                        InteractiveTestingGuide()
-                    case .faq:
-                        EnhancedFAQView(searchQuery: searchQuery)
-                    case .demo:
-                        VStack(spacing: 16) {
-                            Text("Tutorial Videos")
-                                .font(.title2)
-                                .bold()
-                            
-                            VStack(spacing: 20) {
-                                VideoCard(
-                                    title: "Getting Started",
-                                    description: "Learn the basics of VEROflow testing",
-                                    url: URL(string: "https://player.vimeo.com/video/1061388492")!,
-                                    thumbnailName: "getting-started-thumb"
-                                )
-
-                                VideoCard(
-                                    title: "VEROflow App Overview",
-                                    description: "Overview of the VEROflow App features",
-                                    url: URL(string: "https://player.vimeo.com/video/1069799610")!,
-                                    thumbnailName: "getting-started-thumb"
-                                )
+                .padding(.vertical, 4)
+                .padding(.bottom, 8)
+                .background(Color.clear)
+                
+                if selectedSection == .faq {
+                    SearchBar(text: $searchQuery)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                }
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        switch selectedSection {
+                        case .support:
+                            EnhancedSupportView()
+                        case .testing:
+                            InteractiveTestingGuide()
+                        case .faq:
+                            EnhancedFAQView(searchQuery: searchQuery)
+                        case .demo:
+                            VStack(spacing: 16) {
+                                Text("Tutorial Videos")
+                                    .font(.title2)
+                                    .bold()
+                                
+                                VStack(spacing: 20) {
+                                    VideoCard(
+                                        title: "Getting Started",
+                                        description: "Learn the basics of VEROflow testing",
+                                        url: URL(string: "https://player.vimeo.com/video/1061388492")!,
+                                        thumbnailName: "getting-started-thumb"
+                                    )
+                                    
+                                    VideoCard(
+                                        title: "VEROflow App Overview",
+                                        description: "Overview of the VEROflow App features",
+                                        url: URL(string: "https://player.vimeo.com/video/1069799610")!,
+                                        thumbnailName: "getting-started-thumb"
+                                    )
+                                }
+                                .padding()
                             }
-                            .padding()
+                        case .testChart:
+                            MeterToleranceChartView()
                         }
-                    case .testChart:
-                        MeterToleranceChartView()
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
         .ignoresSafeArea(.keyboard)

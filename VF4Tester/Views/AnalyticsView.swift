@@ -1,3 +1,4 @@
+// AnalyticsView.swift
 import SwiftUI
 import Charts
 
@@ -50,7 +51,6 @@ struct AnalyticsView: View {
     
     // Chart filtering using the new chart filter options.
     var chartFilteredResults: [TestResult] {
-        // First filter by date range
         let startOfDay = Calendar.current.startOfDay(for: chartStartDate)
         let endOfDay = Calendar.current.startOfDay(for: chartEndDate).addingTimeInterval(86399)
         
@@ -58,7 +58,6 @@ struct AnalyticsView: View {
             (result.date >= startOfDay) && (result.date <= endOfDay)
         }
         
-        // Then apply test type filter
         let typeFiltered = dateFiltered.filter { result in
             switch chartHistoryFilter {
             case .all: return true
@@ -71,7 +70,6 @@ struct AnalyticsView: View {
             }
         }
         
-        // Apply meter size filter
         let sizeFiltered = typeFiltered.filter { result in
             switch chartMeterSize {
             case .all: return true
@@ -88,7 +86,6 @@ struct AnalyticsView: View {
             }
         }
         
-        // Apply manufacturer filter
         let manufacturerFiltered = sizeFiltered.filter { result in
             switch chartManufacturer {
             case .all: return true
@@ -103,7 +100,6 @@ struct AnalyticsView: View {
             }
         }
         
-        // Finally, apply sort order
         switch chartSortOrder {
         case .ascending:
             return manufacturerFiltered.sorted { $0.date < $1.date }
@@ -116,17 +112,15 @@ struct AnalyticsView: View {
         viewModel.testResults.reduce(0) { $0 + $1.reading.totalVolume }
     }
     
-    // Dynamic y-axis domain.
     var accuracyDomain: ClosedRange<Double> {
         let accuracies = chartFilteredResults.map { $0.reading.accuracy }
-        guard !accuracies.isEmpty else { return 90...105 } // Default passing scale range
+        guard !accuracies.isEmpty else { return 90...105 }
         
         let minAcc = accuracies.min() ?? 90
         let maxAcc = accuracies.max() ?? 105
         
-        // Ensure we always show the critical threshold lines
-        let lowerBound = min(minAcc - 5, 90) // Show at least down to 90%
-        let upperBound = max(maxAcc + 5, 105) // Show at least up to 105%
+        let lowerBound = min(minAcc - 5, 90)
+        let upperBound = max(maxAcc + 5, 105)
         
         return lowerBound...upperBound
     }
@@ -160,20 +154,29 @@ struct AnalyticsView: View {
     }
     
     @State private var selectedTest: TestResult? = nil
-    
     @State private var showHistorySheet = false
     @State private var historyFilter: TestHistoryView.FilterOption = .all
-    
     @State private var selectedChartType: ChartType = .line
-
+    
     var body: some View {
-        ScrollView {
-            VStack {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "001830"),
+                    Color(hex: "000C18")
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay(WeavePattern())
+            .ignoresSafeArea()
+            
+            ScrollView {
                 VStack(spacing: 16) {
                     Color.clear
                         .frame(height: 1)
                         .padding(.top, 100)
-
+                    
                     // Water Usage Card.
                     DetailCard(title: "Water Usage") {
                         HStack(spacing: 16) {
@@ -247,7 +250,7 @@ struct AnalyticsView: View {
                         }
                     }
                     
-                    // Chart Options Card with updated filter bindings.
+                    // Chart Options Card.
                     ChartOptionsView(
                         showTrendLine: $showTrendLine,
                         chartStartDate: $chartStartDate,
@@ -259,7 +262,7 @@ struct AnalyticsView: View {
                         selectedChartType: $selectedChartType
                     )
                     
-                    // Chart Type Card
+                    // Chart Type Card.
                     DetailCard(title: "Chart Type") {
                         HStack(spacing: 12) {
                             ForEach([ChartType.line, .area, .scatter], id: \.self) { type in
@@ -275,10 +278,7 @@ struct AnalyticsView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(selectedChartType == type ?
-                                                Color.blue :
-                                                Color.blue.opacity(0.1)
-                                            )
+                                            .fill(selectedChartType == type ? Color.blue : Color.blue.opacity(0.1))
                                     )
                                     .foregroundColor(selectedChartType == type ? .white : .blue)
                                 }
@@ -313,41 +313,41 @@ struct AnalyticsView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Analytics")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Image("veroflowLogo")
-                        .resizable()
-                        .renderingMode(.original)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 40)
+        }
+        .navigationTitle("Analytics")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingExportSheet = true
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingExportSheet = true
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingExportSheet) {
-#if os(iOS)
-                ShareSheet(activityItems: [generateShareText()])
-#endif
-            }
-            .sheet(item: $selectedTest) { result in
-                TestDetailView(result: result)
-                    .presentationDetents([.medium, .large])
-            }
-            .sheet(isPresented: $showHistorySheet) {
-                TestHistoryView(initialFilter: historyFilter)
-                    .presentationDetents([.medium, .large])
             }
         }
+        .sheet(isPresented: $showingExportSheet) {
+            #if os(iOS)
+            ShareSheet(activityItems: [generateShareText()])
+            #endif
+        }
+        .sheet(item: $selectedTest) { result in
+            TestDetailView(result: result)
+                .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $showHistorySheet) {
+            TestHistoryView(initialFilter: historyFilter)
+                .presentationDetents([.medium, .large])
+        }
     }
-
+    
     private func chartTypeIcon(_ type: ChartType) -> String {
         switch type {
         case .line: return "waveform.path.ecg"
@@ -355,7 +355,7 @@ struct AnalyticsView: View {
         case .scatter: return "circle.grid.2x2.fill"
         }
     }
-
+    
     private func chartTypeName(_ type: ChartType) -> String {
         switch type {
         case .line: return "Line"
@@ -363,7 +363,7 @@ struct AnalyticsView: View {
         case .scatter: return "Scatter"
         }
     }
-
+    
     struct StatCard: View {
         let title: String
         let value: String
@@ -419,7 +419,7 @@ struct AnalyticsView: View {
         @Binding var selectedChartType: ChartType
         
         @State private var isFilterExpanded: Bool = false
-
+        
         private func clearAllFilters() {
             selectedHistoryFilter = .all
             selectedSortOrder = .descending
@@ -443,7 +443,7 @@ struct AnalyticsView: View {
                     )
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .background(Color.black)
+                    .background(WeavePattern())
                 }
             }
         }

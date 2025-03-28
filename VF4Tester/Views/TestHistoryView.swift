@@ -183,13 +183,22 @@ struct TestHistoryView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
-                Color.black.edgesIgnoringSafeArea(.all)
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "001830"),
+                        Color(hex: "000C18")
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .overlay(WeavePattern())
+                .ignoresSafeArea()
                 VStack(spacing: 0) {
                     Color.clear.frame(height: 100)
                     SearchBar(text: $searchText)
                         .padding(.horizontal)
                         .padding(.vertical, 8)
-                        .background(Color.black)
+                        .background(WeavePattern())
                     
                     CompactFilterPill(
                         isExpanded: $isFilterExpanded,
