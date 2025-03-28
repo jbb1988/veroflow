@@ -16,67 +16,61 @@ struct MainContentView: View {
 
     var body: some View {
         ZStack {
-            // Main content
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                
-                // CHANGE: Simplify main content switching
-                selectedTab.view
-                    .offset(x: isMenuOpen ? (isIPad ? 300 : UIScreen.main.bounds.width * 0.55) : 0)
-                    .animation(.default, value: isMenuOpen)
-
-                // CHANGE: Simplified header that doesn't animate with content
-                VStack(spacing: 0) {
-                    headerView
-                    Spacer()
-                }
-            }
-            .background(Color(UIColor.systemBackground))
+            // Background
+            Color.black.edgesIgnoringSafeArea(.all)
             
-            // CHANGE: Overlay menu instead of side-by-side
-            if isMenuOpen {
-                Color.black
-                    .opacity(0.5)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .animation(.easeOut(duration: 0.2), value: isMenuOpen)
-                    .onTapGesture {
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            isMenuOpen = false
-                        }
-                    }
-                
-                HStack(spacing: 0) {
-                    NavigationMenuView(
-                        isMenuOpen: $isMenuOpen,
-                        selectedTab: $selectedTab,
-                        onTabSelect: { newTab in
-                            if selectedTab != newTab {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    selectedTab = newTab
-                                }
-                            }
-                            withAnimation(.easeOut(duration: 0.2)) {
+            // Content Layer
+            Group {
+                selectedTab.view
+                    .opacity(isMenuOpen ? 0.6 : 1.0)
+            }
+            
+            // Header Layer
+            headerView
+                .zIndex(1)
+            
+            // Menu Layer
+            Group {
+                if isMenuOpen {
+                    HStack(spacing: 0) {
+                        NavigationMenuView(
+                            isMenuOpen: $isMenuOpen,
+                            selectedTab: $selectedTab,
+                            onTabSelect: { newTab in
+                                selectedTab = newTab
                                 isMenuOpen = false
                             }
-                        }
-                    )
-                    .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
-                    .transition(.move(edge: .leading))
-                    
-                    Spacer()
+                        )
+                        .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
+                        .background(MenuBackgroundView())
+                        .zIndex(2)
+                        
+                        Color.black.opacity(0.5)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                isMenuOpen = false
+                            }
+                    }
+                    .transition(.identity)
                 }
-                .transition(.move(edge: .leading))
             }
-
+            
+            // Onboarding Layer
             if showOnboarding && !hasOpened {
                 EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
                     .environmentObject(viewModel)
-                    .zIndex(2)
+                    .zIndex(3)
                     .onDisappear {
                         hasOpened = true
                         UserDefaults.standard.set(true, forKey: "hasOpened")
                     }
+            }
+        }
+        .background(Color(UIColor.systemBackground))
+        .onChange(of: selectedTab) { _ in
+            // Immediate view update
+            DispatchQueue.main.async {
+                isMenuOpen = false
             }
         }
         .dynamicTypeSize(.large...(.accessibility5))
@@ -96,30 +90,33 @@ struct MainContentView: View {
                 }
         )
     }
-    
+
     private var headerView: some View {
-        HStack {
-            Button(action: {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    isMenuOpen.toggle()
+        VStack(spacing: 0) {
+            HStack {
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        isMenuOpen.toggle()
+                    }
+                }) {
+                    HamburgerIcon(isOpen: isMenuOpen)
+                        .animation(.easeOut(duration: 0.2), value: isMenuOpen)
                 }
-            }) {
-                HamburgerIcon(isOpen: isMenuOpen)
-                    .animation(.easeOut(duration: 0.2), value: isMenuOpen)
+                
+                Spacer()
+                
+                Image("veroflowLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 47)
+                    .frame(maxWidth: .infinity)
+                
+                Spacer()
             }
-            
-            Spacer()
-            
-            Image("veroflowLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 47)
-                .frame(maxWidth: .infinity)
-            
+            .padding()
+            .background(WeavePattern())
             Spacer()
         }
-        .padding()
-        .background(WeavePattern())
     }
 }
 
@@ -261,7 +258,7 @@ struct Modern3DEffect: ViewModifier {
             .onAppear {
                 withAnimation(
                     .easeInOut(duration: 1.5)
-                    .repeatForever(autoreverses: true)
+                        .repeatForever(autoreverses: true)
                 ) {
                     isAnimating.toggle()
                 }

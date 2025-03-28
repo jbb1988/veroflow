@@ -152,7 +152,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .padding(.top, 60)
+            .padding(.top, 100)
             .scrollContentBackground(.hidden)  // Hide default list background
             .background(Color.clear)           // So we see the WeavePattern behind
         }

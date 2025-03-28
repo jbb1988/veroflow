@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2D0834B82D97295800A920CE /* MenuBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0834B72D97295800A920CE /* MenuBackgroundView.swift */; };
+		2D0834BA2D972E3100A920CE /* PaginatedTestHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */; };
 		2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D65A82D7B68B2003A10AE /* SafariView.swift */; };
 		2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0FE6042D79E831002A11EB /* CameraView.swift */; };
 		2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		2D0834B72D97295800A920CE /* MenuBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBackgroundView.swift; sourceTree = "<group>"; };
+		2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedTestHistoryView.swift; sourceTree = "<group>"; };
 		2D0D65A82D7B68B2003A10AE /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		2D0FE6042D79E831002A11EB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = VEROflowInfo.plist; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				CF1A1152B69D93000123456 /* TestView.swift */,
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
 				2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */,
+				2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 				2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */,
 				2D3B753F2D512D07002285C9 /* ImagePicker.swift in Sources */,
 				CF1A1172B69D93B00123456 /* TestHistoryView.swift in Sources */,
+				2D0834BA2D972E3100A920CE /* PaginatedTestHistoryView.swift in Sources */,
 				2DC2DB942D83819400497AA8 /* ShopView.swift in Sources */,
 				2D94266F2D92D70A0037E7B3 /* ShopView.swift in Sources */,
 				2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */,

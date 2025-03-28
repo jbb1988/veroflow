@@ -28,27 +28,18 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         switch self {
         case .test:
             TestView()
-                .transition(.opacity)
         case .analytics:
             AnalyticsView()
-                .transition(.opacity)
         case .history:
-            LazyView {
-                TestHistoryView()
-            }
-            .transition(.opacity)
+            TestHistoryView() // Changed back to TestHistoryView until we implement PaginatedTestHistoryView
         case .products:
             ProductShowcaseView()
-                .transition(.opacity)
         case .diversified:
             ShopView()
-                .transition(.opacity)
         case .settings:
             SettingsView()
-                .transition(.opacity)
         case .help:
             HelpView()
-                .transition(.opacity)
         }
     }
 }

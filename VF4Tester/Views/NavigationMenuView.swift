@@ -29,14 +29,14 @@ struct NavigationMenuView: View {
     private var title: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("BROWSE")
-            .font(.system(size: 14, weight: .heavy, design: .rounded))
-            .foregroundColor(.white)
-            .opacity(0.7)
-            .padding(.bottom, 8)
+                .font(.system(size: 14, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .opacity(0.7)
+                .padding(.bottom, 8)
             Rectangle()
-            .frame(height: 2)
-            .foregroundColor(Color.white.opacity(0.3))
-            .padding(.bottom, 12)
+                .frame(height: 2)
+                .foregroundColor(Color.white.opacity(0.3))
+                .padding(.bottom, 12)
         }
         .padding(.top, 100)
     }
@@ -44,20 +44,15 @@ struct NavigationMenuView: View {
     private var menuButtons: some View {
         ForEach(AppNavigationItem.allCases, id: \.self) { item in
             Button(action: {
+                // Immediate response without animation
                 onTabSelect(item)
-                // Slight delay before closing menu
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        isMenuOpen = false
-                    }
-                }
             }) {
                 HStack(spacing: 15) {
                     Image(systemName: item.icon)
-                    .font(.system(size: 20, weight: .medium))
-                    .frame(width: 24)
+                        .font(.system(size: 20, weight: .medium))
+                        .frame(width: 24)
                     Text(item.rawValue)
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
                 }
                 .foregroundColor(.white)
                 .padding(.vertical, 12)
@@ -65,14 +60,11 @@ struct NavigationMenuView: View {
                 .background(
                     selectedTab == item ?
                     RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white.opacity(0.15))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    ) : nil
+                        .fill(Color.white.opacity(0.15)) : nil
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
