@@ -407,7 +407,7 @@ struct NavigationMenuView: View {
                     Image("mars3d")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 180, height: 180)
+                        .frame(width: 135, height: 135)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 100)

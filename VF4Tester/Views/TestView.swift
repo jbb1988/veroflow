@@ -406,7 +406,7 @@ struct TestView: View {
                     Spacer()
                     HStack(spacing: 8) {
                         TextField("", text: $totalVolumeText)
-                            .keyboardType(.default)
+                            .keyboardType(.numberPad)
                             .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
@@ -433,7 +433,7 @@ struct TestView: View {
                     Spacer()
                     HStack(spacing: 8) {
                         TextField("", text: $flowRateText)
-                            .keyboardType(.default)
+                            .keyboardType(.numberPad)
                             .multilineTextAlignment(.leading)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
