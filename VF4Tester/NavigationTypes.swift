@@ -6,7 +6,7 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     case test = "Test"
     case analytics = "Analytics"
     case history = "History"
-    case products =i "VEROflow Line"
+    case products = "VEROflow Line"
     case diversified = "Diversified"
     case settings = "Settings"
     case help = "Help"
