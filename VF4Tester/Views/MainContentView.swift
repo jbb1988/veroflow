@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct MainContentView: View {
     @EnvironmentObject var viewModel: TestViewModel
@@ -7,6 +8,7 @@ struct MainContentView: View {
     @StateObject private var navigationState = NavigationStateManager()
     @State private var isMenuOpen = false
     @GestureState private var dragOffset: CGFloat = 0
+    @State private var showSafari = false
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private var isIPad: Bool { horizontalSizeClass == .regular }
@@ -26,20 +28,42 @@ struct MainContentView: View {
                     .offset(x: isMenuOpen ? (isIPad ? 300 : UIScreen.main.bounds.width * 0.55) : 0)
 
                 VStack(spacing: 0) {
-                    CustomHeader(isMenuOpen: $isMenuOpen)
+                    HStack {
+                        Button(action: {
+                            withAnimation {
+                                isMenuOpen.toggle()
+                            }
+                        }) {
+                            HamburgerIcon(isOpen: isMenuOpen)
+                        }
+                        
+                        Spacer()
+                        
+                        Image("veroflowLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 47)
+                            .frame(maxWidth: .infinity)
+                        
+                        Spacer()
+                    }
+                    .padding()
+                    .background(WeavePattern())
                     Spacer()
                 }
             }
             .background(Color(UIColor.systemBackground))
             
-            // Menu View - Update width
+            // Menu View
             if isMenuOpen {
                 HStack {
                     GeometryReader { geometry in
-                        NavigationMenuView(
-                            isMenuOpen: $isMenuOpen,
-                            selectedTab: $navigationState.selectedTab
-                        )
+                        VStack {
+                            NavigationMenuView(
+                                isMenuOpen: $isMenuOpen,
+                                selectedTab: $navigationState.selectedTab
+                            )
+                        }
                         .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                         .background(
@@ -50,7 +74,6 @@ struct MainContentView: View {
                     }
                     .ignoresSafeArea()
                     
-                    // Close button area
                     Button(action: {
                         withAnimation {
                             isMenuOpen = false
@@ -71,6 +94,9 @@ struct MainContentView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Spacer()
+                }
+                .sheet(isPresented: $showSafari) {
+                    SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
                 }
             }
 
@@ -132,30 +158,6 @@ struct MainContentView: View {
 
 class NavigationStateManager: ObservableObject {
     @Published var selectedTab: AppNavigationItem = .test
-}
-
-struct CustomHeader: View {
-    @Binding var isMenuOpen: Bool
-    
-    var body: some View {
-        HStack {
-            Button(action: {
-                withAnimation {
-                    isMenuOpen.toggle()
-                }
-            }) {
-                HamburgerIcon(isOpen: isMenuOpen)
-            }
-            Spacer()
-            Image("veroflowLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 40)
-            Spacer()
-        }
-        .padding()
-        .background(WeavePattern())
-    }
 }
 
 struct HamburgerIcon: View {

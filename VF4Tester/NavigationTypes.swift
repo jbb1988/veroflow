@@ -6,7 +6,8 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     case test = "Test"
     case analytics = "Analytics"
     case history = "History"
-    case products = "Product Family"
+    case products =i "VEROflow Line"
+    case diversified = "Diversified"
     case settings = "Settings"
     case help = "Help"
 
@@ -18,6 +19,7 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         case .analytics: return "chart.bar.fill"
         case .history: return "clock.fill"
         case .products: return "cube.box.fill"
+        case .diversified: return "cart.fill"
         case .settings: return "gear"
         case .help: return "questionmark.circle.fill"
         }
@@ -26,17 +28,19 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     @ViewBuilder
     var view: some View {
         switch self {
-        case .test: 
+        case .test:
             TestView()
-        case .analytics: 
+        case .analytics:
             AnalyticsView()
-        case .history: 
+        case .history:
             TestHistoryView()
-        case .products: 
+        case .products:
             ProductShowcaseView()
-        case .settings: 
+        case .diversified:
+            ShopView()
+        case .settings:
             SettingsView()
-        case .help: 
+        case .help:
             HelpView()
         }
     }

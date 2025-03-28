@@ -10,22 +10,8 @@ struct NavigationMenuView: View {
     @Namespace private var menuNamespace
     @State private var showSafari = false
 
-    @State private var drops: [MenuDrop] = []
-    let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-
     var body: some View {
         ZStack {
-            ForEach(drops) { drop in
-                Image("mars3d")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .scaleEffect(drop.scale)
-                    .opacity(drop.opacity)
-                    .position(x: drop.x, y: drop.y)
-                    .shadow(color: Color.white.opacity(0.5), radius: 4)
-            }
-            
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("BROWSE")
@@ -91,85 +77,25 @@ struct NavigationMenuView: View {
                 }
                 
                 Spacer()
-                
-                MenuAnimatedSafariButton {
-                    showSafari = true
+
+                HStack {
+                    Spacer()
+                    AnimatedSafariButton {
+                        showSafari = true
+                    }
+                    .scaleEffect(1.2)
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity)
                 .padding(.bottom, 100)
-                .padding(.top, -150)
+                
                 .sheet(isPresented: $showSafari) {
-                    #if os(iOS)
-                    MenuSafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
-                    #else
-                    EmptyView()
-                    #endif
+                    SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
                 }
             }
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .edgesIgnoringSafeArea(.all)
-        .onAppear {
-            startRain()
-        }
-        .onReceive(timer) { _ in
-            updateDrops()
-        }
-    }
-    
-    private func startRain() {
-        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.55
-        for _ in 0...7 {
-            drops.append(MenuDrop(
-                x: CGFloat.random(in: 0...menuWidth),
-                y: -50,
-                scale: CGFloat.random(in: 0.4...0.8),
-                opacity: Double.random(in: 0.2...0.4),
-                speed: Double.random(in: 2...5)
-            ))
-        }
-    }
-    
-    private func updateDrops() {
-        let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.55
-        let screenHeight = UIScreen.main.bounds.height
-        if drops.count < 10 {
-            drops.append(MenuDrop(
-                x: CGFloat.random(in: 0...menuWidth),
-                y: -50,
-                scale: CGFloat.random(in: 0.4...0.8),
-                opacity: Double.random(in: 0.2...0.4),
-                speed: Double.random(in: 2...5)
-            ))
-        }
-        drops = drops.compactMap { drop in
-            var updatedDrop = drop
-            updatedDrop.y += drop.speed
-            return updatedDrop.y > screenHeight + 50 ? nil : updatedDrop
-        }
-    }
-}
-
-private struct MenuDrop: Identifiable {
-    let id = UUID()
-    var x: CGFloat
-    var y: CGFloat
-    var scale: CGFloat
-    var opacity: Double
-    var speed: Double
-}
-
-private struct MenuAnimatedSafariButton: View {
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            Image("veroflowLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 40)
-                .shadow(radius: 2)
-        }
     }
 }
 
