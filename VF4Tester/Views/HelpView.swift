@@ -274,8 +274,8 @@ struct AnimatedSafariButton: View {
                 endPoint: isAnimating ? .bottomTrailing : .center
             )
             .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isAnimating)
-            .frame(width: 280, height: 86)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .frame(width: 108, height: 108)
+            .clipShape(Circle())
             .blur(radius: 8)
             
             Button(action: {
@@ -289,12 +289,11 @@ struct AnimatedSafariButton: View {
                 }
                 action()
             }) {
-                Text("MARS Chat AI")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 280, height: 80)
-                    .background(Color.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                Image("mars3d")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 95, height: 95)
+                    .clipShape(Circle())
             }
             .overlay(
                 GeometryReader { geometry in
@@ -313,7 +312,7 @@ struct AnimatedSafariButton: View {
                             .animation(.linear(duration: 0.6), value: animateShine)
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .clipShape(Circle())
             )
         }
         .onAppear { isAnimating = true }
@@ -486,7 +485,10 @@ struct EnhancedSupportView: View {
             }
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Reach out instantly for expert advice and support!")
+                Text("MARS Chat AI")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.primary)
+                + Text(": Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Just press the water drop above or in the menu and reach out instantly for expert advice and support!")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }

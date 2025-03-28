@@ -314,6 +314,7 @@ struct NavigationMenuView: View {
     @State private var selectedItemId: UUID? = nil
     @State private var hoveredItem: NavigationItem? = nil
     @Namespace private var menuNamespace
+    @State private var showSafari = false // State for Safari sheet
     
     @State private var drops: [Drop] = []
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
@@ -322,14 +323,14 @@ struct NavigationMenuView: View {
         ZStack {
             // Add drops layer first
             ForEach(drops) { drop in
-                Image("Drop")
+                Image("mars3d")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 20, height: 20)
+                    .frame(width: 30, height: 30)
                     .scaleEffect(drop.scale)
                     .opacity(drop.opacity)
                     .position(x: drop.x, y: drop.y)
-                    .shadow(color: .white.opacity(0.3), radius: 2)
+                    .shadow(color: .white.opacity(0.5), radius: 4)
             }
             
             // Original menu content
@@ -402,17 +403,16 @@ struct NavigationMenuView: View {
                 
                 Spacer()
 
-                // Logo section - Adjusted padding and increased size
-                VStack {
-                    Image("mars3d")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 135, height: 135)
+                // Logo section with updated functionality
+                AnimatedSafariButton {
+                    showSafari = true
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 100)
                 .padding(.top, -150)
-
+                .sheet(isPresented: $showSafari) {
+                    SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
+                }
             }
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -425,7 +425,6 @@ struct NavigationMenuView: View {
             updateDrops()
         }
     }
-
     private func startRain() {
         // Get the menu width instead of full screen
         let menuWidth: CGFloat = UIScreen.main.bounds.width * 0.55

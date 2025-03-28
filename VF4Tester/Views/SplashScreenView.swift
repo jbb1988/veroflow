@@ -50,7 +50,7 @@ struct SplashScreenView: View {
             
             // Rain drops layer
             ForEach(drops) { drop in
-                Image("Drop")
+                Image("mars3d")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)
