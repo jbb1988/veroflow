@@ -430,21 +430,19 @@ struct AnalyticsView: View {
         }
         
         var body: some View {
-            DetailCard(title: "Chart Options") {
-                VStack {
-                    CompactFilterPill(
-                        isExpanded: $isFilterExpanded,
-                        selectedFilter: $selectedHistoryFilter,
-                        selectedSort: $selectedSortOrder,
-                        startDate: $chartStartDate,
-                        endDate: $chartEndDate,
-                        selectedMeterSize: $selectedMeterSize,
-                        selectedManufacturer: $selectedManufacturer
-                    )
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(WeavePattern())
-                }
+            VStack {
+                CompactFilterPill(
+                    isExpanded: $isFilterExpanded,
+                    selectedFilter: $selectedHistoryFilter,
+                    selectedSort: $selectedSortOrder,
+                    startDate: $chartStartDate,
+                    endDate: $chartEndDate,
+                    selectedMeterSize: $selectedMeterSize,
+                    selectedManufacturer: $selectedManufacturer
+                )
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color.clear)
             }
         }
     }

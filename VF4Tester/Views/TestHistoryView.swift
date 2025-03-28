@@ -211,7 +211,7 @@ struct TestHistoryView: View {
                     )
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .background(Color.black)
+                    .background(Color.clear)
                     
                     ScrollView {
                         LazyVStack(spacing: 12) {
