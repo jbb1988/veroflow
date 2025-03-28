@@ -5,102 +5,70 @@ struct MainContentView: View {
     @EnvironmentObject var viewModel: TestViewModel
     @AppStorage("showOnboarding") private var showOnboarding: Bool = true
     @AppStorage("hasOpened") private var hasOpened: Bool = false
-    @StateObject private var navigationState = NavigationStateManager()
+    @State private var selectedTab: AppNavigationItem = .test
     @State private var isMenuOpen = false
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showSafari = false
+    @State private var previousTab: AppNavigationItem?
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private var isIPad: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
-        let navigationItems: [AppNavigationItem] = [.test, .analytics, .history, .products, .settings, .help]
-        let onItemSelected: (AppNavigationItem) -> Void = { item in
-            navigationState.selectedTab = item
-            isMenuOpen = false
-        }
-
-        return ZStack {
+        ZStack {
             // Main content
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
-                mainContentStack
+                
+                // CHANGE: Simplify main content switching
+                selectedTab.view
                     .offset(x: isMenuOpen ? (isIPad ? 300 : UIScreen.main.bounds.width * 0.55) : 0)
+                    .animation(.default, value: isMenuOpen)
 
+                // CHANGE: Simplified header that doesn't animate with content
                 VStack(spacing: 0) {
-                    HStack {
-                        Button(action: {
-                            withAnimation {
-                                isMenuOpen.toggle()
-                            }
-                        }) {
-                            HamburgerIcon(isOpen: isMenuOpen)
-                        }
-                        
-                        Spacer()
-                        
-                        Image("veroflowLogo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 47)
-                            .frame(maxWidth: .infinity)
-                        
-                        Spacer()
-                    }
-                    .padding()
-                    .background(WeavePattern())
+                    headerView
                     Spacer()
                 }
             }
             .background(Color(UIColor.systemBackground))
             
-            // Menu View
+            // CHANGE: Overlay menu instead of side-by-side
             if isMenuOpen {
-                HStack {
-                    GeometryReader { geometry in
-                        VStack {
-                            NavigationMenuView(
-                                isMenuOpen: $isMenuOpen,
-                                selectedTab: $navigationState.selectedTab
-                            )
-                        }
-                        .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        .background(
-                            GlassmorphicBackground()
-                                .edgesIgnoringSafeArea(.all)
-                        )
-                        .transition(.move(edge: .leading))
-                    }
+                Color.black
+                    .opacity(0.5)
                     .ignoresSafeArea()
-                    
-                    Button(action: {
-                        withAnimation {
+                    .transition(.opacity)
+                    .animation(.easeOut(duration: 0.2), value: isMenuOpen)
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.2)) {
                             isMenuOpen = false
                         }
-                    }) {
-                        HStack {
-                            Image(systemName: "chevron.backward")
-                                .font(.system(size: 22, weight: .bold))
-                            Text("Close Menu")
-                            .font(.system(size: 16, weight: .semibold))
-                        }
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .background(Color.black.opacity(0.7))
-                        .cornerRadius(10)
                     }
-                    .padding(.leading, 20)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                HStack(spacing: 0) {
+                    NavigationMenuView(
+                        isMenuOpen: $isMenuOpen,
+                        selectedTab: $selectedTab,
+                        onTabSelect: { newTab in
+                            if selectedTab != newTab {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    selectedTab = newTab
+                                }
+                            }
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                isMenuOpen = false
+                            }
+                        }
+                    )
+                    .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
+                    .transition(.move(edge: .leading))
                     
                     Spacer()
                 }
-                .sheet(isPresented: $showSafari) {
-                    SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
-                }
+                .transition(.move(edge: .leading))
             }
 
-            // Onboarding overlay
             if showOnboarding && !hasOpened {
                 EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
                     .environmentObject(viewModel)
@@ -116,48 +84,43 @@ struct MainContentView: View {
             DragGesture(minimumDistance: 20, coordinateSpace: .local)
                 .updating($dragOffset) { value, state, _ in
                     if !isMenuOpen && value.translation.width > 0 {
-                        state = min(value.translation.width * 0.7, UIScreen.main.bounds.width * 0.8)
+                        state = value.translation.width
                     }
                 }
                 .onEnded { gesture in
-                    if !isMenuOpen && gesture.translation.width > 30 {
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                    if !isMenuOpen && gesture.translation.width > 50 {
+                        withAnimation(.easeOut(duration: 0.25)) {
                             isMenuOpen = true
-                        }
-                    } else if isMenuOpen && gesture.translation.width < -30 {
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-                            isMenuOpen = false
                         }
                     }
                 }
         )
     }
-
-    private var mainContentStack: some View {
-        ZStack {
-            navigationState.selectedTab.view
-            
-            if isMenuOpen {
-                Color.black.opacity(0.5)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isMenuOpen = false
-                        }
-                    }
-                
+    
+    private var headerView: some View {
+        HStack {
+            Button(action: {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    isMenuOpen.toggle()
+                }
+            }) {
+                HamburgerIcon(isOpen: isMenuOpen)
+                    .animation(.easeOut(duration: 0.2), value: isMenuOpen)
             }
+            
+            Spacer()
+            
+            Image("veroflowLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 47)
+                .frame(maxWidth: .infinity)
+            
+            Spacer()
         }
-        .navigationBarItems(
-            leading: HamburgerIcon(isOpen: isMenuOpen)
-        )
-        .environmentObject(viewModel)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding()
+        .background(WeavePattern())
     }
-}
-
-class NavigationStateManager: ObservableObject {
-    @Published var selectedTab: AppNavigationItem = .test
 }
 
 struct HamburgerIcon: View {
@@ -184,19 +147,6 @@ struct HamburgerIcon: View {
     }
 }
 
-struct VisualEffectView: UIViewRepresentable {
-    let effect: UIVisualEffect
-    
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView(effect: effect)
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = effect
-    }
-}
-
 struct GlassmorphicBackground: View {
     var body: some View {
         ZStack {
@@ -209,7 +159,6 @@ struct GlassmorphicBackground: View {
                 endPoint: .bottomTrailing
             )
             
-            // Add subtle animated particles
             ForEach(0..<20) { _ in
                 Circle()
                     .fill(Color.white.opacity(0.2))
@@ -217,11 +166,10 @@ struct GlassmorphicBackground: View {
                     .modifier(ParticleMotionModifier())
             }
             
-            // Enhanced blur with noise texture
-            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                .opacity(0.4)
+            // Removed VisualEffectView
+            // VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+            //     .opacity(0.4)
             
-            // Add subtle gradient overlay
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.white.opacity(0.1),

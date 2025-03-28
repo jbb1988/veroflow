@@ -14,13 +14,19 @@ struct ContentView: View {
             
             // Menu overlay
             if isMenuOpen {
-                NavigationMenuView(isMenuOpen: $isMenuOpen, selectedTab: $selectedTab)
+                NavigationMenuView(
+                    isMenuOpen: $isMenuOpen, 
+                    selectedTab: $selectedTab,
+                    onTabSelect: { newTab in
+                        selectedTab = newTab
+                    }
+                )
                     .frame(maxWidth: 300)
                     .transition(.move(edge: .leading))
             }
         }
         .navigationBarItems(leading: Button(action: {
-            withAnimation {
+            withAnimation(.easeOut(duration: 0.25)) {
                 isMenuOpen.toggle()
             }
         }) {

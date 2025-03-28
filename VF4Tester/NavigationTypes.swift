@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-// This will be our single source of truth for navigation
 enum AppNavigationItem: String, CaseIterable, Identifiable {
     case test = "Test"
     case analytics = "Analytics"
@@ -30,21 +28,39 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         switch self {
         case .test:
             TestView()
+                .transition(.opacity)
         case .analytics:
             AnalyticsView()
+                .transition(.opacity)
         case .history:
-            TestHistoryView()
+            LazyView {
+                TestHistoryView()
+            }
+            .transition(.opacity)
         case .products:
             ProductShowcaseView()
+                .transition(.opacity)
         case .diversified:
             ShopView()
+                .transition(.opacity)
         case .settings:
             SettingsView()
+                .transition(.opacity)
         case .help:
             HelpView()
+                .transition(.opacity)
         }
     }
 }
 
-// This file can be deleted as its functionality is handled by NavigationItem enum in MainContentView.swift
-// Delete this entire file
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+
+    init(_ build: @escaping () -> Content) {
+        self.build = build
+    }
+    
+    var body: Content {
+        build()
+    }
+}

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D0834B82D97295800A920CE /* MenuBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0834B72D97295800A920CE /* MenuBackgroundView.swift */; };
 		2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D65A82D7B68B2003A10AE /* SafariView.swift */; };
 		2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0FE6042D79E831002A11EB /* CameraView.swift */; };
 		2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */; };
@@ -51,6 +52,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D0834B72D97295800A920CE /* MenuBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBackgroundView.swift; sourceTree = "<group>"; };
 		2D0D65A82D7B68B2003A10AE /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		2D0FE6042D79E831002A11EB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = VEROflowInfo.plist; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 				CF1A1172B69D94500123456 /* HelpView.swift */,
 				2D3B753E2D512D07002285C9 /* ImagePicker.swift */,
 				2D1BBBE72D760521002A6DC8 /* MainContentView.swift */,
+				2D0834B72D97295800A920CE /* MenuBackgroundView.swift */,
 				2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */,
 				2D1963A82D4EF18B009839D7 /* OfflineBannerView.swift */,
 				2D66945D2D81E4F000874762 /* ProductShowcaseView.swift */,
@@ -308,6 +311,7 @@
 				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
 				2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */,
 				2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */,
+				2D0834B82D97295800A920CE /* MenuBackgroundView.swift in Sources */,
 				2D6694602D81ECDF00874762 /* NavigationMenuView.swift in Sources */,
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
