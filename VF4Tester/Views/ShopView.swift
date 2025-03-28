@@ -424,7 +424,12 @@ struct ShopView: View {
             }
             .padding(.vertical)
         }
-        .background(Color.black)
+        .background(
+            ZStack {
+                Color.black
+                WeavePattern()
+            }
+        )
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingDetail) {
             TestPortSpoolsDetailView()

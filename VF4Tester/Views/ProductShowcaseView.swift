@@ -135,6 +135,8 @@ struct ProductShowcaseView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                Spacer()
+                    .frame(height: 80)
                 // Header
                 Text("")
                     .font(.system(size: 28, weight: .bold))
@@ -164,6 +166,13 @@ struct ProductShowcaseView: View {
                 isAnimating = true
             }
         }
+        .background(
+            ZStack {
+                Color.black
+                WeavePattern()
+            }
+        )
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
