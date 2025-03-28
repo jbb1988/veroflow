@@ -23,6 +23,11 @@ struct MainContentView: View {
             Group {
                 selectedTab.view
                     .opacity(isMenuOpen ? 0.6 : 1.0)
+                    .transaction { transaction in
+                        if !isMenuOpen {
+                            transaction.animation = nil
+                        }
+                    }
             }
             
             // Header Layer
@@ -68,12 +73,11 @@ struct MainContentView: View {
         }
         .background(Color(UIColor.systemBackground))
         .onChange(of: selectedTab) { _ in
-            // Immediate view update
-            DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.2)) {
                 isMenuOpen = false
             }
         }
-        .dynamicTypeSize(.large...(.accessibility5))
+        .dynamicTypeSize(.large...(.accessibility3))
         .gesture(
             DragGesture(minimumDistance: 20, coordinateSpace: .local)
                 .updating($dragOffset) { value, state, _ in
@@ -156,17 +160,6 @@ struct GlassmorphicBackground: View {
                 endPoint: .bottomTrailing
             )
             
-            ForEach(0..<20) { _ in
-                Circle()
-                    .fill(Color.white.opacity(0.2))
-                    .frame(width: 4, height: 4)
-                    .modifier(ParticleMotionModifier())
-            }
-            
-            // Removed VisualEffectView
-            // VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-            //     .opacity(0.4)
-            
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.white.opacity(0.1),
@@ -176,92 +169,5 @@ struct GlassmorphicBackground: View {
                 endPoint: .bottom
             )
         }
-    }
-}
-
-struct ParticleMotionModifier: ViewModifier {
-    @State private var isAnimating = false
-    private let randomX = Double.random(in: -100...100)
-    private let randomY = Double.random(in: -200...200)
-    private let duration = Double.random(in: 7...13)
-    
-    func body(content: Content) -> some View {
-        content
-            .offset(x: isAnimating ? randomX : -randomX,
-                    y: isAnimating ? randomY : -randomY)
-            .opacity(isAnimating ? 0.1 : 0.5)
-            .onAppear {
-                withAnimation(
-                    Animation
-                        .easeInOut(duration: duration)
-                        .repeatForever(autoreverses: true)
-                ) {
-                    isAnimating.toggle()
-                }
-            }
-    }
-}
-
-struct Drop: Identifiable {
-    let id = UUID()
-    var x: CGFloat
-    var y: CGFloat
-    var scale: CGFloat
-    var opacity: Double
-    var speed: Double
-}
-
-struct ShimmerEffect: ViewModifier {
-    @State private var phase: CGFloat = 0
-    
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                GeometryReader { geometry in
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            .clear,
-                            .white.opacity(0.7),
-                            .clear
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: geometry.size.width * 3)
-                    .offset(x: -geometry.size.width + (phase * geometry.size.width * 4))
-                }
-            )
-            .mask(content)
-            .onAppear {
-                withAnimation(
-                    Animation
-                        .linear(duration: 2.0)
-                        .repeatForever(autoreverses: false)
-                ) {
-                    phase = 1.0
-                }
-            }
-    }
-}
-
-struct Modern3DEffect: ViewModifier {
-    @State private var isAnimating = false
-    
-    func body(content: Content) -> some View {
-        content
-            .rotation3DEffect(
-                .degrees(isAnimating ? 10 : -10),
-                axis: (x: 0.3, y: 1.0, z: 0.2)
-            )
-            .shadow(color: .blue.opacity(0.5), radius: 15, x: -8, y: 8)
-            .shadow(color: .white.opacity(0.5), radius: 15, x: 8, y: -8)
-            .onAppear {
-                withAnimation(
-                    .easeInOut(duration: 1.5)
-                        .repeatForever(autoreverses: true)
-                ) {
-                    isAnimating.toggle()
-                }
-            }
     }
 }
