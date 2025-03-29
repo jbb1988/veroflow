@@ -106,6 +106,8 @@ struct MainContentView: View {
                     HamburgerIcon(isOpen: isMenuOpen)
                         .animation(.easeOut(duration: 0.2), value: isMenuOpen)
                 }
+                .contentShape(Rectangle())
+                .frame(width: 44, height: 44)
                 
                 Spacer()
                 

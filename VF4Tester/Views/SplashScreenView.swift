@@ -8,10 +8,11 @@
 import SwiftUI
 import SceneKit
 
+// Update the gradient colors to use 0A1B3A
 private let preloadedGradient = LinearGradient(
     gradient: Gradient(colors: [
-        Color(hex: "004F89"),
-        Color(hex: "002A4A")
+        Color(hex: "0A1B3A"),  // Dark blue as specified
+        Color(hex: "0A1B3A")   // Same color for consistent background
     ]),
     startPoint: .topLeading,
     endPoint: .bottomTrailing
@@ -47,6 +48,11 @@ struct SplashScreenView: View {
             preloadedGradient
                 .ignoresSafeArea()
                 .drawingGroup()
+            
+            // Add WeavePattern as background
+            WeavePattern()
+                .opacity(0.15)
+                .ignoresSafeArea()
             
             // Rain drops layer
             ForEach(drops) { drop in
