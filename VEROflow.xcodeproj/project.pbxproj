@@ -33,6 +33,7 @@
 		2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */; };
 		2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */; };
 		2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D88B32F2D777F8C0013216E /* SplashScreenView.swift */; };
+		2D89C9312D9825B7003A4BF1 /* WeavePatternView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */; };
 		2D94266F2D92D70A0037E7B3 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D94266E2D92D70A0037E7B3 /* ShopView.swift */; };
 		2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9C2D74C9A200FF088F /* GeoView.swift */; };
 		2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */; };
@@ -83,6 +84,7 @@
 		2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactFilterPill.swift; sourceTree = "<group>"; };
 		2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDropdown.swift; sourceTree = "<group>"; };
 		2D88B32F2D777F8C0013216E /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeavePatternView.swift; sourceTree = "<group>"; };
 		2D94266E2D92D70A0037E7B3 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		2D9BCB9C2D74C9A200FF088F /* GeoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoView.swift; sourceTree = "<group>"; };
 		2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffect.swift; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 				2DC621B72D4DA248002FAA2F /* TutorialView.swift */,
 				2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */,
 				2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */,
+				2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 				2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */,
 				2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */,
 				CF1A1192B69D94F00123456 /* SettingsView.swift in Sources */,
+				2D89C9312D9825B7003A4BF1 /* WeavePatternView.swift in Sources */,
 				2D1963A52D4ED511009839D7 /* AnalyticsView.swift in Sources */,
 				CF1A11A2B69D95A00123456 /* SharedComponents.swift in Sources */,
 				2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */,

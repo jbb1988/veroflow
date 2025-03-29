@@ -181,138 +181,136 @@ struct TestHistoryView: View {
     
     // MARK: - Body
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "001830"),
-                        Color(hex: "000C18")
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .overlay(WeavePattern())
-                .ignoresSafeArea()
-                VStack(spacing: 0) {
-                    Color.clear.frame(height: 100)
-                    SearchBar(text: $searchText)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .background(WeavePattern())
-                    
-                    CompactFilterPill(
-                        isExpanded: $isFilterExpanded,
-                        selectedFilter: $selectedHistoryFilter,
-                        selectedSort: $selectedSortOrder,
-                        startDate: $startDate,
-                        endDate: $endDate,
-                        selectedMeterSize: $selectedMeterSize,
-                        selectedManufacturer: $selectedManufacturer
-                    )
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "001830"),
+                    Color(hex: "000C18")
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay(WeavePattern())
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                Color.clear.frame(height: 100)
+                SearchBar(text: $searchText)
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .background(Color.clear)
-                    
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            if filteredResults.isEmpty {
-                                Text("No test results found")
-                                    .foregroundColor(.secondary)
-                                    .padding(.top, 40)
-                            } else {
-                                ForEach(filteredResults) { result in
-                                    Button {
-                                        selectedResult = result
-                                    } label: {
-                                        TestResultRow(result: result)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
+                    .background(WeavePattern())
+                
+                CompactFilterPill(
+                    isExpanded: $isFilterExpanded,
+                    selectedFilter: $selectedHistoryFilter,
+                    selectedSort: $selectedSortOrder,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    selectedMeterSize: $selectedMeterSize,
+                    selectedManufacturer: $selectedManufacturer
+                )
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color.clear)
+                
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        if filteredResults.isEmpty {
+                            Text("No test results found")
+                                .foregroundColor(.secondary)
+                                .padding(.top, 40)
+                        } else {
+                            ForEach(filteredResults) { result in
+                                Button {
+                                    selectedResult = result
+                                } label: {
+                                    TestResultRow(result: result)
                                 }
-                                .onDelete { indexSet in
-                                    let toDelete = indexSet.map { filteredResults[$0] }
-                                    for result in toDelete {
-                                        if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
-                                            viewModel.testResults.remove(at: index)
-                                        }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                            .onDelete { indexSet in
+                                let toDelete = indexSet.map { filteredResults[$0] }
+                                for result in toDelete {
+                                    if let index = viewModel.testResults.firstIndex(where: { $0.id == result.id }) {
+                                        viewModel.testResults.remove(at: index)
                                     }
                                 }
                             }
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical)
+                }
+            }
+            ExportMenuButton(
+                isExpanded: $isExportMenuExpanded,
+                onPDFWithNotes: {
+                    if let url = generatePDF(withNotes: true) {
+                        exportAllData = url
+                        showExportAllShareSheet = true
+                    }
+                },
+                onPDFWithoutNotes: {
+                    if let url = generatePDF(withNotes: false) {
+                        exportAllData = url
+                        showExportAllShareSheet = true
+                    }
+                },
+                onCSVWithNotes: {
+                    if let url = generateCSV(withNotes: true) {
+                        exportAllData = url
+                        showExportAllShareSheet = true
+                    }
+                },
+                onCSVWithoutNotes: {
+                    if let url = generateCSV(withNotes: false) {
+                        exportAllData = url
+                        showExportAllShareSheet = true
                     }
                 }
-                ExportMenuButton(
-                    isExpanded: $isExportMenuExpanded,
-                    onPDFWithNotes: {
+            )
+            .padding(.trailing, 24)
+            .padding(.bottom, 24)
+        }
+        .sheet(item: $selectedResult) { result in
+            TestDetailView(result: result)
+        }
+        .actionSheet(isPresented: $showingExportAllSheet) {
+            ActionSheet(
+                title: Text("Export All Test History"),
+                buttons: [
+                    .default(Text("Export as PDF")) {
                         if let url = generatePDF(withNotes: true) {
                             exportAllData = url
                             showExportAllShareSheet = true
                         }
                     },
-                    onPDFWithoutNotes: {
+                    .default(Text("Export as PDF w/o Notes")) {
                         if let url = generatePDF(withNotes: false) {
                             exportAllData = url
                             showExportAllShareSheet = true
                         }
                     },
-                    onCSVWithNotes: {
+                    .default(Text("Export as CSV")) {
                         if let url = generateCSV(withNotes: true) {
                             exportAllData = url
                             showExportAllShareSheet = true
                         }
                     },
-                    onCSVWithoutNotes: {
+                    .default(Text("Export as CSV w/o Notes")) {
                         if let url = generateCSV(withNotes: false) {
                             exportAllData = url
                             showExportAllShareSheet = true
                         }
-                    }
-                )
-                .padding(.trailing, 24)
-                .padding(.bottom, 24)
+                    },
+                    .cancel()
+                ]
+            )
+        }
+        .sheet(isPresented: $showExportAllShareSheet) {
+            if let url = exportAllData {
+                ShareSheet(activityItems: [url])
             }
-            .sheet(item: $selectedResult) { result in
-                TestDetailView(result: result)
-            }
-            .actionSheet(isPresented: $showingExportAllSheet) {
-                ActionSheet(
-                    title: Text("Export All Test History"),
-                    buttons: [
-                        .default(Text("Export as PDF")) {
-                            if let url = generatePDF(withNotes: true) {
-                                exportAllData = url
-                                showExportAllShareSheet = true
-                            }
-                        },
-                        .default(Text("Export as PDF w/o Notes")) {
-                            if let url = generatePDF(withNotes: false) {
-                                exportAllData = url
-                                showExportAllShareSheet = true
-                            }
-                        },
-                        .default(Text("Export as CSV")) {
-                            if let url = generateCSV(withNotes: true) {
-                                exportAllData = url
-                                showExportAllShareSheet = true
-                            }
-                        },
-                        .default(Text("Export as CSV w/o Notes")) {
-                            if let url = generateCSV(withNotes: false) {
-                                exportAllData = url
-                                showExportAllShareSheet = true
-                            }
-                        },
-                        .cancel()
-                    ]
-                )
-            }
-            .sheet(isPresented: $showExportAllShareSheet) {
-                if let url = exportAllData {
-                    ShareSheet(activityItems: [url])
-                }
-            }
-
         }
     }
     

@@ -133,46 +133,52 @@ struct ProductShowcaseView: View {
     @State private var isAnimating = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                Spacer()
-                    .frame(height: 80)
-                // Header
-                Text("")
-                    .font(.system(size: 28, weight: .bold))
-                    .padding(.top)
-                
-                Text("Discover our comprehensive range of field testing solutions")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                
-                // Product Cards
-                ForEach(veroflowProducts) { product in
-                    ProductCard(product: product, isAnimating: $isAnimating)
-                        .onTapGesture {
-                            selectedProduct = product
-                        }
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "001830"),
+                    Color(hex: "000C18")
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay(WeavePattern())
+            .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    Spacer()
+                        .frame(height: 80)
+                    // Header
+                    Text("")
+                        .font(.system(size: 28, weight: .bold))
+                        .padding(.top)
+                    
+                    Text("Discover our comprehensive range of field testing solutions")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    // Product Cards
+                    ForEach(veroflowProducts) { product in
+                        ProductCard(product: product, isAnimating: $isAnimating)
+                            .onTapGesture {
+                                selectedProduct = product
+                            }
+                    }
+                }
+                .padding()
+            }
+            .sheet(item: $selectedProduct) { product in
+                ProductDetailView(product: product)
+            }
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    isAnimating = true
                 }
             }
-            .padding()
         }
-        .sheet(item: $selectedProduct) { product in
-            ProductDetailView(product: product)
-        }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.6)) {
-                isAnimating = true
-            }
-        }
-        .background(
-            ZStack {
-                Color.black
-                WeavePattern()
-            }
-        )
-        .edgesIgnoringSafeArea(.all)
     }
 }
 

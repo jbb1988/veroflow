@@ -168,7 +168,7 @@ struct AnalyticsView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .overlay(WeavePattern())
+            .overlay(WeavePattern()) 
             .ignoresSafeArea()
             
             ScrollView {

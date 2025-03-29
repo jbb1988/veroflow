@@ -70,26 +70,7 @@ struct TestTypeButton: View {
     }
 }
 
-struct WeavePattern: View {
-    var body: some View {
-        GeometryReader { geometry in
-            let rowUpperBound = Int(geometry.size.height / 8) + 20
-            let colUpperBound = Int(geometry.size.width / 8) + 20
-            ForEach(-20...rowUpperBound, id: \.self) { row in
-                ForEach(-20...colUpperBound, id: \.self) { col in
-                    Rectangle()
-                        .fill(Color.blue.opacity(0.08))
-                        .frame(width: 3, height: 3)
-                        .offset(
-                            x: CGFloat(col) * 16 + CGFloat(row) * 8,
-                            y: CGFloat(row) * 16
-                        )
-                }
-            }
-        }
-        .drawingGroup() // For better performance
-    }
-}
+
 
 func sanitizeNumericInput(_ input: String) -> String {
     input
@@ -1242,7 +1223,6 @@ struct TestView: View {
     var body: some View {
         ScrollViewReader { scrollProxy in
             ZStack {
-                // Background with darker blue
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(hex: "001830"),
@@ -1251,7 +1231,7 @@ struct TestView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .overlay(WeavePattern())
+                .overlay(WeavePattern()) // Using centralized WeavePattern
                 .ignoresSafeArea()
                 
                 // Existing ScrollView content

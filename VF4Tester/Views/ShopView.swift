@@ -426,8 +426,16 @@ struct ShopView: View {
         }
         .background(
             ZStack {
-                Color.black
-                WeavePattern()
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "001830"),
+                        Color(hex: "000C18")
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .overlay(WeavePattern()) // Using centralized WeavePattern
+                .ignoresSafeArea()
             }
         )
         .navigationBarTitleDisplayMode(.inline)

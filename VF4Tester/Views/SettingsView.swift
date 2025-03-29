@@ -33,7 +33,6 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            // Background gradient + weave pattern
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(hex: "001830"),
@@ -42,7 +41,7 @@ struct SettingsView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .overlay(WeavePattern())
+            .overlay(WeavePattern()) 
             .ignoresSafeArea()
 
             // Main list content

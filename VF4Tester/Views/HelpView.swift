@@ -354,7 +354,6 @@ struct HelpView: View {
     
     var body: some View {
         ZStack {
-            // Background gradient + weave pattern
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(hex: "001830"),
