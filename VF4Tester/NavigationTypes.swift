@@ -16,8 +16,8 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         case .test: return "pencil.and.outline"
         case .analytics: return "chart.bar.fill"
         case .history: return "clock.fill"
-        case .products: return "cube.box.fill"
-        case .diversified: return "cart.fill"
+        case .products: return "gauge.medium"
+        case .diversified: return "cube.box.fill"
         case .settings: return "gear"
         case .help: return "questionmark.circle.fill"
         }
