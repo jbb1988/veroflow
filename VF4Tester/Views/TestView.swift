@@ -393,58 +393,71 @@ struct TestView: View {
                 Divider()
                 largeMeterReadings
             } else {
-                Picker("Meter Reading", selection: $selectedSingleMeter) {
-                    Text("Small Meter").tag(SingleMeterOption.small)
-                    Text("Large Meter").tag(SingleMeterOption.large)
+                HStack(spacing: 8) {
+                    Button(action: {
+                        selectedSingleMeter = .small
+                    }) {
+                        VStack(spacing: 4) {
+                            Text("Small Meter")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 42)
+                        .background(
+                            ZStack {
+                                LinearGradient(gradient: Gradient(colors: [Color(hex: "001830").opacity(0.7), Color(hex: "000C18").opacity(0.7)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                                VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                                if selectedSingleMeter == .small {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 150, height: 150)
+                                        .blur(radius: 60)
+                                        .offset(y: -30)
+                                }
+                            }
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.blue.opacity(selectedSingleMeter == .small ? 0.8 : 0.4), lineWidth: 2)
+                        )
+                        .shadow(color: Color.blue.opacity(selectedSingleMeter == .small ? 0.5 : 0.2), radius: 20, x: 0, y: 10)
+                    }
+
+                    Button(action: {
+                        selectedSingleMeter = .large
+                    }) {
+                        VStack(spacing: 4) {
+                            Text("Large Meter")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(
+                            ZStack {
+                                LinearGradient(gradient: Gradient(colors: [Color(hex: "001830").opacity(0.7), Color(hex: "000C18").opacity(0.7)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                                VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                                if selectedSingleMeter == .large {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 150, height: 150)
+                                        .blur(radius: 60)
+                                        .offset(y: -30)
+                                }
+                            }
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.blue.opacity(selectedSingleMeter == .large ? 0.8 : 0.4), lineWidth: 2)
+                        )
+                        .shadow(color: Color.blue.opacity(selectedSingleMeter == .large ? 0.5 : 0.2), radius: 20, x: 0, y: 10)
+                    }
                 }
-                .pickerStyle(SegmentedPickerStyle())
                 .padding(.vertical, 4)
-                .background(
-                    ZStack {
-                        VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(hex: "05142A").opacity(0.8),
-                                        Color(hex: "05142A").opacity(1.0)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    }
-                )
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(hex: "0763CB"), lineWidth: 2)
-                        .shadow(color: Color(hex: "0763CB").opacity(0.8), radius: 6, x: 0, y: 0)
-                )
-                .background(
-                    ZStack {
-                        // Glass-like blur
-                        VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        
-                        // Gradient overlay in #05142A range
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(hex: "05142A").opacity(0.4),
-                                        Color(hex: "05142A").opacity(0.7)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .blendMode(.overlay)
-                    }
-                )
-                // Neon blue tint for the selected segment border
-                .tint(Color(hex: "00f0ff"))
+                
                 if selectedSingleMeter == .small {
                     smallMeterReadings
                 } else {
