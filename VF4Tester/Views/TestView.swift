@@ -686,7 +686,15 @@ struct TestView: View {
                 Label("Serial Number", systemImage: "number")
                     .foregroundColor(primaryColor)
                 TextField("Optional", text: $jobNumberText)
-                    .textFieldStyle(.roundedBorder)
+                    .frame(height: 15)
+                    .padding(8)
+                    .background(Color.black)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+                    )
+                    .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
                     .focused($focusedField, equals: .jobNumber)
             }
         }
@@ -697,6 +705,14 @@ struct TestView: View {
             TextEditor(text: $viewModel.notes)
                 .frame(minHeight: 200)
                 .placeholder(when: viewModel.notes.isEmpty, placeholder: "Enter additional notes here...")
+                .padding(8)
+                .background(Color.black)
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+                )
+                .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
                 .focused($focusedField, equals: .additionalRemarks)
         }
         .id("notesSection")
