@@ -747,28 +747,10 @@ struct TestView: View {
                         .frame(height: 56)
                         .background(
                             ZStack {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.blue.opacity(0.7))
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(darkShadow, lineWidth: 4)
-                                    .blur(radius: 4)
-                                    .offset(x: 2, y: 2)
-                                    .mask(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
-                                                                 startPoint: .topLeading,
-                                                                 endPoint: .bottomTrailing))
-                                    )
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(lightShadow, lineWidth: 4)
-                                    .blur(radius: 4)
-                                    .offset(x: -2, y: -2)
-                                    .mask(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
-                                                                 startPoint: .topLeading,
-                                                                 endPoint: .bottomTrailing))
-                                    )
+                                LinearGradient(gradient: Gradient(colors: [Color(hex: "003366"), Color(hex: "007AFF")]),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing)
+                                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                                 if isRecordSuccess {
                                     RoundedRectangle(cornerRadius: 20)
                                         .fill(Color.blue)
@@ -779,6 +761,12 @@ struct TestView: View {
                                 }
                             }
                         )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+                        )
+                        .shadow(color: Color.blue.opacity(0.5), radius: 20, x: 0, y: 10)
                 }
         Button(action: {
                     let feedback = UIImpactFeedbackGenerator(style: .medium)
@@ -793,30 +781,18 @@ struct TestView: View {
                         .frame(height: 56)
                         .background(
                             ZStack {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.red.opacity(0.7))
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(darkShadow, lineWidth: 4)
-                                    .blur(radius: 4)
-                                    .offset(x: 2, y: 2)
-                                    .mask(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
-                                                                 startPoint: .topLeading,
-                                                                 endPoint: .bottomTrailing))
-                                    )
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(lightShadow, lineWidth: 4)
-                                    .blur(radius: 4)
-                                    .offset(x: -2, y: -2)
-                                    .mask(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
-                                                                 startPoint: .topLeading,
-                                                                 endPoint: .bottomTrailing))
-                                    )
+                                LinearGradient(gradient: Gradient(colors: [Color(hex: "660000"), Color(hex: "FF2D55")]),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing)
+                                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                             }
                         )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.red.opacity(0.9), lineWidth: 2)
+                        )
+                        .shadow(color: Color.red.opacity(0.5), radius: 20, x: 0, y: 10)
                 }
             }
             .alert("Missing Required Fields", isPresented: $showingValidationAlert) {
