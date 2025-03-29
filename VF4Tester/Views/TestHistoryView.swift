@@ -918,9 +918,7 @@ struct TestHistoryView: View {
             ZStack {
                 // Menu items
                 ForEach(0..<4) { index in
-                    // Increase radius to spread items further
                     let radius: CGFloat = 170
-                    // 4 items spaced on a 60° arc: 23°, 43°, 63°, 83°
                     let startAngle: Double = 23
                     let angleIncrement: Double = 23
                     let angle = (startAngle + angleIncrement * Double(index)) * .pi / 180
@@ -947,6 +945,7 @@ struct TestHistoryView: View {
                     )
                     .opacity(isExpanded ? 1 : 0)
                     .scaleEffect(isExpanded ? 1 : 0.5)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.7, blendDuration: 0.3).delay(Double(index) * 0.05), value: isExpanded)
                     .onTapGesture {
                         switch index {
                         case 0: onPDFWithNotes()
@@ -955,7 +954,9 @@ struct TestHistoryView: View {
                         case 3: onCSVWithoutNotes()
                         default: break
                         }
-                        withAnimation { isExpanded = false }
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            isExpanded = false
+                        }
                     }
                 }
                 
@@ -963,7 +964,7 @@ struct TestHistoryView: View {
                 Button {
                     let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6, blendDuration: 0.3)) {
                         isExpanded.toggle()
                     }
                 } label: {
@@ -974,10 +975,13 @@ struct TestHistoryView: View {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 24))
                             .foregroundColor(.white)
-                            .rotationEffect(.degrees(isExpanded ? 45 : 0))
+                            .rotationEffect(.degrees(isExpanded ? 135 : 0))
+                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isExpanded)
                     }
                 }
                 .frame(width: buttonSize, height: buttonSize)
+                .scaleEffect(isExpanded ? 0.9 : 1.0)
+                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isExpanded)
             }
         }
         
