@@ -185,17 +185,17 @@ struct AnalyticsView: View {
                                     .font(.headline)
                             }
                             .layoutPriority(1)
+                            .padding(.vertical, 12)
                             
                             Spacer()
                             
-                            // Center wave circle vertically
+                            // Adjust wave circle position
                             WaveCircleView()
                                 .frame(width: 80, height: 80)
-                                .padding(.vertical, 8) // Add padding to ensure proper centering
+                                .padding(.top, -8)
+                                .padding(.bottom, 4)
                         }
-                        .alignmentGuide(.firstTextBaseline) { d in
-                            d[VerticalAlignment.center]
-                        }
+                        .frame(maxHeight: 80)
                     }
                     
                     // Stat Cards.

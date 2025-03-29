@@ -181,7 +181,7 @@ struct TestHistoryView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(hex: "001830"),
@@ -241,7 +241,9 @@ struct TestHistoryView: View {
                     .padding(.horizontal)
                     .padding(.vertical)
                 }
+                .padding(.bottom, 80)
             }
+            
             ExportMenuButton(
                 isExpanded: $isExportMenuExpanded,
                 onPDFWithNotes: {
@@ -999,5 +1001,3 @@ struct TestHistoryView: View {
         }
     }
 }
-
-// End of file

@@ -148,11 +148,11 @@ struct ProductShowcaseView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     Spacer()
-                        .frame(height: 80)
+                        .frame(height: 40)
                     // Header
                     Text("")
                         .font(.system(size: 28, weight: .bold))
-                        .padding(.top)
+                        .padding(.top, 8)
                     
                     Text("Discover our comprehensive range of field testing solutions")
                         .font(.subheadline)
