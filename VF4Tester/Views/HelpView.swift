@@ -517,19 +517,39 @@ struct EnhancedSupportView: View {
                 SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
             }
 
-            VStack(alignment: .leading, spacing: 12) {
-                Text("MARS Chat AI")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.primary)
-                + Text(": Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Just press the water drop above or in the menu and reach out instantly for expert advice and support!")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("MARS Chat AI")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Text("Need help with the app? Chat with MARS Chat AI, your dedicated virtual assistant for guidance on testing procedures, troubleshooting, and more. Just press the water drop above or in the menu and reach out instantly for expert advice and support!")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(24)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding()
-            .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-            .frame(maxWidth: .infinity)
+            .background(
+                ZStack {
+                    Color(red: 21/255, green: 21/255, blue: 21/255)
+                    
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 200, height: 200)
+                        .blur(radius: 60)
+                        .offset(y: -30)
+                }
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+            )
+            .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+            .padding(.horizontal)
             
             ContactSupportView()
         }
@@ -1172,18 +1192,31 @@ struct ToleranceCategoryButton: View {
             VStack(spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .foregroundColor(.white)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+            .background(
+                ZStack {
+                    Color(red: 21/255, green: 21/255, blue: 21/255)
+                    if isSelected {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 150, height: 150)
+                            .blur(radius: 60)
+                            .offset(y: -30)
+                    }
+                }
             )
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.blue.opacity(isSelected ? 0.5 : 0.3), lineWidth: 1)
+            )
+            .shadow(color: .blue.opacity(isSelected ? 0.3 : 0.1), radius: 20, x: 0, y: 10)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -1204,17 +1237,17 @@ struct MeterToleranceCard: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(type)
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
                         if !isExpanded {
                             Text("Tap to view tolerances")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.gray)
                         }
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                 }
             }
             
@@ -1227,15 +1260,23 @@ struct MeterToleranceCard: View {
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(isHovered ? 0.15 : 0.1),
-                radius: isHovered ? 12 : 8,
-                x: 0,
-                y: isHovered ? 6 : 4)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3), value: isHovered)
-        .onHover { isHovered = $0 }
+        .background(
+            ZStack {
+                Color(red: 21/255, green: 21/255, blue: 21/255)
+                
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 200, height: 200)
+                    .blur(radius: 60)
+                    .offset(y: -30)
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .overlay(
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
     }
 }
 
@@ -1246,11 +1287,11 @@ struct ToleranceInfoRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray)
             Spacer()
             Text(value)
                 .bold()
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
         }
         .font(.system(.body, design: .rounded))
     }
@@ -1361,6 +1402,7 @@ struct MeterToleranceView: View {
                 
                 if let category = selectedCategory {
                     let tolerances = category == "large" ? largeMeterTolerances : smallMeterTolerances
+                    
                     ForEach(tolerances, id: \.type) { item in
                         ToleranceCard(
                             item: item,
