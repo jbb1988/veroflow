@@ -61,11 +61,13 @@ struct RecentTestsView: View {
                     }
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
-                    .background(
+                    .background(Color(UIColor.systemBackground))
+                    .cornerRadius(12)
+                    .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(UIColor.systemBackground))
-                            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                            .stroke(Color.blue.opacity(0.9), lineWidth: 2)
                     )
+                    .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .padding(.vertical, 4)

@@ -930,6 +930,12 @@ struct TestView: View {
         .padding(.horizontal, 16)
         .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
+        // ADD: Neon blue border and glow effect
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+        )
+        .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
         .contentShape(Rectangle())
     }
     

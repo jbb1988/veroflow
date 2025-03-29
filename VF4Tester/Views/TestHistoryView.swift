@@ -643,6 +643,12 @@ struct TestHistoryView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.secondarySystemBackground))
             )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+            )
+            .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
             .contentShape(Rectangle())
             .sheet(isPresented: $showShareSheet, onDismiss: { exportURL = nil }) {
                 if let url = exportURL { ShareSheet(activityItems: [url]) }
