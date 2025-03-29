@@ -25,7 +25,7 @@ struct MenuBackgroundView: View {
     }
 }
 
-// Keep VisualEffectView implementation from the original file
+// Keep VisualEffectView implementation
 struct VisualEffectView: UIViewRepresentable {
     let effect: UIVisualEffect
     

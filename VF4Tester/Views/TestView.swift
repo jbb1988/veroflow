@@ -418,6 +418,52 @@ struct TestView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.vertical, 4)
+                .background(
+                    ZStack {
+                        VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: "05142A").opacity(0.8),
+                                        Color(hex: "05142A").opacity(1.0)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                )
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(hex: "0763CB"), lineWidth: 2)
+                        .shadow(color: Color(hex: "0763CB").opacity(0.8), radius: 6, x: 0, y: 0)
+                )
+                .background(
+                    ZStack {
+                        // Glass-like blur
+                        VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        
+                        // Gradient overlay in #05142A range
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: "05142A").opacity(0.4),
+                                        Color(hex: "05142A").opacity(0.7)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .blendMode(.overlay)
+                    }
+                )
+                // Neon blue tint for the selected segment border
+                .tint(Color(hex: "00f0ff"))
                 if selectedSingleMeter == .small {
                     smallMeterReadings
                 } else {
