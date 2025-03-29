@@ -168,7 +168,7 @@ struct AnalyticsView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .overlay(WeavePattern()) 
+            .overlay(WeavePattern())
             .ignoresSafeArea()
             
             ScrollView {
@@ -184,9 +184,17 @@ struct AnalyticsView: View {
                                 Text(viewModel.configuration.formatVolume(totalVolumeAllTests))
                                     .font(.headline)
                             }
+                            .layoutPriority(1)
+                            
                             Spacer()
-                            WaveCircleGauge(totalVolume: totalVolumeAllTests, targetVolume: totalVolumeAllTests)
+                            
+                            // Center wave circle vertically
+                            WaveCircleView()
                                 .frame(width: 80, height: 80)
+                                .padding(.vertical, 8) // Add padding to ensure proper centering
+                        }
+                        .alignmentGuide(.firstTextBaseline) { d in
+                            d[VerticalAlignment.center]
                         }
                     }
                     
@@ -403,6 +411,45 @@ struct AnalyticsView: View {
             configuration.label
                 .scaleEffect(configuration.isPressed ? 0.95 : 1)
                 .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+        }
+    }
+    
+    struct WaveCircleView: View {
+        @State private var offset = 0.0
+        private let waveColor = Color(hex: "0B84FE")
+        private let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+        
+        var body: some View {
+            GeometryReader { geometry in
+                ZStack {
+                    Circle()
+                        .stroke(waveColor.opacity(0.2), lineWidth: 1)
+                    
+                    Path { path in
+                        let width = geometry.size.width
+                        let height = geometry.size.height
+                        let midHeight = height / 2
+                        
+                        path.move(to: CGPoint(x: 0, y: height))
+                        
+                        stride(from: 0, through: width, by: 2).forEach { x in
+                            let normalizedX = Double(x) / Double(width)
+                            let y = sin(normalizedX * .pi * 4 + offset) * 5.0
+                            path.addLine(to: CGPoint(x: x, y: midHeight + y))
+                        }
+                        
+                        path.addLine(to: CGPoint(x: width, y: height))
+                        path.addLine(to: CGPoint(x: 0, y: height))
+                    }
+                    .fill(waveColor)
+                    .clipShape(Circle())
+                }
+            }
+            .onReceive(timer) { _ in
+                withAnimation(.linear(duration: 0.05)) {
+                    offset += 0.2
+                }
+            }
         }
     }
     
