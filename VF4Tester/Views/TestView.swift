@@ -124,14 +124,17 @@ private struct ParameterTextField: View {
         TextField("", text: text)
             .keyboardType(.numberPad)
             .multilineTextAlignment(.leading)
-            .frame(width: 100)
+            .frame(width: 100, height: 15)
             .textFieldStyle(PlainTextFieldStyle())
             .padding(8)
             .background(Color.black)
             .overlay(RoundedRectangle(cornerRadius: 8)
-                .stroke(showValidation && text.wrappedValue.isEmpty ? Color.red : Color.clear, lineWidth: 2))
-            .focused($isFocused)
-            .onChange(of: text.wrappedValue) { onChangeHandler($0) }
+                .stroke(showValidation && text.wrappedValue.isEmpty ? Color.red : Color.blue.opacity(0.9), lineWidth: 2))
+        // ADD: Neon glow effect
+                    .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
+                    .focused($isFocused)
+                    .onChange(of: text.wrappedValue) { onChangeHandler($0) }
+
     }
 }
 
@@ -475,16 +478,8 @@ struct TestView: View {
                 .foregroundColor(primaryColor)
             HStack {
                 MarsReadingField(title: "Start Read", text: $viewModel.smallMeterStart, field: .smallStart)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(showValidationOutlines && viewModel.smallMeterStart.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                    )
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.smallMeterEnd, field: .smallEnd)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(showValidationOutlines && viewModel.smallMeterEnd.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                    )
             }
             HStack(spacing: 12) {
                 Button(action: {
@@ -546,16 +541,8 @@ struct TestView: View {
                 .foregroundColor(primaryColor)
             HStack {
                 MarsReadingField(title: "Start Read", text: $viewModel.largeMeterStart, field: .largeStart)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(showValidationOutlines && viewModel.largeMeterStart.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                    )
                 Spacer()
                 MarsReadingField(title: "End Read", text: $viewModel.largeMeterEnd, field: .largeEnd)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(showValidationOutlines && viewModel.largeMeterEnd.isEmpty ? Color.red : Color.clear, lineWidth: 2)
-                    )
             }
             HStack(spacing: 12) {
                 Button(action: { showImageSourceSheet = true }) {

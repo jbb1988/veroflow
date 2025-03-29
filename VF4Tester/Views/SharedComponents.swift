@@ -66,7 +66,15 @@ struct MarsReadingField: View {
             #if os(iOS)
             TextField("", text: $text)
                 .keyboardType(.decimalPad)
-                .textFieldStyle(.roundedBorder)
+                .frame(height: 15)
+                .padding(8)
+                .background(Color.black)
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+                )
+                .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 0, y: 0)
             #else
             TextField("", text: $text)
                 .textFieldStyle(.roundedBorder)
