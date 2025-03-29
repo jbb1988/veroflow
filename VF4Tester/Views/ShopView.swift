@@ -37,27 +37,16 @@ struct ShopView: View {
                     Text("MARS Company Diversified Products")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
-                        // Remove lineLimit
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("From our NSF-61 Certified Test Port Spools and Strainers to our valve keys, zinc caps, drill taps and beyond—MARS offers a comprehensive range of water infrastructure solutions designed with industry expertise and manufactured to the highest standards.")
                         .font(.system(size: 16))
                         .foregroundColor(.white)
                         .lineSpacing(4)
-                        // Allow text to wrap naturally
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(24)
-                .background(
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.black)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                        )
-                        .shadow(radius: 10)
-                )
-                .frame(minHeight: 300)
+                .cardStyle(color: .blue)
                 .padding(.horizontal)
                 
                 // Test Port Spools Card
