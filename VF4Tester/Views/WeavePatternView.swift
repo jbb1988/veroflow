@@ -12,18 +12,15 @@ final class WeavePatternManager {
     func getPattern(for size: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage {
         let roundedSize = CGSize(width: round(size.width), height: round(size.height))
         
-        // Check cache timeout and flush if needed
         if Date().timeIntervalSince(lastCacheFlush) > cacheTimeout {
             cachedPatterns.removeAll()
             lastCacheFlush = Date()
         }
         
-        // Return cached pattern if available
         if let cached = cachedPatterns[roundedSize] {
             return cached
         }
         
-        // Create new pattern
         let renderer = UIGraphicsImageRenderer(size: roundedSize, format: {
             let format = UIGraphicsImageRendererFormat()
             format.scale = scale
@@ -33,30 +30,63 @@ final class WeavePatternManager {
         let pattern = renderer.image { context in
             let ctx = context.cgContext
             
-            UIColor.blue.withAlphaComponent(0.08).setFill()
+            ctx.clear(CGRect(origin: .zero, size: roundedSize))
             
-            let spacing: CGFloat = 16
-            let dotSize: CGFloat = 3
-            let rowOffset: CGFloat = 8
+            // Configure dot pattern
+            let baseSpacing: CGFloat = 25
+            let flowStrength: CGFloat = 8
+            let curveFrequency: CGFloat = 0.05
+            let dotSize: CGFloat = 1.5
+            let glowRadius: CGFloat = 3.0
             
-            let columns = Int(roundedSize.width / spacing) + 2
-            let rows = Int(roundedSize.height / spacing) + 2
+            let columns = Int(roundedSize.width / baseSpacing) + 4
+            let rows = Int(roundedSize.height / baseSpacing) + 4
             
-            // Batch the drawing operations
-            ctx.setShouldAntialias(false)
-            ctx.setAllowsAntialiasing(false)
+            ctx.setShouldAntialias(true)
+            ctx.setAllowsAntialiasing(true)
             
-            for row in -1...rows {
-                for col in -1...columns {
-                    let x = CGFloat(col) * spacing + (CGFloat(row) * rowOffset)
-                    let y = CGFloat(row) * spacing
-                    let rect = CGRect(x: x, y: y, width: dotSize, height: dotSize)
-                    ctx.fillEllipse(in: rect)
+            for row in -2...rows {
+                for col in -2...columns {
+                    let time = CGFloat(row + col) * curveFrequency
+                    let yOffset = sin(CGFloat(col) * 0.3) * 15
+                    let flowX = sin(time) * flowStrength
+                    let flowY = cos(time) * flowStrength + yOffset
+                    
+                    let x = CGFloat(col) * baseSpacing + flowX
+                    let y = CGFloat(row) * baseSpacing + flowY
+                    
+                    let distanceFromCenter = sqrt(pow(x - roundedSize.width/2, 2) + 
+                                                pow(y - roundedSize.height/2, 2))
+                    let maxDistance = sqrt(pow(roundedSize.width/2, 2) + 
+                                        pow(roundedSize.height/2, 2))
+                    let normalizedDistance = min(distanceFromCenter / maxDistance, 1.0)
+                    let opacity = 0.8 - (normalizedDistance * 0.3)
+                    
+                    let glowColor = UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: opacity * 0.08)
+                    glowColor.setFill()
+                    let glowRect = CGRect(
+                        x: x - glowRadius,
+                        y: y - glowRadius,
+                        width: glowRadius * 2,
+                        height: glowRadius * 2
+                    )
+                    ctx.setShadow(offset: .zero, blur: 2, color: glowColor.cgColor)
+                    ctx.fillEllipse(in: glowRect)
+                    
+                    let dotColor = UIColor(red: 0.4, green: 0.7, blue: 1.0, alpha: opacity * 0.2)
+                    dotColor.setFill()
+                    let dotRect = CGRect(
+                        x: x - dotSize/2,
+                        y: y - dotSize/2,
+                        width: dotSize,
+                        height: dotSize
+                    )
+                    ctx.setShadow(offset: .zero, blur: 0, color: nil)
+                    ctx.fillEllipse(in: dotRect)
                 }
             }
         }
         
-        // Cache the pattern
         cachedPatterns[roundedSize] = pattern
         return pattern
     }
