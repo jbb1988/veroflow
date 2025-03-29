@@ -195,11 +195,38 @@ struct TestHistoryView: View {
             
             VStack(spacing: 0) {
                 Color.clear.frame(height: 100)
-                SearchBar(text: $searchText)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(WeavePattern())
-                
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                        .padding(.leading, 4)
+                    
+                    TextField("Search by job, meter type, or size...", text: $searchText)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .foregroundColor(.white)
+                        .accentColor(.white)
+                        .padding(8)
+                        .background(Color.black)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.blue.opacity(0.8), lineWidth: 1)
+                                .shadow(color: Color.blue.opacity(0.5), radius: 2, x: 0, y: 0)
+                        )
+                    
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .padding(.trailing, 4)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(WeavePattern())
+
                 CompactFilterPill(
                     isExpanded: $isFilterExpanded,
                     selectedFilter: $selectedHistoryFilter,
@@ -209,10 +236,11 @@ struct TestHistoryView: View {
                     selectedMeterSize: $selectedMeterSize,
                     selectedManufacturer: $selectedManufacturer
                 )
-                .padding(.horizontal)
                 .padding(.vertical, 8)
+                .padding(.leading, 40)
+                .padding(.trailing, 16)
                 .background(Color.clear)
-                
+
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         if filteredResults.isEmpty {
@@ -634,6 +662,7 @@ struct TestHistoryView: View {
                             .resizable()
                             .frame(width: 24, height: 24)
                             .rotationEffect(.degrees(isMenuExpanded ? 180 : 0))
+                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isMenuExpanded)
                     }
                 }
             }

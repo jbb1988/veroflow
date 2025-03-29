@@ -189,79 +189,68 @@ struct ProductCard: View {
     @State private var isHovered = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Product Image section remains the same
-            ZStack {
-                Circle()
-                    .fill(product.gradient)
-                    .frame(width: 120, height: 120)
-                    .blur(radius: 20)
-                    .opacity(0.8)
-                
+        VStack(spacing: 0) {
+            // Image section
+            ZStack(alignment: .center) {
                 Image(product.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 160)
-                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .frame(height: 200)
+                    .padding(.top)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top)
             
-            // Content section remains the same
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(product.name)
-                    .font(.title2)
-                    .bold()
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.white)
                 
                 Text(product.subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 16))
+                    .foregroundColor(.gray)
+                    .lineLimit(2)
                 
                 Text(product.description)
-                    .font(.body)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 16))
+                    .foregroundColor(.gray)
                     .lineLimit(3)
-                    .padding(.top, 4)
-            }
-            
-            // Features section remains the same
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                
+                HStack(spacing: 24) {
                     ForEach(product.features.prefix(3), id: \.self) { feature in
-                        Label(
-                            title: { Text(feature) },
-                            icon: { Image(systemName: "checkmark.circle.fill").foregroundColor(.blue) }
-                        )
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        
-                        if feature != product.features.prefix(3).last {
-                            Divider()
-                        }
+                        FeatureItem(text: feature)
                     }
                 }
-                .padding(.vertical, 8)
+                .padding(.top, 8)
             }
-            .padding(.vertical, 8)
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(UIColor.secondarySystemBackground))
-                .shadow(color: isHovered ? .blue.opacity(0.3) : Color.black.opacity(0.1),
-                        radius: isHovered ? 15 : 10,
-                        x: 0,
-                        y: isHovered ? 8 : 5)
+            ZStack {
+                Color(red: 21/255, green: 21/255, blue: 21/255)
+                
+                // Blue glow behind image
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 200, height: 200)
+                    .blur(radius: 60)
+                    .offset(y: -30)
+            }
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(product.gradient, lineWidth: isHovered ? 2 : 0)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .onTapGesture {
+            withAnimation {
+                isHovered = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation {
+                    isHovered = false
+                }
+            }
+        }
+        .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+        .padding(.horizontal)
         .offset(y: isAnimating ? 0 : 50)
         .opacity(isAnimating ? 1 : 0)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3), value: isHovered)
-        .onHover { isHovered = $0 }
     }
 }
 
