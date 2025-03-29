@@ -21,8 +21,8 @@ struct CompactFilterPill: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: {
-                feedbackGenerator.prepare() 
-                feedbackGenerator.impactOccurred() 
+                feedbackGenerator.prepare()
+                feedbackGenerator.impactOccurred()
                 withAnimation {
                     isExpanded.toggle()
                 }
@@ -33,23 +33,50 @@ struct CompactFilterPill: View {
                     
                     Text("Filters & Sort")
                         .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.white)
                     
                     Spacer()
                     
                     Text(selectedFilter.rawValue)
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.blue)
                     
                     Image(systemName: "chevron.down")
                         .font(.system(size: 12))
+                        .foregroundColor(.blue)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(UIColor.secondarySystemBackground))
+                    ZStack {
+                        Color.black.opacity(0.5)
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.blue.opacity(0.2),
+                                Color.blue.opacity(0.05)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.blue.opacity(0.8),
+                                    Color.blue.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 0)
             }
             .buttonStyle(PlainButtonStyle())
             
@@ -108,30 +135,20 @@ struct CompactFilterPill: View {
                                 .frame(height: 56)
                                 .background(
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(Color.blue.opacity(0.7))
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(darkShadow, lineWidth: 4)
-                                            .blur(radius: 4)
-                                            .offset(x: 2, y: 2)
-                                            .mask(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
-                                                                       startPoint: .topLeading,
-                                                                       endPoint: .bottomTrailing))
-                                            )
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(lightShadow, lineWidth: 4)
-                                            .blur(radius: 4)
-                                            .offset(x: -2, y: -2)
-                                            .mask(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
-                                                                       startPoint: .topLeading,
-                                                                       endPoint: .bottomTrailing))
-                                            )
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color(hex: "003366"), Color(hex: "007AFF")]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                                     }
                                 )
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.blue.opacity(0.9), lineWidth: 2)
+                                )
+                                .shadow(color: Color.blue.opacity(0.5), radius: 20, x: 0, y: 10)
                         }
                         
                         Button(action: {
@@ -150,39 +167,53 @@ struct CompactFilterPill: View {
                                 .frame(height: 56)
                                 .background(
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(Color.red.opacity(0.7))
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(darkShadow, lineWidth: 4)
-                                            .blur(radius: 4)
-                                            .offset(x: 2, y: 2)
-                                            .mask(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]),
-                                                                       startPoint: .topLeading,
-                                                                       endPoint: .bottomTrailing))
-                                            )
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(lightShadow, lineWidth: 4)
-                                            .blur(radius: 4)
-                                            .offset(x: -2, y: -2)
-                                            .mask(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]),
-                                                                       startPoint: .topLeading,
-                                                                       endPoint: .bottomTrailing))
-                                            )
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color(hex: "660000"), Color(hex: "FF2D55")]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                                     }
                                 )
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.red.opacity(0.9), lineWidth: 2)
+                                )
+                                .shadow(color: Color.red.opacity(0.5), radius: 20, x: 0, y: 10)
                         }
                     }
                 }
                 .padding(16)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.systemBackground))
-                        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    ZStack {
+                        Color.black.opacity(0.5)
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.blue.opacity(0.2),
+                                Color.blue.opacity(0.05)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.blue.opacity(0.8),
+                                    Color.blue.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 0)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
