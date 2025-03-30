@@ -24,7 +24,7 @@ let veroflowProducts = [
         description: "MARS VEROflow Calibration delivers expert calibration services designed to enhance measurement accuracy and extend equipment life for your VF-1 and VF-4 field test units. Our comprehensive service includes a 16-point calibration linearization, detailed equipment assessments, and necessary battery replacement & repair—all executed by expert technicians using NIST-traceable procedures for minimal downtime and rapid turnaround. Also, companion app included for VF-4 units.",
         features: [
             "16-Point Calibration",
-            "Expert Technicians",
+            "Field Experts",
             "Customer-Centric Service",
             "NIST Traceable",
             "Battery Replacement & Repair",

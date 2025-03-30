@@ -398,6 +398,9 @@ struct TestView: View {
             } else {
                 HStack(spacing: 8) {
                     Button(action: {
+                        let feedback = UIImpactFeedbackGenerator(style: .medium)
+                        feedback.prepare()
+                        feedback.impactOccurred()
                         selectedSingleMeter = .small
                     }) {
                         VStack(spacing: 4) {
@@ -406,7 +409,7 @@ struct TestView: View {
                                 .foregroundColor(.white)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 42)
+                        .frame(height: 36)
                         .background(
                             ZStack {
                                 LinearGradient(gradient: Gradient(colors: [Color(hex: "001830").opacity(0.7), Color(hex: "000C18").opacity(0.7)]), startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -429,6 +432,9 @@ struct TestView: View {
                     }
 
                     Button(action: {
+                        let feedback = UIImpactFeedbackGenerator(style: .medium)
+                        feedback.prepare()
+                        feedback.impactOccurred()
                         selectedSingleMeter = .large
                     }) {
                         VStack(spacing: 4) {
@@ -437,7 +443,7 @@ struct TestView: View {
                                 .foregroundColor(.white)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 48)
+                        .frame(height: 41)
                         .background(
                             ZStack {
                                 LinearGradient(gradient: Gradient(colors: [Color(hex: "001830").opacity(0.7), Color(hex: "000C18").opacity(0.7)]), startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -495,7 +501,7 @@ struct TestView: View {
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: 175)
-                    .frame(height: 48)
+                    .frame(height: 40.8)
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 20)
