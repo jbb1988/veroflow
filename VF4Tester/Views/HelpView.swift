@@ -926,7 +926,7 @@ struct StepRow: View {
 struct EnhancedFAQView: View {
     let searchQuery: String
     @State private var expandedQuestions: Set<UUID> = []
-    @State private var selectedCategory: FAQItem.Category? = nil
+    @State private var selectedCategory: FAQItem.Category? = .general
     
     var filteredFAQs: [FAQItem] {
         var items = faqItems
@@ -946,15 +946,6 @@ struct EnhancedFAQView: View {
         VStack(spacing: 20) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    CategoryPill(
-                        icon: "tag.fill",
-                        title: "All",
-                        isSelected: selectedCategory == nil,
-                        color: .blue
-                    ) {
-                        withAnimation { selectedCategory = nil }
-                    }
-                    
                     ForEach([FAQItem.Category.general, .testing, .hardware, .troubleshooting], id: \.self) { category in
                         CategoryPill(
                             icon: category.icon,
@@ -964,6 +955,15 @@ struct EnhancedFAQView: View {
                         ) {
                             withAnimation { selectedCategory = category }
                         }
+                    }
+                    
+                    CategoryPill(
+                        icon: "tag.fill",
+                        title: "All",
+                        isSelected: selectedCategory == nil,
+                        color: .blue
+                    ) {
+                        withAnimation { selectedCategory = nil }
                     }
                 }
                 .padding(.horizontal)
@@ -1260,23 +1260,13 @@ struct MeterToleranceCard: View {
             }
         }
         .padding()
-        .background(
-            ZStack {
-                Color(red: 21/255, green: 21/255, blue: 21/255)
-                
-                Circle()
-                    .fill(Color.blue)
-                    .frame(width: 200, height: 200)
-                    .blur(radius: 60)
-                    .offset(y: -30)
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .background(glassmorphicBackground)
+        .cornerRadius(12)
         .overlay(
-            RoundedRectangle(cornerRadius: 15)
+            RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                .blur(radius: 0.5)
         )
-        .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
     }
 }
 
