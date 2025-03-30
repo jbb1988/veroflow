@@ -237,16 +237,7 @@ struct ProductCard: View {
             }
         )
         .clipShape(RoundedRectangle(cornerRadius: 15))
-        .onTapGesture {
-            withAnimation {
-                isHovered = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation {
-                    isHovered = false
-                }
-            }
-        }
+
         .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
         .padding(.horizontal)
         .offset(y: isAnimating ? 0 : 50)
