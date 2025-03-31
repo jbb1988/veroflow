@@ -259,6 +259,19 @@ struct SafariView: UIViewControllerRepresentable {
     }
 }
 
+struct ChecklistShareSheet: UIViewControllerRepresentable {
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Animated Gradient Button
+
 // MARK: - Animated Gradient Button
 struct AnimatedSafariButton: View {
     @State private var isAnimating = false
@@ -351,6 +364,7 @@ struct HelpView: View {
     private let headerSpacing: CGFloat = 60
     @State private var selectedSection: HelpSection = .support
     @State private var searchQuery = ""
+    @State private var showShareSheet = false
     
     var body: some View {
         ZStack {
@@ -429,7 +443,40 @@ struct HelpView: View {
                         case .support:
                             EnhancedSupportView()
                         case .testing:
-                            InteractiveTestingGuide()
+                            VStack {
+                                InteractiveTestingGuide()
+                                Button(action: {
+                                    showShareSheet = true
+                                }) {
+                                    HStack {
+                                        Image(systemName: "square.and.arrow.up")
+                                        Text("Share Checklist")
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        ZStack {
+                                            Color.black.opacity(0.5)
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [Color.blue.opacity(0.4), Color.blue.opacity(0.1)]),
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        }
+                                    )
+                                    .cornerRadius(10)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.blue.opacity(0.8), lineWidth: 2)
+                                            .shadow(color: Color.blue.opacity(0.8), radius: 4, x: 0, y: 0)
+                                    )
+                                    .foregroundColor(.white)
+                                }
+                                .padding()
+                                .sheet(isPresented: $showShareSheet) {
+                                    ChecklistShareSheet(activityItems: [UIImage(named: "checklist")!])
+                                }
+                            }
                         case .faq:
                             EnhancedFAQView(searchQuery: searchQuery)
                         case .demo:
