@@ -7,6 +7,7 @@ struct NavigationMenuView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selectedTab: AppNavigationItem
     @State private var showSafari = false
+    @EnvironmentObject var authManager: AuthManager
     var onTabSelect: (AppNavigationItem) -> Void
     
     // ADD: Cached menu items
@@ -22,6 +23,24 @@ struct NavigationMenuView: View {
                     title
                     menuButtons
                     Spacer(minLength: 0)
+                    
+                    // Add Sign Out button
+                    Button(action: {
+                        authManager.signOut()
+                    }) {
+                        HStack(spacing: 15) {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .font(.system(size: 20, weight: .medium))
+                                .frame(width: 24)
+                            Text("Sign Out")
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.red)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                    }
+                    .padding(.top, 20)
+                    
                     safariButton
                 }
                 .padding(.horizontal, 20)

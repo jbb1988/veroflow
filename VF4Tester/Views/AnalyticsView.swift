@@ -322,7 +322,6 @@ struct AnalyticsView: View {
                 .padding()
             }
         }
-        .navigationTitle("Analytics")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {

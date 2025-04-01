@@ -342,6 +342,16 @@ struct TestHistoryView: View {
                 ShareSheet(activityItems: [url])
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+            }
+        }
     }
     
     // MARK: - Export PDF & CSV

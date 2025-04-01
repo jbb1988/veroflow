@@ -380,8 +380,7 @@ struct HelpView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Color.clear
-                    .frame(height: 110)
+                Color.clear.frame(height: 110)
                 
                 // Category selection buttons with updated styling
                 HStack {
@@ -512,7 +511,16 @@ struct HelpView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-        .navigationBarHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+            }
+        }
     }
 }
 
@@ -1249,13 +1257,12 @@ struct ToleranceCategoryButton: View {
             .background(
                 ZStack {
                     Color(red: 21/255, green: 21/255, blue: 21/255)
-                    if isSelected {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 150, height: 150)
-                            .blur(radius: 60)
-                            .offset(y: -30)
-                    }
+                    
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 150, height: 150)
+                        .blur(radius: 60)
+                        .offset(y: -30)
                 }
             )
             .clipShape(RoundedRectangle(cornerRadius: 15))

@@ -131,6 +131,16 @@ struct SettingsView: View {
                 MeterToleranceView()
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
+            }
+        }
     }
     
     // MARK: - Helper Views

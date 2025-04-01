@@ -1,11 +1,15 @@
 import Charts
 import Foundation
 import SwiftUI
+import FirebaseCore
+import FirebaseAuth
 
 private let sharedViewModel = TestViewModel()
 
 @main
 struct VF4TesterApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var authManager = AuthManager()
     @AppStorage("showOnboarding") private var showOnboarding: Bool = true
     @AppStorage("hasOpened") private var hasOpened: Bool = false
     @State private var showSplash = true
@@ -13,9 +17,16 @@ struct VF4TesterApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                MainContentView()
-                    .environmentObject(sharedViewModel)
-                    .preferredColorScheme(.dark)
+                Group {
+                    if authManager.isAuthenticated {
+                        MainContentView()
+                            .environmentObject(sharedViewModel)
+                            .preferredColorScheme(.dark)
+                    } else {
+                        AuthView()
+                            .preferredColorScheme(.dark)
+                    }
+                }
                 
                 if showSplash {
                     SplashScreenView(isFinished: $showSplash)
@@ -24,6 +35,7 @@ struct VF4TesterApp: App {
                         .ignoresSafeArea()
                 }
             }
+            .environmentObject(authManager)
             .animation(.easeOut(duration: 0.5), value: showSplash)
             .task {
                 if showOnboarding {

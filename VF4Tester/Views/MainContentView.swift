@@ -3,6 +3,7 @@ import Combine
 
 struct MainContentView: View {
     @EnvironmentObject var viewModel: TestViewModel
+    @EnvironmentObject var authManager: AuthManager
     @AppStorage("showOnboarding") private var showOnboarding: Bool = true
     @AppStorage("hasOpened") private var hasOpened: Bool = false
     @State private var selectedTab: AppNavigationItem = .test
@@ -15,84 +16,86 @@ struct MainContentView: View {
     private var isIPad: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
-        ZStack {
-            // Background
-            Color.black.edgesIgnoringSafeArea(.all)
-            
-            // Content Layer
-            Group {
-                selectedTab.view
-                    .opacity(isMenuOpen ? 0.6 : 1.0)
-                    .transaction { transaction in
-                        if !isMenuOpen {
-                            transaction.animation = nil
+        NavigationView {
+            ZStack {
+                // Background
+                Color.black.edgesIgnoringSafeArea(.all)
+                
+                // Content Layer
+                Group {
+                    selectedTab.view
+                        .opacity(isMenuOpen ? 0.6 : 1.0)
+                        .transaction { transaction in
+                            if !isMenuOpen {
+                                transaction.animation = nil
+                            }
+                        }
+                }
+                
+                // Header Layer
+                headerView
+                    .zIndex(1)
+                
+                // Menu Layer
+                Group {
+                    if isMenuOpen {
+                        HStack(spacing: 0) {
+                            NavigationMenuView(
+                                isMenuOpen: $isMenuOpen,
+                                selectedTab: $selectedTab,
+                                onTabSelect: { newTab in
+                                    selectedTab = newTab
+                                    isMenuOpen = false
+                                }
+                            )
+                            .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
+                            .background(MenuBackgroundView())
+                            .zIndex(2)
+                            
+                            Color.black.opacity(0.5)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    isMenuOpen = false
+                                }
+                        }
+                        .transition(.identity)
+                    }
+                }
+                
+                // Onboarding Layer
+                if showOnboarding && !hasOpened {
+                    EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
+                        .environmentObject(viewModel)
+                        .zIndex(3)
+                        .onDisappear {
+                            hasOpened = true
+                            UserDefaults.standard.set(true, forKey: "hasOpened")
+                        }
+                }
+            }
+            .background(Color(UIColor.systemBackground))
+            .onChange(of: selectedTab) { _ in
+                withAnimation(.easeOut(duration: 0.2)) {
+                    isMenuOpen = false
+                }
+            }
+            .dynamicTypeSize(.large...(.accessibility3))
+            .gesture(
+                DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                    .updating($dragOffset) { value, state, _ in
+                        if !isMenuOpen && value.translation.width > 0 {
+                            state = value.translation.width
                         }
                     }
-            }
-            
-            // Header Layer
-            headerView
-                .zIndex(1)
-            
-            // Menu Layer
-            Group {
-                if isMenuOpen {
-                    HStack(spacing: 0) {
-                        NavigationMenuView(
-                            isMenuOpen: $isMenuOpen,
-                            selectedTab: $selectedTab,
-                            onTabSelect: { newTab in
-                                selectedTab = newTab
-                                isMenuOpen = false
+                    .onEnded { gesture in
+                        if !isMenuOpen && gesture.translation.width > 50 {
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                isMenuOpen = true
                             }
-                        )
-                        .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
-                        .background(MenuBackgroundView())
-                        .zIndex(2)
-                        
-                        Color.black.opacity(0.5)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                isMenuOpen = false
-                            }
-                    }
-                    .transition(.identity)
-                }
-            }
-            
-            // Onboarding Layer
-            if showOnboarding && !hasOpened {
-                EnhancedOnboardingOverlayView(isShowing: $showOnboarding)
-                    .environmentObject(viewModel)
-                    .zIndex(3)
-                    .onDisappear {
-                        hasOpened = true
-                        UserDefaults.standard.set(true, forKey: "hasOpened")
-                    }
-            }
-        }
-        .background(Color(UIColor.systemBackground))
-        .onChange(of: selectedTab) { _ in
-            withAnimation(.easeOut(duration: 0.2)) {
-                isMenuOpen = false
-            }
-        }
-        .dynamicTypeSize(.large...(.accessibility3))
-        .gesture(
-            DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                .updating($dragOffset) { value, state, _ in
-                    if !isMenuOpen && value.translation.width > 0 {
-                        state = value.translation.width
-                    }
-                }
-                .onEnded { gesture in
-                    if !isMenuOpen && gesture.translation.width > 50 {
-                        withAnimation(.easeOut(duration: 0.25)) {
-                            isMenuOpen = true
                         }
                     }
-                }
-        )
+            )
+        }
     }
 
     private var headerView: some View {
