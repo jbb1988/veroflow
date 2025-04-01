@@ -122,7 +122,7 @@ private struct ParameterTextField: View {
     
     var body: some View {
         TextField("", text: text)
-            .keyboardType(.numberPad)
+            .keyboardType(.decimalPad)
             .multilineTextAlignment(.leading)
             .frame(width: 100, height: 15)
             .textFieldStyle(PlainTextFieldStyle())
