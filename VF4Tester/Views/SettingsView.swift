@@ -138,7 +138,7 @@ struct SettingsView: View {
                     .resizable()
                     .renderingMode(.original)
                     .aspectRatio(contentMode: .fit)
-                    .frame(height: 40)
+                    .frame(height: 80)
             }
         }
     }

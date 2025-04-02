@@ -83,13 +83,13 @@ struct OnboardingPage: View {
                 Image(imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
+                    .frame(width: 400, height: 400)
                     .foregroundColor(.white)
                     .shadow(color: .white.opacity(0.3), radius: 20)
                     .overlay(
                         Circle()
                             .stroke(.white.opacity(0.2), lineWidth: 2)
-                            .frame(width: 220, height: 220)
+                            .frame(width: 420, height: 420)
                     )
             } else {
                 ZStack {

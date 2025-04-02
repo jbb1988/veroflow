@@ -90,7 +90,7 @@ struct MainContentView: View {
                         .resizable()
                         .renderingMode(.original)
                         .aspectRatio(contentMode: .fit)
-                        .frame(height: 40)
+                        .frame(height: 80)
                 }
             }
             .toolbarBackground(.visible, for: .navigationBar)
