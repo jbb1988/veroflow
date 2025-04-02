@@ -373,7 +373,7 @@ public struct VeroflowHeader: ToolbarContent {
 
 // MARK: - Main Help View
 struct HelpView: View {
-    private let headerSpacing: CGFloat = 60
+    private let headerSpacing: CGFloat = 30
     @State private var selectedSection: HelpSection = .support
     @State private var searchQuery = ""
     @State private var showShareSheet = false
