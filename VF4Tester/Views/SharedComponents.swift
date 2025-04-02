@@ -479,18 +479,3 @@ struct FilterPill: View {
         }
     }
 }
-
-// Add this new shared header component
-struct VeroflowHeader: ToolbarContent {
-    var body: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Image("veroflowLogo")
-                .resizable()
-                .renderingMode(.original)
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 62.5)
-                .padding(.vertical, -20)
-                .padding(.top, -10)
-        }
-    }
-}

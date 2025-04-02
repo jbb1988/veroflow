@@ -133,7 +133,7 @@ struct SettingsView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItemGroup(placement: .principal) {
                 Image("veroflowLogo")
                     .resizable()
                     .renderingMode(.original)

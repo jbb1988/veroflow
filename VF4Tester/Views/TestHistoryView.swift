@@ -344,7 +344,7 @@ struct TestHistoryView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItemGroup(placement: .principal) {
                 Image("veroflowLogo")
                     .resizable()
                     .renderingMode(.original)
@@ -352,6 +352,7 @@ struct TestHistoryView: View {
                     .frame(height: 40)
             }
         }
+        .toolbarBackground(.visible, for: .navigationBar)
     }
     
     // MARK: - Export PDF & CSV
@@ -743,7 +744,9 @@ struct TestHistoryView: View {
             default:
                 break
             }
-            withAnimation { isMenuExpanded = false }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                isMenuExpanded = false
+            }
         }
         
         /// Single-test PDF export, matching the "Export All" format (using only 'result')

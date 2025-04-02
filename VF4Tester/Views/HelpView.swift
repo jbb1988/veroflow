@@ -359,6 +359,18 @@ struct CustomTopBar: View {
     }
 }
 
+public struct VeroflowHeader: ToolbarContent {
+    public var body: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Image("veroflowLogo")
+                .resizable()
+                .renderingMode(.original)
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 40)
+        }
+    }
+}
+
 // MARK: - Main Help View
 struct HelpView: View {
     private let headerSpacing: CGFloat = 60
@@ -513,7 +525,7 @@ struct HelpView: View {
         .ignoresSafeArea(.keyboard)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItemGroup(placement: .principal) {
                 Image("veroflowLogo")
                     .resizable()
                     .renderingMode(.original)

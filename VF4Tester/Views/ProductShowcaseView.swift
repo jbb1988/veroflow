@@ -370,6 +370,15 @@ struct ProductDetailView: View {
             .navigationTitle(product.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItemGroup(placement: .principal) {
+                    Image("veroflowLogo")
+                        .resizable()
+                        .renderingMode(.original)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 40)
+                }
+            }
+            .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }
                 }

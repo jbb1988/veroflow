@@ -32,10 +32,6 @@ struct MainContentView: View {
                         }
                 }
                 
-                // Header Layer
-                headerView
-                    .zIndex(1)
-                
                 // Menu Layer
                 Group {
                     if isMenuOpen {
@@ -74,12 +70,36 @@ struct MainContentView: View {
                 }
             }
             .background(Color(UIColor.systemBackground))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            isMenuOpen.toggle()
+                        }
+                    }) {
+                        HamburgerIcon(isOpen: isMenuOpen)
+                            .animation(.easeOut(duration: 0.2), value: isMenuOpen)
+                    }
+                    .contentShape(Rectangle())
+                    .frame(width: 44, height: 44)
+                }
+
+                ToolbarItemGroup(placement: .principal) {
+                    Image("veroflowLogo")
+                        .resizable()
+                        .renderingMode(.original)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 40)
+                }
+            }
+            .toolbarBackground(.visible, for: .navigationBar)
             .onChange(of: selectedTab) { _ in
                 withAnimation(.easeOut(duration: 0.2)) {
                     isMenuOpen = false
                 }
             }
-            .dynamicTypeSize(.large...(.accessibility3))
+            .dynamicTypeSize(.large...DynamicTypeSize.accessibility3)
             .gesture(
                 DragGesture(minimumDistance: 20, coordinateSpace: .local)
                     .updating($dragOffset) { value, state, _ in
@@ -95,38 +115,6 @@ struct MainContentView: View {
                         }
                     }
             )
-        }
-    }
-
-    private var headerView: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button(action: {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        isMenuOpen.toggle()
-                    }
-                }) {
-                    HamburgerIcon(isOpen: isMenuOpen)
-                        .animation(.easeOut(duration: 0.2), value: isMenuOpen)
-                }
-                .contentShape(Rectangle())
-                .frame(width: 44, height: 44)
-                
-                Spacer()
-                
-                Image("veroflowLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 75)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .layoutPriority(1)
-                
-                Spacer()
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(WeavePattern())
-            Spacer()
         }
     }
 }
