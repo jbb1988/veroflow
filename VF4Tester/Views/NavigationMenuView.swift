@@ -7,6 +7,7 @@ struct NavigationMenuView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selectedTab: AppNavigationItem
     @State private var showSafari = false
+    @State private var showProfile = false
     @EnvironmentObject var authManager: AuthManager
     var onTabSelect: (AppNavigationItem) -> Void
     
@@ -20,20 +21,34 @@ struct NavigationMenuView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: 20) {
                     Button(action: {
-                        authManager.signOut()
+                        showProfile = true
                     }) {
                         HStack(spacing: 15) {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .font(.system(size: 20, weight: .medium))
-                                .frame(width: 24)
-                            Text("Sign Out")
-                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 24, weight: .medium))
+                                .foregroundColor(.white.opacity(0.9))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Profile")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.9))
+                                Text("Tap to view")
+                                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.6))
                         }
-                        .foregroundColor(.red)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(12)
                     }
                     .standardContentSpacing()
+                    .sheet(isPresented: $showProfile) {
+                        UserProfileView()
+                    }
                     
                     menuButtons
                     
