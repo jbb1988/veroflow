@@ -146,18 +146,12 @@ struct ProductShowcaseView: View {
             .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 24) {
-                    Spacer()
-                        .frame(height: 40)
-                    // Header
-                    Text("")
-                        .font(.system(size: 28, weight: .bold))
-                        .padding(.top, 8)
-                    
+                VStack(spacing: 16) {
                     Text("Discover our comprehensive range of field testing solutions")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                        .padding(.top, 32)
                         .padding(.horizontal)
                     
                     // Product Cards
@@ -168,7 +162,6 @@ struct ProductShowcaseView: View {
                             }
                     }
                 }
-                .padding()
             }
             .sheet(item: $selectedProduct) { product in
                 ProductDetailView(product: product)
@@ -177,6 +170,16 @@ struct ProductShowcaseView: View {
                 withAnimation(.easeOut(duration: 0.6)) {
                     isAnimating = true
                 }
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .principal) {
+                Image("veroflowLogo")
+                    .resizable()
+                    .renderingMode(.original)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 40)
             }
         }
     }
@@ -196,7 +199,7 @@ struct ProductCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 200)
-                    .padding(.top)
+                    .padding(.top, 8)
             }
             
             VStack(alignment: .leading, spacing: 12) {
@@ -237,7 +240,6 @@ struct ProductCard: View {
             }
         )
         .clipShape(RoundedRectangle(cornerRadius: 15))
-
         .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
         .padding(.horizontal)
         .offset(y: isAnimating ? 0 : 50)

@@ -1,10 +1,3 @@
-//
-//  ExampleView.swift
-//  SomeProject
-//
-//  Created by You on 3/20/25.
-//
-
 import SwiftUI
 import AVKit
 import SafariServices
@@ -392,7 +385,7 @@ struct HelpView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Color.clear.frame(height: 110)
+                Color.clear.frame(height: 50)
                 
                 // Category selection buttons with updated styling
                 HStack {

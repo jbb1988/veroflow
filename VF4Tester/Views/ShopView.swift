@@ -479,7 +479,7 @@ struct TestPortSpoolsDetailView: View {
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
-                        .frame(height: 240)
+                        Color.clear.frame(height: 8) // CHANGE: Reduced from default/arbitrary value to 8
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         
                         Image("spool")
@@ -610,7 +610,7 @@ struct StrainerDetailView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     // Hero section
                     ZStack {
                         LinearGradient(

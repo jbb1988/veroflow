@@ -1240,9 +1240,11 @@ struct TestView: View {
                 
                 // Existing ScrollView content
                 ScrollView {
-                    VStack(spacing: 16) {
-                        Spacer().frame(height: headerSpacing)
-                        testTypeSection
+                    VStack(spacing: 0) {
+                        VStack(spacing: 16) {
+                            testTypeSection
+                        }
+                        .padding(.top, 12)
                         meterReadingsSection
                         testParametersSection
                         meterDetailsSection

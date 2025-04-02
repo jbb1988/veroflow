@@ -225,7 +225,8 @@ struct TestHistoryView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
                 .background(WeavePattern())
-
+                .standardContentSpacing()
+                
                 CompactFilterPill(
                     isExpanded: $isFilterExpanded,
                     selectedFilter: $selectedHistoryFilter,
@@ -669,7 +670,7 @@ struct TestHistoryView: View {
                     Button {
                         feedbackGenerator.prepare()
                         feedbackGenerator.impactOccurred()
-                        withAnimation { 
+                        withAnimation {
                             isMenuExpanded.toggle()
                         }
                     } label: {
