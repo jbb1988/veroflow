@@ -5,6 +5,11 @@ import Foundation
 import UIKit
 #endif
 
+// Add this near the top, before other definitions
+struct ContentSpacing {
+    static let headerToContent: CGFloat = 20 // Reduced by 65% from previous implicit spacing
+}
+
 // MARK: - Field Enum
 enum Field: Hashable, RawRepresentable {
     case smallStart, smallEnd, largeStart, largeEnd, totalVolume, flowRate, jobNumber, additionalRemarks
@@ -477,5 +482,11 @@ struct FilterPill: View {
                 .cornerRadius(12)
             }
         }
+    }
+}
+
+extension View {
+    func standardContentSpacing() -> some View {
+        self.padding(.top, ContentSpacing.headerToContent)
     }
 }

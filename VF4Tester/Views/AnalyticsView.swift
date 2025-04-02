@@ -175,8 +175,8 @@ struct AnalyticsView: View {
                 VStack(spacing: 16) {
                     Color.clear
                         .frame(height: 1)
-                        .padding(.top, 100)
-                    
+                        .standardContentSpacing()
+
                     // Water Usage Card.
                     DetailCard(title: "Water Usage") {
                         HStack(spacing: 16) {

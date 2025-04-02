@@ -194,7 +194,6 @@ struct TestHistoryView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Color.clear.frame(height: 100)
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
@@ -661,21 +660,27 @@ struct TestHistoryView: View {
                                 }
                             }
                             .offset(x: isMenuExpanded ? -CGFloat(index + 1) * 40 : 0)
+                            .opacity(isMenuExpanded ? 1 : 0)
+                            .scaleEffect(isMenuExpanded ? 1 : 0.5)
                             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isMenuExpanded)
                             .onTapGesture { handleMenuAction(index) }
                     }
+                    
                     Button {
                         feedbackGenerator.prepare()
                         feedbackGenerator.impactOccurred()
-                        withAnimation { isMenuExpanded.toggle() }
+                        withAnimation { 
+                            isMenuExpanded.toggle()
+                        }
                     } label: {
                         Image("Drop")
                             .resizable()
-                            .frame(width: 24, height: 24)
+                            .frame(width: 48, height: 48)
                             .rotationEffect(.degrees(isMenuExpanded ? 180 : 0))
                             .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isMenuExpanded)
                     }
                 }
+                .zIndex(1)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)

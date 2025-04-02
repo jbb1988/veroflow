@@ -41,7 +41,7 @@ struct SettingsView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .overlay(WeavePattern()) 
+            .overlay(WeavePattern())
             .ignoresSafeArea()
 
             // Main list content
@@ -118,7 +118,7 @@ struct SettingsView: View {
                     sectionHeader("Reference", systemImage: "ruler")
                 }
             }
-            .padding(.top, 100)
+            .standardContentSpacing()
             .scrollContentBackground(.hidden)
             .listStyle(InsetGroupedListStyle())
         }

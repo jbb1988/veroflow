@@ -33,7 +33,7 @@ struct NavigationMenuView: View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
                     }
-                    .padding(.top, 100)
+                    .standardContentSpacing()
                     
                     menuButtons
                     
