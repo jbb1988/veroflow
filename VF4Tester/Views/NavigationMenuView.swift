@@ -10,7 +10,6 @@ struct NavigationMenuView: View {
     @EnvironmentObject var authManager: AuthManager
     var onTabSelect: (AppNavigationItem) -> Void
     
-    // ADD: Cached menu items
     private let menuItems = AppNavigationItem.allCases
     
     var body: some View {
@@ -20,11 +19,6 @@ struct NavigationMenuView: View {
             
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: 20) {
-                    title
-                    menuButtons
-                    Spacer(minLength: 0)
-                    
-                    // Add Sign Out button
                     Button(action: {
                         authManager.signOut()
                     }) {
@@ -39,32 +33,30 @@ struct NavigationMenuView: View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 100)
                     
-                    safariButton
+                    menuButtons
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Spacer()
+                        AnimatedSafariButton {
+                            showSafari = true
+                        }
+                        .scaleEffect(1.2)
+                        Spacer()
+                    }
+                    .padding(.bottom, 50)
+                    .sheet(isPresented: $showSafari) {
+                        SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
+                            .edgesIgnoringSafeArea(.all)
+                    }
                 }
                 .padding(.horizontal, 20)
             }
-            // ADD: Optimize scroll performance
             .scrollDismissesKeyboard(.immediately)
         }
-    }
-    
-    private var title: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("BROWSE")
-                .font(.system(size: 14, weight: .heavy, design: .rounded))
-                .foregroundColor(.white)
-                .opacity(0.7)
-                .padding(.bottom, 8)
-            Rectangle()
-                .frame(height: 2)
-                .foregroundColor(Color.white.opacity(0.3))
-                .padding(.bottom, 12)
-        }
-        .padding(.top, 100)
-        // ADD: Reduce redraws
-        .drawingGroup()
     }
     
     private var menuButtons: some View {
@@ -76,26 +68,8 @@ struct NavigationMenuView: View {
             )
         }
     }
-    
-    private var safariButton: some View {
-        HStack {
-            Spacer()
-            AnimatedSafariButton {
-                showSafari = true
-            }
-            .scaleEffect(1.2)
-            Spacer()
-        }
-        .padding(.bottom, 100)
-        // CHANGE: Optimize sheet presentation
-        .sheet(isPresented: $showSafari) {
-            SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
-                .edgesIgnoringSafeArea(.all)
-        }
-    }
 }
 
-// ADD: Optimized menu button component
 private struct MenuButton: View, Equatable {
     let item: AppNavigationItem
     let isSelected: Bool

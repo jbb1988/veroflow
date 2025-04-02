@@ -117,12 +117,14 @@ struct MainContentView: View {
                 Image("veroflowLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 47)
-                    .frame(maxWidth: .infinity)
+                    .frame(height: 75)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .layoutPriority(1)
                 
                 Spacer()
             }
             .padding()
+            .frame(maxWidth: .infinity)
             .background(WeavePattern())
             Spacer()
         }
