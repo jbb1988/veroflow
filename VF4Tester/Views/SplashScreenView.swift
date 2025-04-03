@@ -68,23 +68,10 @@ struct SplashScreenView: View {
             
             // Logo and outer circle
             ZStack {
-                // Glow effect
-                Circle()
-                    .fill(Color.white.opacity(0.3))
-                    .frame(width: 330, height: 330)
-                    .blur(radius: 20)
-                    .opacity(glowOpacity)
-                
-                Circle()
-                    .stroke(.white.opacity(0.2), lineWidth: 2)
-                    .frame(width: 300, height: 300)
-                    .scaleEffect(circleScale)
-                    .opacity(circleOpacity)
-                
                 Image("vero3d")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 280, height: 280)
+                    .frame(width: 560, height: 560)
                     .colorMultiply(.white)
                     .foregroundColor(.white)
                     .shadow(color: .white.opacity(0.3), radius: 20)

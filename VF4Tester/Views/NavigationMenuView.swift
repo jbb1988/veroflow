@@ -54,13 +54,19 @@ struct NavigationMenuView: View {
                     
                     Spacer()
                     
-                    HStack {
-                        Spacer()
-                        AnimatedSafariButton {
-                            showSafari = true
+                    VStack(spacing: 4) {
+                        HStack {
+                            Spacer()
+                            AnimatedSafariButton {
+                                showSafari = true
+                            }
+                            .scaleEffect(1.2)
+                            Spacer()
                         }
-                        .scaleEffect(1.2)
-                        Spacer()
+                        Text("MARS Chat AI")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
                     .padding(.bottom, 50)
                     .sheet(isPresented: $showSafari) {
