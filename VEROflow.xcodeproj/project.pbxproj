@@ -10,7 +10,6 @@
 		2D0834B82D97295800A920CE /* MenuBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0834B72D97295800A920CE /* MenuBackgroundView.swift */; };
 		2D0834BA2D972E3100A920CE /* PaginatedTestHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */; };
 		2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D65A82D7B68B2003A10AE /* SafariView.swift */; };
-		2D0E3C222D9EE59100774412 /* veroflowmodel.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 2D0E3C212D9EE59100774412 /* veroflowmodel.usdz */; };
 		2D0FE6052D79E831002A11EB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0FE6042D79E831002A11EB /* CameraView.swift */; };
 		2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */; };
 		2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1597F52D7A1FD600F29B21 /* OCRManager.swift */; };
@@ -21,6 +20,7 @@
 		2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */; };
 		2D1BBBE82D760521002A6DC8 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE72D760521002A6DC8 /* MainContentView.swift */; };
 		2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */; };
+		2D1CE5742D9F10BE00721209 /* veroflowmodel.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */; };
 		2D26D29D2D976945006DC2D2 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D26D29B2D976945006DC2D2 /* Color+Hex.swift */; };
 		2D2D1CFE2D64E2C9008DB09B /* Error_Handling_Improvements.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */; };
 		2D354ACE2D6CCF830010AEFA /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 2D354ACD2D6CCF830010AEFA /* Clerk */; };
@@ -91,7 +91,6 @@
 		2D0834B72D97295800A920CE /* MenuBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBackgroundView.swift; sourceTree = "<group>"; };
 		2D0834B92D972E3100A920CE /* PaginatedTestHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedTestHistoryView.swift; sourceTree = "<group>"; };
 		2D0D65A82D7B68B2003A10AE /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
-		2D0E3C212D9EE59100774412 /* veroflowmodel.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = veroflowmodel.usdz; sourceTree = "<group>"; };
 		2D0FE6042D79E831002A11EB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = VEROflowInfo.plist; sourceTree = "<group>"; };
 		2D1597F52D7A1FD600F29B21 /* OCRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRManager.swift; sourceTree = "<group>"; };
@@ -102,6 +101,7 @@
 		2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2D1BBBE72D760521002A6DC8 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTypes.swift; sourceTree = "<group>"; };
+		2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = veroflowmodel.usdz; sourceTree = "<group>"; };
 		2D26D29B2D976945006DC2D2 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Error_Handling_Improvements.txt; sourceTree = "<group>"; };
 		2D3B753E2D512D07002285C9 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
@@ -214,9 +214,9 @@
 				CF1A0FF2B69D8F500123456 /* VF4Tester */,
 				2D5EBC332D830D6D00FC3A05 /* LineChartView.swift */,
 				2D5EBC342D830D7200FC3A05 /* BarChartView.swift */,
-				2D0E3C212D9EE59100774412 /* veroflowmodel.usdz */,
 				2D5EBC352D830D7700FC3A05 /* ScatterChartView.swift */,
 				2D7C13CB2D9C49670090D615 /* GoogleService-Info.plist */,
+				2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */,
 				2D7C13FE2D9C4A1D0090D615 /* FirebaseCore.swift */,
 			);
 			sourceTree = "<group>";
@@ -374,7 +374,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2D0E3C222D9EE59100774412 /* veroflowmodel.usdz in Resources */,
+				2D1CE5742D9F10BE00721209 /* veroflowmodel.usdz in Resources */,
 				CF1A1052B69D8F600123456 /* Assets.xcassets in Resources */,
 				2D7C13CC2D9C49670090D615 /* GoogleService-Info.plist in Resources */,
 				2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */,

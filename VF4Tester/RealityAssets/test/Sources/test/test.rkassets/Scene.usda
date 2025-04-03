@@ -34,8 +34,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -56,8 +56,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -78,8 +78,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -100,8 +100,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -122,8 +122,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -144,8 +144,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
@@ -166,8 +166,8 @@ def Xform "Root"
 
                 over "DefaultSurfaceShader"
                 {
-                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
-                        colorSpace = "lin_srgb"
+                    color3f inputs:diffuseColor = (1, 0.5763723, 0) (
+                        colorSpace = "srgb_texture"
                     )
                 }
             }
