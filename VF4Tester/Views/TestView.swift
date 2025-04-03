@@ -224,6 +224,11 @@ private struct FlowRateParameterView: View {
 struct TestView: View {
     @EnvironmentObject var viewModel: TestViewModel
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isLandscape: Bool {
+        horizontalSizeClass == .regular
+    }
     @FocusState private var focusedField: Field?
     @State private var keyboardHeight: CGFloat = 0
     @State private var isNotesFieldFocused: Bool = false
@@ -1238,23 +1243,40 @@ struct TestView: View {
                 .overlay(WeavePattern()) // Using centralized WeavePattern
                 .ignoresSafeArea()
                 
-                // Existing ScrollView content
-                ScrollView {
-                    VStack(spacing: 0) {
+        ScrollView {
+                    if isLandscape {
+                        HStack(alignment: .top, spacing: 16) {
+                            VStack(spacing: 16) {
+                                testTypeSection
+                                meterReadingsSection
+                                testParametersSection
+                            }
+                            .frame(maxWidth: .infinity)
+                            
+                            VStack(spacing: 16) {
+                                meterDetailsSection
+                                additionalDetailsSection
+                                notesSection
+                                recordTestSection
+                                recentTestSection
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding()
+                    } else {
                         VStack(spacing: 16) {
                             testTypeSection
+                            meterReadingsSection
+                            testParametersSection
+                            meterDetailsSection
+                            additionalDetailsSection
+                            notesSection
+                            recordTestSection
+                            recentTestSection
                         }
-                        .padding(.top, 12)
-                        meterReadingsSection
-                        testParametersSection
-                        meterDetailsSection
-                        additionalDetailsSection
-                        notesSection
-                        recordTestSection
-                        recentTestSection
+                        .padding()
                     }
-                    .padding()
-                }
+        }
                 // Existing modifiers remain unchanged
                 .safeAreaInset(edge: .bottom) { Color.clear.frame(height: keyboardHeight) }
                 .onChange(of: isNotesFieldFocused) { focused in

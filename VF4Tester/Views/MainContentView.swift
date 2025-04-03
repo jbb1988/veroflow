@@ -11,6 +11,7 @@ struct MainContentView: View {
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showSafari = false
     @State private var previousTab: AppNavigationItem?
+    @State private var orientation = UIDevice.current.orientation
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private var isIPad: Bool { horizontalSizeClass == .regular }
@@ -44,7 +45,9 @@ struct MainContentView: View {
                                     isMenuOpen = false
                                 }
                             )
-                            .frame(width: isIPad ? 300 : UIScreen.main.bounds.width * 0.55)
+                            .frame(width: orientation.isLandscape ?
+                                   (isIPad ? 400 : UIScreen.main.bounds.height * 0.4) :
+                                   (isIPad ? 300 : UIScreen.main.bounds.width * 0.55))
                             .background(MenuBackgroundView())
                             .zIndex(2)
                             
@@ -85,12 +88,13 @@ struct MainContentView: View {
                     .frame(width: 44, height: 44)
                 }
 
-                ToolbarItemGroup(placement: .principal) {
+                ToolbarItem(placement: .principal) {
                     Image("veroflowLogo")
                         .resizable()
                         .renderingMode(.original)
                         .aspectRatio(contentMode: .fit)
-                        .frame(height: 80)
+                        .frame(height: orientation.isLandscape ? 40 : 60)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .toolbarBackground(.visible, for: .navigationBar)
@@ -99,23 +103,28 @@ struct MainContentView: View {
                     isMenuOpen = false
                 }
             }
-            .dynamicTypeSize(.large...DynamicTypeSize.accessibility3)
-            .gesture(
-                DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                    .updating($dragOffset) { value, state, _ in
-                        if !isMenuOpen && value.translation.width > 0 {
-                            state = value.translation.width
-                        }
-                    }
-                    .onEnded { gesture in
-                        if !isMenuOpen && gesture.translation.width > 50 {
-                            withAnimation(.easeOut(duration: 0.25)) {
-                                isMenuOpen = true
-                            }
-                        }
-                    }
-            )
+            .preferredColorScheme(.dark)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            orientation = UIDevice.current.orientation
+        }
+        .dynamicTypeSize(.large...DynamicTypeSize.accessibility3)
+        .gesture(
+            DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                .updating($dragOffset) { value, state, _ in
+                    if !isMenuOpen && value.translation.width > 0 {
+                        state = value.translation.width
+                    }
+                }
+                .onEnded { gesture in
+                    if !isMenuOpen && gesture.translation.width > 50 {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            isMenuOpen = true
+                        }
+                    }
+                }
+        )
     }
 }
 

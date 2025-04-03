@@ -54,6 +54,8 @@ struct CameraPermissionTestView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.systemBackground))
         .sheet(isPresented: $showCamera) {
             CameraView(isShowing: $showCamera, onImageCaptured: { image in
                 print("Image captured successfully")

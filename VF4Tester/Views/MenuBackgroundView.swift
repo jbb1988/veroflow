@@ -6,12 +6,15 @@ struct MenuBackgroundView: View {
     var body: some View {
         ZStack {
             backgroundColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(.all)
             
             WeavePattern()
-                .ignoresSafeArea()
+                .ignoresSafeArea(.all)
         }
+        // ADD: Force composite rendering for better performance in transitions
         .compositingGroup()
+        // ADD: Ensure the view fills the available space
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
