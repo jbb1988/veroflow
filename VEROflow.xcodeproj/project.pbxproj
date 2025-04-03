@@ -67,12 +67,14 @@
 		2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9C2D74C9A200FF088F /* GeoView.swift */; };
 		2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */; };
 		2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB46F792D7B5E5700FEE204 /* LocationManager.swift */; };
+		2DB6AAD52D9ECFE900DEE21A /* veroflowmodel.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 2DB6AAD42D9ECFE900DEE21A /* veroflowmodel.usdz */; };
+		2DB6AAD72D9ED2AA00DEE21A /* ModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */; };
 		2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */; };
 		2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */; };
 		2DC2DB942D83819400497AA8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2DB932D83819400497AA8 /* ShopView.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
+		2DDD3EF32D9ED47C00161397 /* veroflowmodel in Frameworks */ = {isa = PBXBuildFile; productRef = 2DDD3EF22D9ED47C00161397 /* veroflowmodel */; };
 		2DDFF9E52D9E01A300C14E23 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */; };
-		2DDFF9E72D9EA66E00C14E23 /* model.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 2DDFF9E62D9EA66E00C14E23 /* model.usdz */; };
 		2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */; };
 		CF1A1012B69D8F500123456 /* VF4TesterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1A1002B69D8F500123456 /* VF4TesterApp.swift */; };
 		CF1A1052B69D8F600123456 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CF1A1042B69D8F600123456 /* Assets.xcassets */; };
@@ -125,12 +127,13 @@
 		2D9BCB9C2D74C9A200FF088F /* GeoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoView.swift; sourceTree = "<group>"; };
 		2D9BCB9E2D74C9A400FF088F /* TypingEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffect.swift; sourceTree = "<group>"; };
 		2DB46F792D7B5E5700FEE204 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		2DB6AAD42D9ECFE900DEE21A /* veroflowmodel.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = veroflowmodel.usdz; sourceTree = "<group>"; };
+		2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelView.swift; sourceTree = "<group>"; };
 		2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTestView.swift; sourceTree = "<group>"; };
 		2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVWrapper.swift; sourceTree = "<group>"; };
 		2DC2DB932D83819400497AA8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
-		2DDFF9E62D9EA66E00C14E23 /* model.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = model.usdz; sourceTree = "<group>"; };
 		2DE4931C2D723462003DD4FE /* AccuracyToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyToleranceView.swift; sourceTree = "<group>"; };
 		CF1A1002B69D8F500123456 /* VF4TesterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VF4TesterApp.swift; sourceTree = "<group>"; };
 		CF1A1042B69D8F600123456 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -170,6 +173,7 @@
 				2D7C13EF2D9C4A140090D615 /* FirebaseInstallations in Frameworks */,
 				2D354ACE2D6CCF830010AEFA /* Clerk in Frameworks */,
 				2D7C13D52D9C4A140090D615 /* FirebaseAppCheck in Frameworks */,
+				2DDD3EF32D9ED47C00161397 /* veroflowmodel in Frameworks */,
 				2D7C13ED2D9C4A140090D615 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				2D7C13D32D9C4A140090D615 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				2D7C13D92D9C4A140090D615 /* FirebaseAuth in Frameworks */,
@@ -213,7 +217,6 @@
 				2D5EBC352D830D7700FC3A05 /* ScatterChartView.swift */,
 				2D7C13CB2D9C49670090D615 /* GoogleService-Info.plist */,
 				2D7C13FE2D9C4A1D0090D615 /* FirebaseCore.swift */,
-				2DDFF9E62D9EA66E00C14E23 /* model.usdz */,
 			);
 			sourceTree = "<group>";
 		};
@@ -243,6 +246,7 @@
 				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
 				CF1A1112B69D91100123456 /* ViewModels */,
 				CF1A1122B69D91200123456 /* Views */,
+				2DB6AAD42D9ECFE900DEE21A /* veroflowmodel.usdz */,
 			);
 			path = VF4Tester;
 			sourceTree = "<group>";
@@ -291,6 +295,7 @@
 				2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */,
 				2D7C14022D9C4B9E0090D615 /* AuthView.swift */,
 				2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */,
+				2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -353,6 +358,7 @@
 			packageReferences = (
 				2D354ACC2D6CCF830010AEFA /* XCRemoteSwiftPackageReference "clerk-ios" */,
 				2D7C13CD2D9C4A140090D615 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				2DDD3EF12D9ED47C00161397 /* XCLocalSwiftPackageReference "veroflowmodel" */,
 			);
 			productRefGroup = CF1A0FE2B69D8F500123456 /* Products */;
 			projectDirPath = "";
@@ -368,9 +374,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DB6AAD52D9ECFE900DEE21A /* veroflowmodel.usdz in Resources */,
 				CF1A1052B69D8F600123456 /* Assets.xcassets in Resources */,
 				2D7C13CC2D9C49670090D615 /* GoogleService-Info.plist in Resources */,
-				2DDFF9E72D9EA66E00C14E23 /* model.usdz in Resources */,
 				2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */,
 				2D2D1CFE2D64E2C9008DB09B /* Error_Handling_Improvements.txt in Resources */,
 			);
@@ -407,6 +413,7 @@
 				2D6694602D81ECDF00874762 /* NavigationMenuView.swift in Sources */,
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
+				2DB6AAD72D9ED2AA00DEE21A /* ModelView.swift in Sources */,
 				2D7C13FF2D9C4A1D0090D615 /* FirebaseCore.swift in Sources */,
 				2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */,
 				2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */,
@@ -573,6 +580,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		2DDD3EF12D9ED47C00161397 /* XCLocalSwiftPackageReference "veroflowmodel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = veroflowmodel;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		2D354ACC2D6CCF830010AEFA /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -717,6 +731,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2D7C13CD2D9C4A140090D615 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseVertexAI;
+		};
+		2DDD3EF22D9ED47C00161397 /* veroflowmodel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = veroflowmodel;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

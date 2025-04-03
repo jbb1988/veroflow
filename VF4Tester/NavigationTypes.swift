@@ -4,6 +4,7 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
     case test = "Test"
     case analytics = "Analytics"
     case history = "History"
+    case model = "3D Model"
     case products = "VEROflow Line"
     case diversified = "Diversified"
     case settings = "Settings"
@@ -16,6 +17,7 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         case .test: return "pencil.and.outline"
         case .analytics: return "chart.bar.fill"
         case .history: return "clock.fill"
+        case .model: return "cube.transparent"
         case .products: return "gauge.medium"
         case .diversified: return "cube.box.fill"
         case .settings: return "gear"
@@ -31,7 +33,9 @@ enum AppNavigationItem: String, CaseIterable, Identifiable {
         case .analytics:
             AnalyticsView()
         case .history:
-            TestHistoryView() // Changed back to TestHistoryView until we implement PaginatedTestHistoryView
+            TestHistoryView()
+        case .model:
+            ModelView()
         case .products:
             ProductShowcaseView()
         case .diversified:

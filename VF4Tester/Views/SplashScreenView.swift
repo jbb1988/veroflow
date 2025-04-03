@@ -22,6 +22,7 @@ struct SplashScreenView: View {
     @State private var isLogoVisible = false
     @State private var circleScale = 0.3
     @State private var circleOpacity = 0.0
+    @State private var glowScale = 1.0
     @State private var glowOpacity = 0.0
     @Binding var isFinished: Bool
     
@@ -66,8 +67,19 @@ struct SplashScreenView: View {
                     .shadow(color: .white.opacity(0.5), radius: 4)
             }
             
-            // Logo and outer circle
+            // Enhanced logo section with glow
             ZStack {
+                // Add glowing background
+                Image("vero3d")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 560, height: 560)
+                    .foregroundColor(.white)
+                    .blur(radius: 20)
+                    .opacity(glowOpacity)
+                    .scaleEffect(glowScale)
+                
+                // Main logo
                 Image("vero3d")
                     .resizable()
                     .scaledToFit()
@@ -141,16 +153,18 @@ struct SplashScreenView: View {
             isLogoVisible = true
         }
         
-        // Start glow animation
-        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-            glowOpacity = 0.6
+        // Enhanced glow animation with more dramatic effects
+        withAnimation(
+            .easeInOut(duration: 1.5)
+            .repeatForever(autoreverses: true)
+        ) {
+            glowOpacity = 0.8
+            glowScale = 1.25
         }
         
         // Wait for animation time and then set isFinished
         try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
         isFinished = true
-        
-        // No fade out animations - keep everything visible
     }
 
     struct SplashScreenView_Previews: PreviewProvider {
