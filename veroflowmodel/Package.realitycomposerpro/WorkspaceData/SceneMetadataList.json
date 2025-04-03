@@ -8,6 +8,25 @@
       {
         "isExpanded" : true,
         "isLocked" : false
+      },
+      [
+        "AFEC8797-A007-47A4-A498-29566460ACC0",
+        "Root",
+        "model_1"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "AFEC8797-A007-47A4-A498-29566460ACC0",
+        "Root",
+        "model_1",
+        "materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
       }
     ]
   }

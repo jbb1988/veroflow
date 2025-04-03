@@ -1,0 +1,93 @@
+{
+  "709CEFF6-A5AF-432D-8C11-195335D74579" : {
+    "objectMetadataList" : [
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Three_Quarter_Inch_Register"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Three_Inch_Register"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Outlet"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Inlet"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Three_Inch_Turbine"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Three_Quarter_Inch_Turbine"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "709CEFF6-A5AF-432D-8C11-195335D74579",
+        "Root",
+        "Scene",
+        "Pressure_Gauge"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  }
+}

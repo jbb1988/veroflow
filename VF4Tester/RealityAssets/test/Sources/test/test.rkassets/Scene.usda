@@ -1,0 +1,186 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "Reality Composer Pro Version 2.0 (448.100.13)"
+    }
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    def "Scene" (
+        active = true
+        prepend references = @Scene.usdz@
+    )
+    {
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (-0.8951746, 0, -0.1977342)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Inlet" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Inlet/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Outlet" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Outlet/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Three_Quarter_Inch_Register" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Three_Quarter_Inch_Register/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Three_Inch_Register" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Three_Inch_Register/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Three_Inch_Turbine" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Three_Inch_Turbine/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Pressure_Gauge" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Pressure_Gauge/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+
+        over "Three_Quarter_Inch_Turbine" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/Scene/Three_Quarter_Inch_Turbine/DefaultMaterial> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "DefaultMaterial"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "DefaultSurfaceShader"
+                {
+                    color3f inputs:diffuseColor = (0.37254903, 0.89411765, 0.99215686) (
+                        colorSpace = "lin_srgb"
+                    )
+                }
+            }
+        }
+    }
+
+    def "model" (
+        active = true
+        prepend references = @model.usdz@</object>
+    )
+    {
+        float3 xformOp:translate = (-0.46767068, 0.029195264, 0.69086075)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+}
+
