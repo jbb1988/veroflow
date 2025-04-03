@@ -11,22 +11,23 @@ enum ModelComponent: String {
     case pressureGauge = "Pressure_Gauge"
     case threeQuarterTurbine = "Three_Quarter_Inch_Turbine"
 
+    // CHANGE: Update descriptions to exact requested strings
     var description: String {
         switch self {
         case .inlet:
-            return "Water inlet connection point"
+            return "Inlet" // Keep original node name for others, or update as needed
         case .outlet:
-            return "Water outlet connection point"
+            return "Outlet" // Keep original node name for others, or update as needed
         case .threeQuarterRegister:
-            return "Three Quarter inch register for flow measurement"
+            return "3/4\" Register" // Updated exact name
         case .threeInchRegister:
-            return "Three inch register for flow measurement"
+            return "Three Inch Register" // Keep original node name for others, or update as needed
         case .threeInchTurbine:
-            return "Three inch turbine flow meter"
+            return "Three Inch Turbine" // Keep original node name for others, or update as needed
         case .pressureGauge:
-            return "Pressure measurement gauge"
+            return "Pressure Gauge" // Keep original node name for others, or update as needed
         case .threeQuarterTurbine:
-            return "Three Quarter inch turbine flow meter"
+            return "3/4\" Turbine" // Updated exact name
         }
     }
 }
@@ -155,8 +156,8 @@ struct BasicSceneView: UIViewRepresentable {
                         result.worldCoordinates.z
                     )
 
-                    // CHANGE: Replace underscores with spaces for display
-                    let labelText = nodeName.replacingOccurrences(of: "_", with: " ")
+                    // CHANGE: Use the component's description property for the label text
+                    let labelText = component.description // Use the updated description here
                     let label = createLabel(text: labelText, at: position)
                     scnView.scene?.rootNode.addChildNode(label)
                     parent.activeLabel = label
@@ -165,7 +166,7 @@ struct BasicSceneView: UIViewRepresentable {
                     // Optional: If you want to show labels for non-matching nodes too, replace underscores here as well
                     // if let nodeName = detectedNodeName {
                     //     let position = SCNVector3(result.worldCoordinates.x, result.worldCoordinates.y + 0.3, result.worldCoordinates.z)
-                    //     let labelText = nodeName.replacingOccurrences(of: "_", with: " ")
+                    //     let labelText = nodeName.replacingOccurrences(of: "_", with: " ") // Keep original logic for non-enum nodes if needed
                     //     let label = createLabel(text: labelText, at: position)
                     //     scnView.scene?.rootNode.addChildNode(label)
                     //     parent.activeLabel = label
@@ -179,7 +180,7 @@ struct BasicSceneView: UIViewRepresentable {
         private func createLabel(text: String, at position: SCNVector3) -> SCNNode {
              // --- Text Node Setup ---
             let textGeometry = SCNText(string: text, extrusionDepth: 0.01)
-            textGeometry.font = UIFont.systemFont(ofSize: 0.15, weight: .medium)
+            textGeometry.font = UIFont(name: "HelveticaNeue-Medium", size: 0.15) ?? UIFont.systemFont(ofSize: 0.15, weight: .medium) // Fallback to system font
             textGeometry.alignmentMode = CATextLayerAlignmentMode.center.rawValue
             textGeometry.isWrapped = false
 
