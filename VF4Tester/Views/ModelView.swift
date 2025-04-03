@@ -5,11 +5,11 @@ import SceneKit
 enum ModelComponent: String {
     case inlet = "Inlet"
     case outlet = "Outlet"
-    case threeQuarterRegister = "Three_Quarter_Inch_Register" 
+    case threeQuarterRegister = "Three_Quarter_Inch_Register"
     case threeInchRegister = "Three_Inch_Register"
     case threeInchTurbine = "Three_Inch_Turbine"
     case pressureGauge = "Pressure_Gauge"
-    case threeQuarterTurbine = "Three_Quarter_Inch_Turbine"   
+    case threeQuarterTurbine = "Three_Quarter_Inch_Turbine"
 
     var description: String {
         switch self {
@@ -151,16 +151,25 @@ struct BasicSceneView: UIViewRepresentable {
 
                     let position = SCNVector3(
                         result.worldCoordinates.x,
-                        result.worldCoordinates.y + 0.3,
+                        result.worldCoordinates.y + 0.3, // Adjust Y offset as needed
                         result.worldCoordinates.z
                     )
 
-                    let labelText = nodeName 
+                    // CHANGE: Replace underscores with spaces for display
+                    let labelText = nodeName.replacingOccurrences(of: "_", with: " ")
                     let label = createLabel(text: labelText, at: position)
                     scnView.scene?.rootNode.addChildNode(label)
                     parent.activeLabel = label
                 } else {
                     print("--- DEBUG: Tapped node '\(detectedNodeName ?? "nil")' does not correspond to a ModelComponent enum raw value. ---")
+                    // Optional: If you want to show labels for non-matching nodes too, replace underscores here as well
+                    // if let nodeName = detectedNodeName {
+                    //     let position = SCNVector3(result.worldCoordinates.x, result.worldCoordinates.y + 0.3, result.worldCoordinates.z)
+                    //     let labelText = nodeName.replacingOccurrences(of: "_", with: " ")
+                    //     let label = createLabel(text: labelText, at: position)
+                    //     scnView.scene?.rootNode.addChildNode(label)
+                    //     parent.activeLabel = label
+                    // }
                 }
             } else {
                  print("--- DEBUG: Tap did not hit any node. ---")
@@ -168,65 +177,54 @@ struct BasicSceneView: UIViewRepresentable {
         }
 
         private func createLabel(text: String, at position: SCNVector3) -> SCNNode {
-            // --- Text Node Setup ---
-            let textGeometry = SCNText(string: text, extrusionDepth: 0.01) // Keep slight extrusion
-            // Consider a more modern font if available system-wide or bundled
+             // --- Text Node Setup ---
+            let textGeometry = SCNText(string: text, extrusionDepth: 0.01)
             textGeometry.font = UIFont.systemFont(ofSize: 0.15, weight: .medium)
             textGeometry.alignmentMode = CATextLayerAlignmentMode.center.rawValue
-            // Remove fixed container frame to let text determine its size
-            // textGeometry.containerFrame = CGRect(origin: .zero, size: CGSize(width: 5, height: 0.5))
-            textGeometry.isWrapped = false // Adjust if wrapping is needed for very long names
+            textGeometry.isWrapped = false
 
             let textMaterial = SCNMaterial()
-            textMaterial.diffuse.contents = UIColor.white // Text color
+            textMaterial.diffuse.contents = UIColor.white
             textGeometry.materials = [textMaterial]
 
             let textNode = SCNNode(geometry: textGeometry)
-            // Calculate text size for background plane sizing
             let (minText, maxText) = textNode.boundingBox
             let textWidth = CGFloat(maxText.x - minText.x)
             let textHeight = CGFloat(maxText.y - minText.y)
 
-            // Center the pivot of the text node itself
             let textCenterX = minText.x + 0.5 * (maxText.x - minText.x)
             let textCenterY = minText.y + 0.5 * (maxText.y - minText.y)
             textNode.pivot = SCNMatrix4MakeTranslation(textCenterX, textCenterY, 0)
-             // Position text slightly in front of the background
             textNode.position.z = 0.02
 
             // --- Background Plane Setup ---
-            let padding: CGFloat = 0.1 // Padding around the text
+            let padding: CGFloat = 0.1
             let planeWidth = textWidth + 2 * padding
             let planeHeight = textHeight + 2 * padding
-            let cornerRadius = planeHeight * 0.3 // Adjust for desired roundness
+            let cornerRadius = planeHeight * 0.3
 
             let backgroundPlane = SCNPlane(width: planeWidth, height: planeHeight)
             let backgroundMaterial = SCNMaterial()
-            // Use a semi-transparent dark color for the background
-            backgroundMaterial.diffuse.contents = UIColor.black.withAlphaComponent(0.7)
-            backgroundMaterial.lightingModel = .constant // Make it unlit
-            backgroundMaterial.isDoubleSided = true // Visible from both sides
-            // Use CALayer to generate a rounded rectangle image for the material contents
+            backgroundMaterial.lightingModel = .constant
+            backgroundMaterial.isDoubleSided = true
+
             let layer = CALayer()
-            layer.frame = CGRect(x: 0, y: 0, width: planeWidth * 100, height: planeHeight * 100) // Increase resolution for sharpness
+            layer.frame = CGRect(x: 0, y: 0, width: planeWidth * 100, height: planeHeight * 100)
             layer.backgroundColor = UIColor.black.withAlphaComponent(0.7).cgColor
             layer.cornerRadius = cornerRadius * 100
-            UIGraphicsBeginImageContext(layer.frame.size)
+            UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, 0) // Use options for scale
             if let context = UIGraphicsGetCurrentContext() {
                 layer.render(in: context)
                 let image = UIGraphicsGetImageFromCurrentImageContext()
                 UIGraphicsEndImageContext()
                 backgroundMaterial.diffuse.contents = image
             } else {
-                // Fallback to simple color if context fails
-                 backgroundMaterial.diffuse.contents = UIColor.black.withAlphaComponent(0.7)
+                UIGraphicsEndImageContext() // Ensure context is ended even if it fails
+                backgroundMaterial.diffuse.contents = UIColor.black.withAlphaComponent(0.7)
             }
 
-
             backgroundPlane.materials = [backgroundMaterial]
-
             let backgroundNode = SCNNode(geometry: backgroundPlane)
-             // Place background slightly behind the text (at z=0 relative to parent)
             backgroundNode.position.z = 0
 
             // --- Parent Node Setup ---
@@ -234,10 +232,9 @@ struct BasicSceneView: UIViewRepresentable {
             parentNode.addChildNode(backgroundNode)
             parentNode.addChildNode(textNode)
 
-            // Apply position and constraints to the parent node
             parentNode.position = position
-            parentNode.constraints = [SCNBillboardConstraint()] // Makes the whole group face the camera
-            parentNode.renderingOrder = 100 // Render label group on top
+            parentNode.constraints = [SCNBillboardConstraint()]
+            parentNode.renderingOrder = 100
 
             return parentNode
         }
