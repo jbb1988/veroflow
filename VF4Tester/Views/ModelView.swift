@@ -2,7 +2,7 @@ import SwiftUI
 import SceneKit
 
 // Keep SphereComponent enum and SphereInfo struct at top level for accessibility
-enum SphereComponent: String {
+enum ModelComponent: String {
     case inlet = "Inlet"
     case outlet = "Outlet"
     case threeQuarterRegister = "Three Quarter Register"
@@ -31,35 +31,26 @@ enum SphereComponent: String {
     }
 }
 
-struct SphereInfo: Identifiable {
-    let id = UUID()
-    let component: SphereComponent
-    let node: SCNNode
-    
-    var name: String { component.rawValue }
-    var description: String { component.description }
-}
-
 struct ModelView: View {
+    @State private var activeLabel: SCNNode?
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 let darkBlue = Color(red: 0.0, green: 0.094, blue: 0.188)
                 let darkerBlue = Color(red: 0.0, green: 0.047, blue: 0.094)
                 
-                LinearGradient(
-                    gradient: Gradient(colors: [darkBlue, darkerBlue]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                LinearGradient(gradient: Gradient(colors: [darkBlue, darkerBlue]),
+                             startPoint: .topLeading,
+                             endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
                 
                 WeavePattern()
                     .opacity(0.15)
                     .ignoresSafeArea()
                 
                 VStack {
-                    BasicSceneView(scene: makeScene())
+                    BasicSceneView(scene: makeScene(), activeLabel: $activeLabel)
                         .frame(width: geometry.size.width, height: geometry.size.height * 0.9)
                     
                     VStack(spacing: 4) {
@@ -103,10 +94,22 @@ struct ModelView: View {
         
         return scene
     }
+    
+    private func createLabel(text: String, at position: SCNVector3) -> SCNNode {
+        let textGeometry = SCNText(string: text, extrusionDepth: 0)
+        textGeometry.font = UIFont.systemFont(ofSize: 0.3)
+        textGeometry.firstMaterial?.diffuse.contents = UIColor.white
+        
+        let textNode = SCNNode(geometry: textGeometry)
+        textNode.position = position
+        textNode.constraints = [SCNBillboardConstraint()]
+        return textNode
+    }
 }
 
 struct BasicSceneView: UIViewRepresentable {
     let scene: SCNScene
+    @Binding var activeLabel: SCNNode?
     
     func makeUIView(context: Context) -> SCNView {
         let scnView = SCNView(frame: .zero)
@@ -116,10 +119,61 @@ struct BasicSceneView: UIViewRepresentable {
         scnView.allowsCameraControl = true
         scnView.autoenablesDefaultLighting = false
         scnView.antialiasingMode = .multisampling4X
+        
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        scnView.addGestureRecognizer(tapGesture)
+        
         return scnView
     }
     
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
     func updateUIView(_ uiView: SCNView, context: Context) {}
+    
+    class Coordinator: NSObject {
+        var parent: BasicSceneView
+        
+        init(_ parent: BasicSceneView) {
+            self.parent = parent
+        }
+        
+        @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
+            guard let scnView = gestureRecognize.view as? SCNView else { return }
+            
+            // Remove previous label if it exists
+            parent.activeLabel?.removeFromParentNode()
+            parent.activeLabel = nil
+            
+            let location = gestureRecognize.location(in: scnView)
+            let hitResults = scnView.hitTest(location, options: [:])
+            
+            if let result = hitResults.first {
+                let position = SCNVector3(
+                    result.worldCoordinates.x,
+                    result.worldCoordinates.y + 0.5, // Offset above the tapped point
+                    result.worldCoordinates.z
+                )
+                
+                let description = "Part Description" // Replace with actual part description based on hit test
+                let label = createLabel(text: description, at: position)
+                scnView.scene?.rootNode.addChildNode(label)
+                parent.activeLabel = label
+            }
+        }
+        
+        private func createLabel(text: String, at position: SCNVector3) -> SCNNode {
+            let textGeometry = SCNText(string: text, extrusionDepth: 0)
+            textGeometry.font = UIFont.systemFont(ofSize: 0.3)
+            textGeometry.firstMaterial?.diffuse.contents = UIColor.white
+            
+            let textNode = SCNNode(geometry: textGeometry)
+            textNode.position = position
+            textNode.constraints = [SCNBillboardConstraint()]
+            return textNode
+        }
+    }
 }
 
 struct ModelView_Previews: PreviewProvider {
