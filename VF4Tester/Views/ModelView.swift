@@ -101,28 +101,36 @@ struct ModelView: View {
                     .padding(.bottom, 20) // Keep padding for instructions
                 }
 
-                // ADD: Reset Button overlayed directly in ZStack
+                // CHANGE: Reset Button styling to match app theme
                 VStack {
-                    Spacer() // Pushes the HStack to the bottom
+                    Spacer()
                     HStack {
-                        Spacer() // Pushes the Button to the right
+                        Spacer()
                         Button {
-                            resetCameraTrigger = UUID() // Update trigger to signal reset
+                            resetCameraTrigger = UUID()
                         } label: {
-                            Image(systemName: "arrow.counter.clockwise.circle.fill")
-                                .resizable()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.white.opacity(0.8))
-                                .padding()
-                                .background(Color.black.opacity(0.5))
-                                .clipShape(Circle())
+                            HStack {
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 16))
+                                Text("Reset")
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color(red: 0.0, green: 0.094, blue: 0.188))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
                         }
-                        .padding(.trailing, 20) // Padding from the right edge
-                        .padding(.bottom, 20)  // Padding from the bottom edge (adjust if needed)
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
                     }
                 }
-                .padding(.bottom, geometry.safeAreaInsets.bottom) // Add safe area padding to the button container
-                .ignoresSafeArea(.keyboard) // Allow button to stay visible when keyboard appears (if ever needed)
+                .padding(.bottom, geometry.safeAreaInsets.bottom)
+                .ignoresSafeArea(.keyboard)
 
             }
             // ADD: Ignore safe area for the entire ZStack if needed, so background fills edges
