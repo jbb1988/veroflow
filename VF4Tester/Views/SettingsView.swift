@@ -128,7 +128,7 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingMeterTolerances) {
             NavigationView {
-                MeterToleranceView()
+                MeterToleranceChartView()
             }
         }
         .navigationBarTitleDisplayMode(.inline)

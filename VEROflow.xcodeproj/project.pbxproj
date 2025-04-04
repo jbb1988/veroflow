@@ -20,6 +20,8 @@
 		2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */; };
 		2D1BBBE82D760521002A6DC8 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE72D760521002A6DC8 /* MainContentView.swift */; };
 		2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */; };
+		2D1CCE4A2DA01721002A6493 /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1CCE492DA01721002A6493 /* OnboardingManager.swift */; };
+		2D1CCE4C2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1CCE4B2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift */; };
 		2D1CE5742D9F10BE00721209 /* veroflowmodel.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */; };
 		2D26D29D2D976945006DC2D2 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D26D29B2D976945006DC2D2 /* Color+Hex.swift */; };
 		2D2D1CFE2D64E2C9008DB09B /* Error_Handling_Improvements.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */; };
@@ -101,6 +103,8 @@
 		2D1BBBDD2D7601E6002A6DC8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2D1BBBE72D760521002A6DC8 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTypes.swift; sourceTree = "<group>"; };
+		2D1CCE492DA01721002A6493 /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
+		2D1CCE4B2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveOnboardingOverlayView.swift; sourceTree = "<group>"; };
 		2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = veroflowmodel.usdz; sourceTree = "<group>"; };
 		2D26D29B2D976945006DC2D2 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		2D2D1CFD2D64E2C9008DB09B /* Error_Handling_Improvements.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Error_Handling_Improvements.txt; sourceTree = "<group>"; };
@@ -296,6 +300,7 @@
 				2D7C14022D9C4B9E0090D615 /* AuthView.swift */,
 				2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */,
 				2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */,
+				2D1CCE4B2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -307,6 +312,7 @@
 				2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */,
 				2D7C14002D9C4B8C0090D615 /* AuthManager.swift */,
 				2D7C14042D9C4D090090D615 /* AuthManager.swift */,
+				2D1CCE492DA01721002A6493 /* OnboardingManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -401,6 +407,7 @@
 				2D0834BA2D972E3100A920CE /* PaginatedTestHistoryView.swift in Sources */,
 				2DC2DB942D83819400497AA8 /* ShopView.swift in Sources */,
 				2D94266F2D92D70A0037E7B3 /* ShopView.swift in Sources */,
+				2D1CCE4C2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift in Sources */,
 				2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
@@ -429,6 +436,7 @@
 				2DE4931D2D723462003DD4FE /* AccuracyToleranceView.swift in Sources */,
 				2D26D29D2D976945006DC2D2 /* Color+Hex.swift in Sources */,
 				2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */,
+				2D1CCE4A2DA01721002A6493 /* OnboardingManager.swift in Sources */,
 				2D7C14052D9C4D090090D615 /* AuthManager.swift in Sources */,
 				2D1BBBD72D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift in Sources */,
 				2DDFF9E52D9E01A300C14E23 /* UserProfileView.swift in Sources */,

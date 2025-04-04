@@ -4,6 +4,8 @@ import Foundation
 #if os(iOS)
 import UIKit
 #endif
+import SafariServices
+import WebKit
 
 // Add this near the top, before other definitions
 struct ContentSpacing {
@@ -488,5 +490,78 @@ struct FilterPill: View {
 extension View {
     func standardContentSpacing() -> some View {
         self.padding(.top, ContentSpacing.headerToContent)
+    }
+}
+
+// ADD: SafariView struct
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        return SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
+        // No updates needed for SFSafariViewController
+    }
+}
+
+// ADD: AnimatedSafariButton struct
+struct AnimatedSafariButton: View {
+    @State private var isAnimating = false
+    @State private var animateShine = false
+    let gradient = Gradient(colors: [.red, .blue])
+    let action: () -> Void
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                gradient: gradient,
+                startPoint: isAnimating ? .topTrailing : .bottomLeading,
+                endPoint: isAnimating ? .bottomTrailing : .center
+            )
+            .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isAnimating)
+            .frame(width: 108, height: 108)
+            .clipShape(Circle())
+            .blur(radius: 8)
+
+            Button(action: {
+                withAnimation(.easeIn(duration: 0.3)) {
+                    animateShine = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        animateShine = false
+                    }
+                }
+                action()
+            }) {
+                Image("mars3d")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 95, height: 95)
+                    .clipShape(Circle())
+            }
+            .overlay(
+                GeometryReader { geometry in
+                    if animateShine {
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.white.opacity(0.0), Color.white.opacity(0.8), Color.white.opacity(0.0)]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .rotationEffect(.degrees(30))
+                            .offset(x: -geometry.size.width)
+                            .offset(x: animateShine ? geometry.size.width * 2 : -geometry.size.width)
+                            .animation(.linear(duration: 0.6), value: animateShine)
+                    }
+                }
+                .clipShape(Circle())
+            )
+        }
+        .onAppear { isAnimating = true }
     }
 }

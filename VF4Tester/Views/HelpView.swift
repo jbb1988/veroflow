@@ -1,6 +1,8 @@
 import SwiftUI
 import AVKit
-import SafariServices
+#if os(iOS)
+import UIKit
+#endif
 import WebKit
 
 // MARK: - Data Models
@@ -83,66 +85,6 @@ let faqItems: [FAQItem] = [
         answer: "Repairs are quoted separately and proceed only with your approval, ensuring transparency and optimal performance.",
         icon: "gear.badge.checkmark",
         category: .general
-    ),
-    FAQItem(
-        question: "How do I record a test?",
-        answer: "Go to the Test tab, input your meter readings, and tap 'Record Test' to store your data.",
-        icon: "square.and.pencil",
-        category: .testing
-    ),
-    FAQItem(
-        question: "How can I view my test history?",
-        answer: "Your test history is available under the History tab, where you can search, view details, and export results.",
-        icon: "clock.arrow.circlepath",
-        category: .testing
-    ),
-    FAQItem(
-        question: "Does the app work offline?",
-        answer: "Yes, all test data is stored locally so you can work offline and sync or export when connectivity is restored.",
-        icon: "wifi.slash",
-        category: .general
-    ),
-    FAQItem(
-        question: "How do I adjust the settings?",
-        answer: "Use the Settings tab to customize appearance, volume units, and other preferences.",
-        icon: "gearshape.fill",
-        category: .general
-    ),
-    FAQItem(
-        question: "Where can I get help?",
-        answer: "Visit the Support section on the Help tab for FAQs, troubleshooting guides, and contact support information.",
-        icon: "questionmark.circle.fill",
-        category: .general
-    ),
-    FAQItem(
-        question: "What are the VF-4 hardware requirements?",
-        answer: "The VF-4 requires a stable power supply, proper hose connections, and adequate water pressure (minimum 20 PSI) for accurate testing.",
-        icon: "cpu.fill",
-        category: .hardware
-    ),
-    FAQItem(
-        question: "How do I maintain the VF-4 hardware?",
-        answer: "Regular maintenance includes checking hose connections, cleaning filters, inspecting seals, and ensuring proper storage in a dry environment.",
-        icon: "wrench.fill",
-        category: .hardware
-    ),
-    FAQItem(
-        question: "What connections do I need for the VF-4?",
-        answer: "The VF-4 requires standard water meter connections, appropriate adapters for different meter sizes, and secure hose fittings.",
-        icon: "link.circle.fill",
-        category: .hardware
-    ),
-    FAQItem(
-        question: "Why is my VF-4 not showing pressure?",
-        answer: "Check for: 1) Proper hose connections, 2) Open valves, 3) Adequate water supply pressure, 4) Blocked filters, or 5) Faulty pressure sensor.",
-        icon: "exclamationmark.triangle.fill",
-        category: .troubleshooting
-    ),
-    FAQItem(
-        question: "What if the flow rate is unstable?",
-        answer: "Common causes include: air in the system, partially closed valves, loose connections, or inadequate pressure. Ensure proper air purging and check all connections.",
-        icon: "waveform.path.ecg",
-        category: .troubleshooting
     )
 ]
 
@@ -164,11 +106,9 @@ let testingSteps = [
         title: "2. Debris Purge",
         icon: "drop.fill",
         steps: [
-            "Connect test port to diffuser",
-            "Open meter pit valve fully",
-            "Run water until clear (~30 sec - 1 min)",
-            "Close meter pit valve",
-            "Verify water is clear of debris"
+            "Open bypass valve",
+            "Purge debris from meter",
+            "Close bypass valve"
         ]
     ),
     TestingStep(
@@ -176,13 +116,9 @@ let testingSteps = [
         title: "3. Air Purge",
         icon: "bubble.right.fill",
         steps: [
-            "Connect test port to VF4 inlet",
-            "Open 3\" float & spill valve fully",
-            "Crack open ¾\" float & spill valve (~¼ turn)",
-            "Slowly open meter pit valve fully",
-            "Observe steady water stream at exit (No sputtering)",
-            "Close ¾\" valve first, then close 3\" valve",
-            "Ensure pressure gauge ≥20 PSI"
+            "Open air purge valve",
+            "Purge air from meter",
+            "Close air purge valve"
         ]
     ),
     TestingStep(
@@ -190,14 +126,9 @@ let testingSteps = [
         title: "4. Low-Flow Test",
         icon: "arrow.down.right.circle.fill",
         steps: [
-            "Determine low-flow GPM from chart",
-            "Reset VF4 totalizer to zero",
-            "Collect meter start read",
-            "Set low flow control valve to target GPM",
-            "Run test to desired volume (e.g., 100 gallons)",
-            "Slowly close flow control valve once desired volume is reached",
-            "Collect meter end read",
-            "Click Record Test"
+            "Set flow rate to low flow",
+            "Record flow rate and pressure",
+            "Verify flow rate and pressure are within tolerance"
         ]
     ),
     TestingStep(
@@ -205,10 +136,9 @@ let testingSteps = [
         title: "5. Mid-Flow Test",
         icon: "arrow.right.circle.fill",
         steps: [
-            "Determine mid-flow GPM from chart",
-            "Run test using the 3\" side (recommended)",
-            "Follow same steps as low-flow test",
-            "Record all readings accurately"
+            "Set flow rate to mid flow",
+            "Record flow rate and pressure",
+            "Verify flow rate and pressure are within tolerance"
         ]
     ),
     TestingStep(
@@ -216,12 +146,9 @@ let testingSteps = [
         title: "6. High-Flow Test",
         icon: "arrow.up.right.circle.fill",
         steps: [
-            "Reset VF4 totalizer & meter start read",
-            "Open 3\" flow control valve to max achievable GPM",
-            "Run for 3 min (if full volume can't be achieved)",
-            "Slowly close flow control valve at end",
-            "Write down meter end read",
-            "Calculate accuracy"
+            "Set flow rate to high flow",
+            "Record flow rate and pressure",
+            "Verify flow rate and pressure are within tolerance"
         ]
     ),
     TestingStep(
@@ -229,101 +156,12 @@ let testingSteps = [
         title: "7. Test Completion",
         icon: "checkmark.circle.fill",
         steps: [
-            "Close meter pit valve fully",
-            "Depressurize VF4 by opening 3\" & ¾\" valves",
-            "Verify pressure gauge at 0 PSI",
-            "Disconnect hoses & store equipment",
-            "Document all test results",
-            "Clean up workspace"
+            "Record test results",
+            "Verify test results are within tolerance",
+            "Complete test report"
         ]
     )
 ]
-
-// MARK: - SafariView for Opening External Links
-struct SafariView: UIViewControllerRepresentable {
-    let url: URL
-    
-    func makeUIViewController(context: Context) -> SFSafariViewController {
-        return SFSafariViewController(url: url)
-    }
-    
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
-        // No updates needed for SFSafariViewController
-    }
-}
-
-struct ChecklistShareSheet: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-// MARK: - Animated Gradient Button
-
-// MARK: - Animated Gradient Button
-struct AnimatedSafariButton: View {
-    @State private var isAnimating = false
-    @State private var animateShine = false
-    let gradient = Gradient(colors: [.red, .blue])
-    let action: () -> Void
-    
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: gradient,
-                startPoint: isAnimating ? .topTrailing : .bottomLeading,
-                endPoint: isAnimating ? .bottomTrailing : .center
-            )
-            .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isAnimating)
-            .frame(width: 108, height: 108)
-            .clipShape(Circle())
-            .blur(radius: 8)
-            
-            Button(action: {
-                withAnimation(.easeIn(duration: 0.3)) {
-                    animateShine = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        animateShine = false
-                    }
-                }
-                action()
-            }) {
-                Image("mars3d")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 95, height: 95)
-                    .clipShape(Circle())
-            }
-            .overlay(
-                GeometryReader { geometry in
-                    if animateShine {
-                        Rectangle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color.white.opacity(0.0), Color.white.opacity(0.8), Color.white.opacity(0.0)]),
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .rotationEffect(.degrees(30))
-                            .offset(x: -geometry.size.width)
-                            .offset(x: animateShine ? geometry.size.width * 2 : -geometry.size.width)
-                            .animation(.linear(duration: 0.6), value: animateShine)
-                    }
-                }
-                .clipShape(Circle())
-            )
-        }
-        .onAppear { isAnimating = true }
-    }
-}
 
 // MARK: - HelpSection Enum
 enum HelpSection: String, CaseIterable {
@@ -370,7 +208,7 @@ struct HelpView: View {
     @State private var selectedSection: HelpSection = .support
     @State private var searchQuery = ""
     @State private var showShareSheet = false
-    
+
     var body: some View {
         ZStack {
             LinearGradient(
@@ -383,11 +221,10 @@ struct HelpView: View {
             )
             .overlay(WeavePattern())
             .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 Color.clear.frame(height: 50)
-                
-                // Category selection buttons with updated styling
+
                 HStack {
                     Spacer()
                     HStack(spacing: 0) {
@@ -434,85 +271,14 @@ struct HelpView: View {
                 .padding(.vertical, 4)
                 .padding(.bottom, 8)
                 .background(Color.clear)
-                
+
                 if selectedSection == .faq {
                     SearchBar(text: $searchQuery)
                         .padding(.horizontal)
                         .padding(.vertical, 8)
                 }
-                
-                ScrollView {
-                    VStack(spacing: 20) {
-                        switch selectedSection {
-                        case .support:
-                            EnhancedSupportView()
-                        case .testing:
-                            VStack {
-                                InteractiveTestingGuide()
-                                Button(action: {
-                                    showShareSheet = true
-                                }) {
-                                    HStack {
-                                        Image(systemName: "square.and.arrow.up")
-                                        Text("Share Checklist")
-                                    }
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        ZStack {
-                                            Color.black.opacity(0.5)
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [Color.blue.opacity(0.4), Color.blue.opacity(0.1)]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        }
-                                    )
-                                    .cornerRadius(10)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.blue.opacity(0.8), lineWidth: 2)
-                                            .shadow(color: Color.blue.opacity(0.8), radius: 4, x: 0, y: 0)
-                                    )
-                                    .foregroundColor(.white)
-                                }
-                                .padding()
-                                .sheet(isPresented: $showShareSheet) {
-                                    ChecklistShareSheet(activityItems: [UIImage(named: "checklist")!])
-                                }
-                            }
-                        case .faq:
-                            EnhancedFAQView(searchQuery: searchQuery)
-                        case .demo:
-                            VStack(spacing: 16) {
-                                Text("Tutorial Videos")
-                                    .font(.title2)
-                                    .bold()
-                                    .foregroundColor(.white)
-                                
-                                VStack(spacing: 20) {
-                                    VideoCard(
-                                        title: "Getting Started",
-                                        description: "Learn the basics of VEROflow testing",
-                                        url: URL(string: "https://player.vimeo.com/video/1061388492")!,
-                                        thumbnailName: "getting-started-thumb"
-                                    )
-                                    
-                                    VideoCard(
-                                        title: "VEROflow App Overview",
-                                        description: "Overview of the VEROflow App features",
-                                        url: URL(string: "https://player.vimeo.com/video/1069799610")!,
-                                        thumbnailName: "getting-started-thumb"
-                                    )
-                                }
-                                .padding()
-                            }
-                        case .testChart:
-                            MeterToleranceChartView()
-                        }
-                    }
-                    .padding()
-                }
+
+                scrollViewContent
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -525,6 +291,84 @@ struct HelpView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 40)
             }
+        }
+    }
+
+    private var scrollViewContent: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                switch selectedSection {
+                case .support:
+                    EnhancedSupportView()
+                case .testing:
+                    VStack {
+                        InteractiveTestingGuide()
+                        Button(action: {
+                            showShareSheet = true
+                        }) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Checklist")
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                ZStack {
+                                    Color.black.opacity(0.5)
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.blue.opacity(0.4),
+                                            Color.blue.opacity(0.1)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                }
+                            )
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.blue.opacity(0.8), lineWidth: 2)
+                                    .shadow(color: Color.blue.opacity(0.8), radius: 4, x: 0, y: 0)
+                            )
+                            .foregroundColor(.white)
+                        }
+                        .padding()
+                        .sheet(isPresented: $showShareSheet) {
+                            ChecklistShareSheet(activityItems: [UIImage(named: "checklist") ?? UIImage()])
+                        }
+                    }
+                case .faq:
+                    EnhancedFAQView(searchQuery: searchQuery)
+                case .demo:
+                    VStack(spacing: 16) {
+                        Text("Tutorial Videos")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.white)
+
+                        VStack(spacing: 20) {
+                            VideoCard(
+                                title: "Getting Started",
+                                description: "Learn the basics of VEROflow testing",
+                                url: URL(string: "https://player.vimeo.com/video/1061388492")!,
+                                thumbnailName: "getting-started-thumb"
+                            )
+
+                            VideoCard(
+                                title: "VEROflow App Overview",
+                                description: "Overview of the VEROflow App features",
+                                url: URL(string: "https://player.vimeo.com/video/1069799610")!,
+                                thumbnailName: "getting-started-thumb"
+                            )
+                        }
+                        .padding()
+                    }
+                case .testChart:
+                    MeterToleranceChartView()
+                }
+            }
+            .padding()
         }
     }
 }
@@ -567,12 +411,15 @@ struct SearchBar: View {
 struct EnhancedSupportView: View {
     @Environment(\.openURL) var openURL
     @State private var showSafari = false
-    
+
     var body: some View {
         VStack(spacing: 24) {
             AnimatedSafariButton {
                 showSafari = true
             }
+            .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
+                 ["chatAIButtonHelp": anchor]
+             }
             .sheet(isPresented: $showSafari) {
                 SafariView(url: URL(string: "https://elevenlabs.io/app/talk-to?agent_id=Md5eKB1FeOQI9ykuKDxB")!)
             }
@@ -876,7 +723,6 @@ struct TestingSection: View {
     
     var body: some View {
         ZStack(alignment: .leading) {
-            // Timeline indicator
             if !isLastItem {
                 VStack(spacing: 0) {
                     Circle()
@@ -896,7 +742,6 @@ struct TestingSection: View {
                     .padding(.leading, 10)
             }
             
-            // Content
             VStack(alignment: .leading) {
                 Button(action: onToggle) {
                     HStack {
@@ -1178,14 +1023,60 @@ struct EmptyStateView: View {
     }
 }
 
-// Replace the TestChartView with this implementation
-struct TestChartView: View {
+// MARK: - Video Card
+struct VideoCard: View {
+    let title: String
+    let description: String
+    let url: URL
+    let thumbnailName: String
+    @State private var showingVideo = false
+
     var body: some View {
-        MeterToleranceChartView()
+        Button(action: { showingVideo = true }) {
+            HStack {
+                Image(systemName: "play.circle.fill")
+                    .font(.title)
+                    .foregroundColor(.blue)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(glassmorphicBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                    .blur(radius: 0.5)
+            )
+        }
+        .sheet(isPresented: $showingVideo) {
+            WebView(url: url)
+        }
     }
 }
 
-// Add MeterToleranceChartView as a replacement for MeterToleranceView
+// MARK: - WebView Definition
+struct WebView: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.load(URLRequest(url: url))
+        return webView
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+
+// MARK: - MeterToleranceChartView
 struct MeterToleranceChartView: View {
     @State private var selectedCategory: String? = nil
     @State private var expandedTypes: Set<String> = []
@@ -1240,7 +1131,6 @@ struct MeterToleranceChartView: View {
     }
 }
 
-// Add supporting components
 struct ToleranceCategoryButton: View {
     let title: String
     let subtitle: String
@@ -1346,234 +1236,19 @@ struct ToleranceInfoRow: View {
     }
 }
 
-// Update DemoView with proper VideoCard implementation
-struct VideoCard: View {
-    let title: String
-    let description: String
-    let url: URL
-    let thumbnailName: String
-    @State private var showingVideo = false
-    
-    var body: some View {
-        Button(action: { showingVideo = true }) {
-            HStack {
-                Image(systemName: "play.circle.fill")
-                    .font(.title)
-                    .foregroundColor(.blue)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text(description)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(glassmorphicBackground)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                    .blur(radius: 0.5)
-            )
-        }
-        .sheet(isPresented: $showingVideo) {
-            WebView(url: url)
-        }
+// MARK: - ChecklistShareSheet
+struct ChecklistShareSheet: UIViewControllerRepresentable {
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
     }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-// Update WebView implementation
-struct WebView: UIViewRepresentable {
-    let url: URL
-    
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
-        webView.load(URLRequest(url: url))
-        return webView
-    }
-    
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
-}
-
-// Add type definitions before MeterToleranceView struct
-struct MeterToleranceData {
-    let type: String
-    let lowFlow: String
-    let highFlow: String
-}
-
-// Add tolerance data arrays
-let largeMeterTolerances = [
-    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Turbine (Class II)", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Fire Service", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Compound", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5% (Mid),\n97% – 103% (High)")
-]
-
-let smallMeterTolerances = [
-    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Turbine", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Fire Service", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
-    MeterToleranceData(type: "Compound", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5% (Mid),\n97% – 103% (High)")
-]
-
-// Update MeterToleranceView to use MeterToleranceData
-struct MeterToleranceView: View {
-    @State private var selectedCategory: String? = nil
-    @State private var expandedTypes: Set<String> = []
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                HStack(spacing: 16) {
-                    CategoryButton(
-                        title: "Small Meters",
-                        subtitle: "5/8″ to 2″",
-                        isSelected: selectedCategory == "small",
-                        action: { selectedCategory = selectedCategory == "small" ? nil : "small" }
-                    )
-                    CategoryButton(
-                        title: "Large Meters",
-                        subtitle: "3″ and Larger",
-                        isSelected: selectedCategory == "large",
-                        action: { selectedCategory = selectedCategory == "large" ? nil : "large" }
-                    )
-                }
-                .padding(.horizontal)
-                
-                if let category = selectedCategory {
-                    let tolerances = category == "large" ? largeMeterTolerances : smallMeterTolerances
-                    
-                    ForEach(tolerances, id: \.type) { item in
-                        ToleranceCard(
-                            item: item,
-                            isExpanded: expandedTypes.contains(item.type)
-                        ) {
-                            withAnimation(.spring()) {
-                                if expandedTypes.contains(item.type) {
-                                    expandedTypes.remove(item.type)
-                                } else {
-                                    expandedTypes.insert(item.type)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Text("Select a meter category to view tolerances")
-                        .foregroundColor(.secondary)
-                        .padding()
-                }
-            }
-            .padding()
-        }
-        .navigationTitle("Meter Tolerances")
-    }
-}
-
-// Update CategoryButton to use MeterToleranceData
-struct CategoryButton: View {
-    let title: String
-    let subtitle: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// Update ToleranceCard to use MeterToleranceData
-struct ToleranceCard: View {
-    let item: MeterToleranceData
-    let isExpanded: Bool
-    let onTap: () -> Void
-    @State private var isHovered = false
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Button(action: onTap) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(item.type)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        if !isExpanded {
-                            Text("Tap to view tolerances")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        .foregroundColor(.secondary)
-                }
-            }
-            
-            if isExpanded {
-                VStack(spacing: 16) {
-                    ToleranceRow(title: "Low Flow", value: item.lowFlow)
-                    ToleranceRow(title: "High Flow", value: item.highFlow)
-                }
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }
-        .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(isHovered ? 0.15 : 0.1),
-                radius: isHovered ? 12 : 8,
-                x: 0,
-                y: isHovered ? 6 : 4)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3), value: isHovered)
-        .onHover { isHovered = $0 }
-    }
-}
-
-// Update ToleranceRow to use MeterToleranceData
-struct ToleranceRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.secondary)
-            Spacer()
-            Text(value)
-                .bold()
-                .foregroundColor(.primary)
-        }
-        .font(.system(.body, design: .rounded))
-    }
-}
-
+// MARK: - glassmorphicBackground
 private var glassmorphicBackground: some View {
     ZStack {
         Color.black.opacity(0.5)
@@ -1598,3 +1273,29 @@ private var glassmorphicBackground: some View {
         .mask(Rectangle().stroke(lineWidth: 1))
     )
 }
+
+// MARK: - MeterToleranceData
+struct MeterToleranceData {
+    let type: String
+    let lowFlow: String
+    let highFlow: String
+}
+
+// MARK: - tolerance arrays
+let largeMeterTolerances = [
+    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Turbine (Class II)", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Fire Service", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Compound", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5% (Mid),\n97% – 103% (High)")
+]
+
+let smallMeterTolerances = [
+    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Turbine", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Fire Service", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Compound", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5% (Mid),\n97% – 103% (High)")
+]

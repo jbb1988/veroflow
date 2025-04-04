@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import SafariServices
-#endif
 
 struct NavigationMenuView: View {
     @Binding var isMenuOpen: Bool
@@ -45,7 +42,7 @@ struct NavigationMenuView: View {
                         .background(Color.white.opacity(0.05))
                         .cornerRadius(12)
                     }
-                    .standardContentSpacing()
+                    .padding(.top, 10)
                     .sheet(isPresented: $showProfile) {
                         UserProfileView()
                     }
@@ -61,6 +58,9 @@ struct NavigationMenuView: View {
                                 showSafari = true
                             }
                             .scaleEffect(1.2)
+                            .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
+                                ["chatAIButtonMenu": anchor]
+                            }
                             Spacer()
                         }
                         Text("MARS Chat AI")
@@ -82,11 +82,31 @@ struct NavigationMenuView: View {
     
     private var menuButtons: some View {
         ForEach(menuItems, id: \.self) { item in
-            MenuButton(
-                item: item,
-                isSelected: selectedTab == item,
-                onTap: { onTabSelect(item) }
-            )
+            if item == .history {
+                MenuButton(
+                    item: item,
+                    isSelected: selectedTab == item,
+                    onTap: { onTabSelect(item) }
+                )
+                .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
+                    ["historyMenuItem": anchor]
+                }
+            } else if item == .help {
+                MenuButton(
+                    item: item,
+                    isSelected: selectedTab == item,
+                    onTap: { onTabSelect(item) }
+                )
+                .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
+                    ["helpMenuItem": anchor]
+                }
+            } else {
+                MenuButton(
+                    item: item,
+                    isSelected: selectedTab == item,
+                    onTap: { onTabSelect(item) }
+                )
+            }
         }
     }
 }
@@ -125,16 +145,3 @@ private struct MenuButton: View, Equatable {
         .buttonStyle(PlainButtonStyle())
     }
 }
-
-#if os(iOS)
-private struct MenuSafariView: UIViewControllerRepresentable {
-    let url: URL
-    
-    func makeUIViewController(context: Context) -> SFSafariViewController {
-        let controller = SFSafariViewController(url: url)
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
-}
-#endif

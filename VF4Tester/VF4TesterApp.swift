@@ -10,11 +10,11 @@ private let sharedViewModel = TestViewModel()
 struct VF4TesterApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authManager = AuthManager()
-    @AppStorage("showOnboarding") private var showOnboarding: Bool = true
-    @AppStorage("hasOpened") private var hasOpened: Bool = false
     @State private var showSplash = true
-    @State private var isFirstLaunch = true  // ADD: Track if this is first launch
-    
+    @State private var isFirstLaunch = true
+
+    @StateObject private var onboardingManager = OnboardingManager()
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -22,12 +22,13 @@ struct VF4TesterApp: App {
                     if authManager.isAuthenticated {
                         MainContentView()
                             .environmentObject(sharedViewModel)
+                            .environmentObject(onboardingManager)
                             .preferredColorScheme(.dark)
-                            // CHANGE: Use older onChange syntax
-                            .onChange(of: authManager.isAuthenticated) { newValue in
-                                if newValue {
+                            .onChange(of: authManager.isAuthenticated) { isAuthenticated in
+                                if isAuthenticated {
                                     showSplash = true
                                     startSplashTimer()
+                                    onboardingManager.startOnboardingIfNeeded()
                                 }
                             }
                     } else {
@@ -35,7 +36,7 @@ struct VF4TesterApp: App {
                             .preferredColorScheme(.dark)
                     }
                 }
-                
+
                 if showSplash {
                     SplashScreenView(isFinished: $showSplash)
                         .transition(.opacity)
@@ -46,24 +47,21 @@ struct VF4TesterApp: App {
             .environmentObject(authManager)
             .animation(.easeOut(duration: 0.5), value: showSplash)
             .task {
-                if showOnboarding {
-                    hasOpened = false
-                    UserDefaults.standard.removeObject(forKey: "hasOpened")
-                }
-                
-                // Only show splash on fresh launch
                 if isFirstLaunch {
                     showSplash = true
                     startSplashTimer()
                     isFirstLaunch = false
                 }
-                
+
                 await sharedViewModel.loadData()
+
+                if authManager.isAuthenticated {
+                    onboardingManager.startOnboardingIfNeeded()
+                }
             }
         }
     }
-    
-    // ADD: Helper function to manage splash timer
+
     private func startSplashTimer() {
         Task {
             try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
