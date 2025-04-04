@@ -1477,52 +1477,147 @@ struct VisualEffectBlur: UIViewRepresentable {
     }
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) { }
 }
+ 
+// ADD: Particle emitter view
+private struct ParticleEmitterView: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        // Check if Spark image exists, otherwise use a fallback
+        let sparkImage = UIImage(named: "Spark")?.cgImage
 
-// MARK: - TestRecordedNotification View
-struct TestRecordedNotification: View {
-    var body: some View {
-        ZStack {
-            VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(LinearGradient(gradient: Gradient(colors: [Color("AccentColorLight"), Color("AccentColorDark")]),
-                                     startPoint: .topLeading,
-                                     endPoint: .bottomTrailing))
-                .opacity(0.85)
-                .blendMode(.overlay)
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
-                    .shadow(color: Color.black.opacity(0.4), radius: 4, x: 0, y: 2)
-                Text("Test Recorded Successfully")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
+        let size = UIScreen.main.bounds.size
+        let host = UIView(frame: CGRect(x: 0.0, y: 0.0, width: size.width, height: size.height))
+        
+        let particlesLayer = CAEmitterLayer()
+        particlesLayer.frame = CGRect(x: 0.0, y: 0.0, width: size.width, height: size.height)
+        
+        host.layer.addSublayer(particlesLayer)
+        host.layer.masksToBounds = true
+        
+        particlesLayer.backgroundColor = UIColor.clear.cgColor
+        particlesLayer.emitterShape = .point
+        // Position emitter slightly above center to originate near the notification
+        particlesLayer.emitterPosition = CGPoint(x: size.width / 2, y: (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20) + 40)
+        particlesLayer.emitterSize = CGSize(width: 0.0, height: 0.0)
+        particlesLayer.emitterMode = .outline
+        particlesLayer.renderMode = .additive
+        
+        // Parent cell (invisible, controls burst timing/position)
+        let parentCell = CAEmitterCell()
+        parentCell.name = "Parent"
+        parentCell.birthRate = 1.0
+        parentCell.lifetime = 0.1
+        parentCell.velocity = 0
+        parentCell.emissionRange = .pi * 2
+        parentCell.scale = 0.0
+
+        // Trail subcell (the visible spark)
+        let trailCell = CAEmitterCell()
+        trailCell.contents = sparkImage
+        trailCell.name = "Trail"
+        trailCell.birthRate = 150.0
+        trailCell.lifetime = 1.5
+        trailCell.lifetimeRange = 0.5
+        trailCell.beginTime = 0.01
+        trailCell.velocity = 150.0
+        trailCell.velocityRange = 50.0
+        trailCell.xAcceleration = 0
+        trailCell.yAcceleration = 300.0
+        trailCell.emissionLongitude = -.pi / 2
+        trailCell.emissionRange = .pi / 4
+        trailCell.scale = 0.4
+        trailCell.scaleRange = 0.2
+        trailCell.scaleSpeed = -0.3
+        trailCell.alphaSpeed = -0.8
+        trailCell.spin = .pi * 2
+        trailCell.spinRange = .pi
+        trailCell.color = UIColor(red: 0.2, green: 0.6, blue: 1.0, alpha: 1.0).cgColor
+        trailCell.redRange = 0.3
+        trailCell.greenRange = 0.3
+        trailCell.blueRange = 0.2
+
+        // Assign trailCell as the subcell of parentCell
+        parentCell.emitterCells = [trailCell]
+        particlesLayer.emitterCells = [parentCell]
+
+        if sparkImage == nil {
+            print("Warning: Spark image not found for ParticleEmitterView.")
+        }
+        
+        return host
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+    }
+}
+// Rmoved the duplicate ParticleEmitterView struct definition that was here.
+    
+    
+    // MARK: - TestRecordedNotification View
+    struct TestRecordedNotification: View {
+        @State private var showFireworks = true
+        
+        var body: some View {
+            ZStack {
+                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(LinearGradient(gradient: Gradient(colors: [Color("AccentColorLight"), Color("AccentColorDark")]),
+                                         startPoint: .topLeading,
+                                         endPoint: .bottomTrailing))
+                    .opacity(0.85)
+                    .blendMode(.overlay)
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .shadow(color: Color.black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    Text("Test Recorded Successfully")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                
+                // Conditionally show Fireworks overlay
+                if showFireworks {
+                    ParticleEmitterView()
+                        .allowsHitTesting(false)
+                        .transition(.opacity.animation(.easeIn(duration: 0.5))) // Optional fade in/out
+                }
             }
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 20)
-        .padding(.top, (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20) + 16)
-        .transition(.move(edge: .top).combined(with: .opacity))
-        .zIndex(1)
-    }
-}
-
-// MARK: - Extension to make UIImagePickerController.SourceType Identifiable
-extension UIImagePickerController.SourceType: Identifiable {
-    public var id: Int {
-        switch self {
-        case .camera:
-            return 1
-        case .photoLibrary:
-            return 2
-        case .savedPhotosAlbum:
-            return 3
-        @unknown default:
-            return 0
+            .padding(.top, (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20) + 16)
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .zIndex(1)
+            .onAppear {
+                // Trigger fireworks on appear
+                withAnimation {
+                    showFireworks = true
+                }
+                // Hide fireworks after a delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { // Reduced duration
+                    withAnimation {
+                        showFireworks = false
+                    }
+                }
+            }
         }
     }
-}
+    
+    // MARK: - Extension to make UIImagePickerController.SourceType Identifiable
+    extension UIImagePickerController.SourceType: Identifiable {
+        public var id: Int {
+            switch self {
+            case .camera:
+                return 1
+            case .photoLibrary:
+                return 2
+            case .savedPhotosAlbum:
+                return 3
+            @unknown default:
+                return 0
+            }
+        }
+    }
