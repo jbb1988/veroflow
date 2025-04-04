@@ -79,26 +79,30 @@ class OnboardingManager: ObservableObject {
         print("[OnboardingManager] Current step: \(currentStepIndex), Total steps: \(steps.count)")
         
         if currentStepIndex < steps.count - 1 {
-            // If we're moving to a menu item step, show the menu
             let nextStep = steps[currentStepIndex + 1]
-            if nextStep.targetElementID.contains("MenuItem") && !showMenu {
+            
+            // If moving to or from a menu item step
+            if nextStep.targetElementID.contains("MenuItem") {
                 print("[OnboardingManager] Opening menu for menu item step")
                 showMenu = true
                 // Give time for the menu to appear and register its frame
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     self.currentStepIndex += 1
                     print("[OnboardingManager] Advanced to step \(self.currentStepIndex): \(self.steps[self.currentStepIndex].title)")
                 }
-                return
+            } else {
+                // If we're leaving a menu item step, keep the menu open
+                let currentStep = steps[currentStepIndex]
+                if !currentStep.targetElementID.contains("MenuItem") {
+                    showMenu = false
+                }
+                currentStepIndex += 1
             }
             
-            currentStepIndex += 1
-            print("[OnboardingManager] Advanced to step \(currentStepIndex): \(steps[currentStepIndex].title)")
-            
-            // Verify frame exists for next step
-            let nextStepID = steps[currentStepIndex].targetElementID
-            if elementFrames[nextStepID] == nil {
-                print("[OnboardingManager] Warning: No frame found for step \(currentStepIndex) - \(nextStepID)")
+            // Verify frame exists for current step
+            let stepID = steps[currentStepIndex].targetElementID
+            if elementFrames[stepID] == nil {
+                print("[OnboardingManager] Warning: No frame found for step \(currentStepIndex) - \(stepID)")
             }
         } else {
             print("[OnboardingManager] Reached final step - completing onboarding")
@@ -114,6 +118,7 @@ class OnboardingManager: ObservableObject {
     private func completeOnboarding() {
         print("[OnboardingManager] Completing onboarding")
         isOnboardingActive = false
+        showMenu = false
         showOnboarding = false
         currentStepIndex = 0
         elementFrames.removeAll()
