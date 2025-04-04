@@ -52,7 +52,7 @@ struct SplashScreenView: View {
             
             // Add WeavePattern as background
             WeavePattern()
-                .opacity(0.15)
+                .opacity(0.4)
                 .ignoresSafeArea()
             
             // Rain drops layer

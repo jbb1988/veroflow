@@ -44,6 +44,22 @@ struct MainContentView: View {
                 .background(Color(UIColor.systemBackground))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                onboardingManager.showMenu.toggle()
+                            }
+                        }) {
+                            HamburgerIcon(isOpen: isMenuOpen.wrappedValue)
+                                .animation(.easeOut(duration: 0.2), value: isMenuOpen.wrappedValue)
+                        }
+                        .contentShape(Rectangle())
+                        .frame(width: 44, height: 44)
+                        .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
+                            ["menuButton": anchor]
+                        }
+                    }
+
                     ToolbarItemGroup(placement: .principal) {
                         Image("veroflowLogo")
                             .resizable()
