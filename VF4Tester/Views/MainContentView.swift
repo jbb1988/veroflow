@@ -43,7 +43,15 @@ struct MainContentView: View {
                 }
                 .background(Color(UIColor.systemBackground))
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { navigationToolbar }
+                .toolbar {
+                    ToolbarItemGroup(placement: .principal) {
+                        Image("veroflowLogo")
+                            .resizable()
+                            .renderingMode(.original)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 80)
+                    }
+                }
                 .toolbarBackground(.visible, for: .navigationBar)
                 .onChange(of: selectedTab) { _ in
                     if !onboardingManager.isOnboardingActive ||
@@ -134,46 +142,6 @@ struct MainContentView: View {
                  .environmentObject(onboardingManager)
                  .zIndex(3)
          }
-    }
-
-    private var navigationToolbar: some ToolbarContent {
-        Group {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        onboardingManager.showMenu.toggle()
-                    }
-                }) {
-                    HamburgerIcon(isOpen: isMenuOpen.wrappedValue)
-                        .animation(.easeOut(duration: 0.2), value: isMenuOpen.wrappedValue)
-                }
-                .contentShape(Rectangle())
-                .frame(width: 44, height: 44)
-                .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
-                    ["menuButton": anchor]
-                }
-            }
-
-            ToolbarItem(placement: .principal) {
-                 GeometryReader { geometry in
-                     Image("veroflowLogo")
-                         .resizable()
-                         .renderingMode(.original)
-                         .aspectRatio(contentMode: .fit)
-                         .frame(height: orientation.isLandscape ? 40 : 60)
-                         .fixedSize(horizontal: false, vertical: true)
-                         .background(
-                              Color.clear
-                                  .anchorPreference(key: OnboardingFramePreferenceKey.self, value: .bounds) { anchor in
-                                      let frameInNamedSpace = geometry.frame(in: .named(mainCoordinateSpace))
-                                      print("[ToolbarItem Geometry] Logo frame in named space: \(frameInNamedSpace)")
-                                      return ["mainLogo": anchor]
-                                  }
-                          )
-                 }
-                 .frame(height: orientation.isLandscape ? 40 : 60)
-            }
-        }
     }
 
     private var dragGesture: some Gesture {
