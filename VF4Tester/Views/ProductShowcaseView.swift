@@ -319,7 +319,7 @@ struct ProductDetailView: View {
                             }
                         }
                         
-                        if let pdfURL = product.pdfURL {
+                        if product.pdfURL != nil {
                             HStack(spacing: 12) {
                                 Button {
                                     showShareSheet = true

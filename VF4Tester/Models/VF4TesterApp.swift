@@ -53,7 +53,7 @@ struct VF4TesterApp: App {
                     isFirstLaunch = false
                 }
 
-                await sharedViewModel.loadData()
+                sharedViewModel.loadData()
 
                 if authManager.isAuthenticated {
                     onboardingManager.startOnboardingIfNeeded()

@@ -3,11 +3,15 @@ import SwiftUI
 // MARK: - Singleton Pattern Manager
 final class WeavePatternManager {
     static let shared = WeavePatternManager()
-    private var cachedPatterns: [CGSize: UIImage] = [:]
+    private var cachedPatterns: [String: UIImage] = [:]
     private var lastCacheFlush = Date()
     private let cacheTimeout: TimeInterval = 300 // 5 minutes
     
     private init() {}
+    
+    private func cacheKey(for size: CGSize) -> String {
+        return "\(Int(round(size.width)))x\(Int(round(size.height)))"
+    }
     
     func getPattern(for size: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage {
         let roundedSize = CGSize(width: round(size.width), height: round(size.height))
@@ -17,7 +21,8 @@ final class WeavePatternManager {
             lastCacheFlush = Date()
         }
         
-        if let cached = cachedPatterns[roundedSize] {
+        let key = cacheKey(for: roundedSize)
+        if let cached = cachedPatterns[key] {
             return cached
         }
         
@@ -32,7 +37,6 @@ final class WeavePatternManager {
             
             ctx.clear(CGRect(origin: .zero, size: roundedSize))
             
-            // Configure dot pattern
             let baseSpacing: CGFloat = 25
             let flowStrength: CGFloat = 8
             let curveFrequency: CGFloat = 0.05
@@ -87,7 +91,7 @@ final class WeavePatternManager {
             }
         }
         
-        cachedPatterns[roundedSize] = pattern
+        cachedPatterns[key] = pattern
         return pattern
     }
 }

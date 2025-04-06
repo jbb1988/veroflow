@@ -455,7 +455,6 @@ struct TestHistoryView: View {
                 ] as CFArray,
                 locations: [0, 1]
             )!
-            let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
             context.cgContext.drawLinearGradient(headerGradient, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 80), options: [])
             let title = "VEROflow-4 Test Results"
             let titleAttributes: [NSAttributedString.Key: Any] = [
@@ -785,7 +784,6 @@ struct TestHistoryView: View {
                     ] as CFArray,
                     locations: [0, 1]
                 )!
-                let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 80)
                 context.cgContext.drawLinearGradient(headerGradient, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 80), options: [])
                 let title = "VEROflow-4 Test Results"
                 let titleAttributes: [NSAttributedString.Key: Any] = [

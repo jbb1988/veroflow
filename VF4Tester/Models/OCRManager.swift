@@ -87,7 +87,7 @@ class OCRManager {
                     : 0.8
                 
                 // Create the result object
-                var result = MeterDetectionResult(
+                let result = MeterDetectionResult(
                     reading: reading,
                     serialNumber: serialNumber,
                     manufacturer: manufacturer,

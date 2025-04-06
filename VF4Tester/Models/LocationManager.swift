@@ -17,12 +17,12 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var currentLocation: CLLocation? {
         didSet {
             // Notify observers of location update
-            locationUpdateHandler?(currentLocation)
+            locationUpdateHandler?(currentLocation, nil)
         }
     }
     
     // Callback to notify when location is updated
-    var locationUpdateHandler: ((CLLocation?) -> Void)?
+    var locationUpdateHandler: ((CLLocation?, String?) -> Void)?
     
     private override init() {
         super.init()
@@ -68,9 +68,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         
         // Add reverse geocoding here
         let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
             guard error == nil, let placemark = placemarks?.first else {
                 print("Reverse geocoding failed: \(error?.localizedDescription ?? "")")
+                self?.locationUpdateHandler?(location, nil)
                 return
             }
             
@@ -94,9 +95,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             
             let addressString = addressComponents.joined(separator: ", ")
             
-            // Pass the address through the location update handler
+            // Pass both location and address through the location update handler
             DispatchQueue.main.async {
-                self.locationUpdateHandler?(location)
+                self?.locationUpdateHandler?(location, addressString)
             }
         }
         
@@ -107,5 +108,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("LocationManager error: \(error.localizedDescription)")
         currentLocation = nil
+        locationUpdateHandler?(nil, nil)
     }
 }

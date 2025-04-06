@@ -156,10 +156,6 @@ struct AnalyticsChartView: View {
         )
     }
 
-    private func formatDate(_ date: Date) -> String {
-        date.formatted(.dateTime.month().day().hour().minute())
-    }
-
     private func updateTooltipPosition(in geometry: GeometryProxy, proxy: ChartProxy, at xPosition: CGFloat) {
         let padding: CGFloat = 40 
         let tooltipWidth: CGFloat = 200

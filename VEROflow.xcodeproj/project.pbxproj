@@ -33,9 +33,6 @@
 		2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */; };
 		2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */; };
 		2D66B52E2D726ED7008B6717 /* RecentTestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */; };
-		2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */; };
-		2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */; };
-		2D7C13CC2D9C49670090D615 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D7C13CB2D9C49670090D615 /* GoogleService-Info.plist */; };
 		2D7C13CF2D9C4A140090D615 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13CE2D9C4A140090D615 /* FirebaseAnalytics */; };
 		2D7C13D12D9C4A140090D615 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13D02D9C4A140090D615 /* FirebaseAnalyticsOnDeviceConversion */; };
 		2D7C13D32D9C4A140090D615 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13D22D9C4A140090D615 /* FirebaseAnalyticsWithoutAdIdSupport */; };
@@ -60,10 +57,8 @@
 		2D7C13F92D9C4A140090D615 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13F82D9C4A140090D615 /* FirebaseStorage */; };
 		2D7C13FB2D9C4A140090D615 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13FA2D9C4A140090D615 /* FirebaseStorageCombine-Community */; };
 		2D7C13FD2D9C4A140090D615 /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7C13FC2D9C4A140090D615 /* FirebaseVertexAI */; };
-		2D7C13FF2D9C4A1D0090D615 /* FirebaseCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C13FE2D9C4A1D0090D615 /* FirebaseCore.swift */; };
 		2D7C14012D9C4B8C0090D615 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C14002D9C4B8C0090D615 /* AuthManager.swift */; };
 		2D7C14032D9C4B9E0090D615 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C14022D9C4B9E0090D615 /* AuthView.swift */; };
-		2D7C14052D9C4D090090D615 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C14042D9C4D090090D615 /* AuthManager.swift */; };
 		2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D88B32F2D777F8C0013216E /* SplashScreenView.swift */; };
 		2D89C9312D9825B7003A4BF1 /* WeavePatternView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */; };
 		2D94266F2D92D70A0037E7B3 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D94266E2D92D70A0037E7B3 /* ShopView.swift */; };
@@ -72,7 +67,6 @@
 		2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB46F792D7B5E5700FEE204 /* LocationManager.swift */; };
 		2DB6AAD72D9ED2AA00DEE21A /* ModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */; };
 		2DC17BC32D79D77D009945EF /* CameraPermissionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */; };
-		2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */; };
 		2DC2DB942D83819400497AA8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC2DB932D83819400497AA8 /* ShopView.swift */; };
 		2DC621B82D4DA2E9002FAA2F /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC621B72D4DA248002FAA2F /* TutorialView.swift */; };
 		2DDD3EF32D9ED47C00161397 /* veroflowmodel in Frameworks */ = {isa = PBXBuildFile; productRef = 2DDD3EF22D9ED47C00161397 /* veroflowmodel */; };
@@ -115,17 +109,11 @@
 		2D5EBC352D830D7700FC3A05 /* ScatterChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScatterChartView.swift; sourceTree = "<group>"; };
 		2D66945D2D81E4F000874762 /* ProductShowcaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductShowcaseView.swift; sourceTree = "<group>"; };
 		2D66945F2D81ECDF00874762 /* NavigationMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationMenuView.swift; sourceTree = "<group>"; };
-		2D66B5282D7265F1008B6717 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		2D66B5292D726E73008B6717 /* AnalyticsChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartView.swift; sourceTree = "<group>"; };
 		2D66B52B2D726ECB008B6717 /* ChartOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartOptionsView.swift; sourceTree = "<group>"; };
 		2D66B52D2D726ED7008B6717 /* RecentTestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTestsView.swift; sourceTree = "<group>"; };
-		2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactFilterPill.swift; sourceTree = "<group>"; };
-		2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDropdown.swift; sourceTree = "<group>"; };
-		2D7C13CB2D9C49670090D615 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		2D7C13FE2D9C4A1D0090D615 /* FirebaseCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseCore.swift; sourceTree = "<group>"; };
 		2D7C14002D9C4B8C0090D615 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		2D7C14022D9C4B9E0090D615 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
-		2D7C14042D9C4D090090D615 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		2D88B32F2D777F8C0013216E /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		2D89C9302D9825B7003A4BF1 /* WeavePatternView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeavePatternView.swift; sourceTree = "<group>"; };
 		2D94266E2D92D70A0037E7B3 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
@@ -134,7 +122,6 @@
 		2DB46F792D7B5E5700FEE204 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelView.swift; sourceTree = "<group>"; };
 		2DC17BC22D79D77D009945EF /* CameraPermissionTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTestView.swift; sourceTree = "<group>"; };
-		2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVWrapper.swift; sourceTree = "<group>"; };
 		2DC2DB932D83819400497AA8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		2DC621B72D4DA248002FAA2F /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
@@ -160,10 +147,19 @@
 			);
 			target = CF1A0FC2B69D8F500123456 /* VEROflow */;
 		};
+		2D7CC8322DA28CE600FEF14B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				SearchBar.swift,
+			);
+			target = CF1A0FC2B69D8F500123456 /* VEROflow */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2D1963A02D4ED4B5009839D7 /* Connectivity */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2D1963A32D4ED4C9009839D7 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Connectivity; sourceTree = "<group>"; };
+		2D7CC8312DA28CD200FEF14B /* Filters */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2D7CC8322DA28CE600FEF14B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Filters; sourceTree = "<group>"; };
+		2D7CC8332DA28D4600FEF14B /* Authentication */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Authentication; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -216,12 +212,6 @@
 			children = (
 				CF1A0FE2B69D8F500123456 /* Products */,
 				CF1A0FF2B69D8F500123456 /* VF4Tester */,
-				2D5EBC332D830D6D00FC3A05 /* LineChartView.swift */,
-				2D5EBC342D830D7200FC3A05 /* BarChartView.swift */,
-				2D5EBC352D830D7700FC3A05 /* ScatterChartView.swift */,
-				2D7C13CB2D9C49670090D615 /* GoogleService-Info.plist */,
-				2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */,
-				2D7C13FE2D9C4A1D0090D615 /* FirebaseCore.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -237,20 +227,14 @@
 			isa = PBXGroup;
 			children = (
 				CF1A1042B69D8F600123456 /* Assets.xcassets */,
-				2D6B566C2D7E2D7600A0EACD /* CompactFilterPill.swift */,
+				2D7CC8332DA28D4600FEF14B /* Authentication */,
+				2D7CC8312DA28CD200FEF14B /* Filters */,
 				2D1963A02D4ED4B5009839D7 /* Connectivity */,
-				2D6B566E2D7E2D7C00A0EACD /* FilterDropdown.swift */,
 				2D26D29C2D976945006DC2D2 /* Extensions */,
-				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
 				CF1A1132B69D91800123456 /* Models */,
-				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
-				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
-				2DC2C8DB2D7D126800C7C47A /* OpenCVWrapper.swift */,
-				2D66B5282D7265F1008B6717 /* SearchBar.swift */,
-				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
-				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
 				CF1A1112B69D91100123456 /* ViewModels */,
 				CF1A1122B69D91200123456 /* Views */,
+				2D1597F12D7A120A00F29B21 /* VEROflowInfo.plist */,
 			);
 			path = VF4Tester;
 			sourceTree = "<group>";
@@ -301,6 +285,9 @@
 				2DDFF9E42D9E01A300C14E23 /* UserProfileView.swift */,
 				2DB6AAD62D9ED2AA00DEE21A /* ModelView.swift */,
 				2D1CCE4B2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift */,
+				2D5EBC332D830D6D00FC3A05 /* LineChartView.swift */,
+				2D5EBC342D830D7200FC3A05 /* BarChartView.swift */,
+				2D5EBC352D830D7700FC3A05 /* ScatterChartView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -311,8 +298,12 @@
 				CF1A1142B69D92500123456 /* Types.swift */,
 				2D19639E2D4ED394009839D7 /* CloudSyncManager.swift */,
 				2D7C14002D9C4B8C0090D615 /* AuthManager.swift */,
-				2D7C14042D9C4D090090D615 /* AuthManager.swift */,
 				2D1CCE492DA01721002A6493 /* OnboardingManager.swift */,
+				2DB46F792D7B5E5700FEE204 /* LocationManager.swift */,
+				2D1597F52D7A1FD600F29B21 /* OCRManager.swift */,
+				2D1BBBE92D7606A4002A6DC8 /* NavigationTypes.swift */,
+				CF1A1002B69D8F500123456 /* VF4TesterApp.swift */,
+				2D1CE5732D9F10BE00721209 /* veroflowmodel.usdz */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -331,6 +322,10 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2D7CC8312DA28CD200FEF14B /* Filters */,
+				2D7CC8332DA28D4600FEF14B /* Authentication */,
 			);
 			name = VEROflow;
 			productName = VF4Tester;
@@ -382,7 +377,6 @@
 			files = (
 				2D1CE5742D9F10BE00721209 /* veroflowmodel.usdz in Resources */,
 				CF1A1052B69D8F600123456 /* Assets.xcassets in Resources */,
-				2D7C13CC2D9C49670090D615 /* GoogleService-Info.plist in Resources */,
 				2D1597F22D7A120A00F29B21 /* VEROflowInfo.plist in Resources */,
 				2D2D1CFE2D64E2C9008DB09B /* Error_Handling_Improvements.txt in Resources */,
 			);
@@ -408,12 +402,10 @@
 				2DC2DB942D83819400497AA8 /* ShopView.swift in Sources */,
 				2D94266F2D92D70A0037E7B3 /* ShopView.swift in Sources */,
 				2D1CCE4C2DA01741002A6493 /* InteractiveOnboardingOverlayView.swift in Sources */,
-				2D6B566D2D7E2D7600A0EACD /* CompactFilterPill.swift in Sources */,
 				2D1963A92D4EF18B009839D7 /* OfflineBannerView.swift in Sources */,
 				2D88B3302D777F8C0013216E /* SplashScreenView.swift in Sources */,
 				2D66945E2D81E4F000874762 /* ProductShowcaseView.swift in Sources */,
 				2D0D65A92D7B68B2003A10AE /* SafariView.swift in Sources */,
-				2DC2C8DC2D7D126800C7C47A /* OpenCVWrapper.swift in Sources */,
 				2D1597F62D7A1FD600F29B21 /* OCRManager.swift in Sources */,
 				2D0834B82D97295800A920CE /* MenuBackgroundView.swift in Sources */,
 				2D7C14012D9C4B8C0090D615 /* AuthManager.swift in Sources */,
@@ -421,13 +413,11 @@
 				2D1BBBDE2D7601E6002A6DC8 /* ContentView.swift in Sources */,
 				2D9BCB9F2D74C9A400FF088F /* TypingEffect.swift in Sources */,
 				2DB6AAD72D9ED2AA00DEE21A /* ModelView.swift in Sources */,
-				2D7C13FF2D9C4A1D0090D615 /* FirebaseCore.swift in Sources */,
 				2D66B52A2D726E73008B6717 /* AnalyticsChartView.swift in Sources */,
 				2DB46F7A2D7B5E5700FEE204 /* LocationManager.swift in Sources */,
 				CF1A1182B69D94500123456 /* HelpView.swift in Sources */,
 				2D5665F72D5E321200E9C404 /* TestDetailView.swift in Sources */,
 				2D1BBBEA2D7606A4002A6DC8 /* NavigationTypes.swift in Sources */,
-				2D6B566F2D7E2D7C00A0EACD /* FilterDropdown.swift in Sources */,
 				2D66B52C2D726ECB008B6717 /* ChartOptionsView.swift in Sources */,
 				CF1A1192B69D94F00123456 /* SettingsView.swift in Sources */,
 				2D89C9312D9825B7003A4BF1 /* WeavePatternView.swift in Sources */,
@@ -437,7 +427,6 @@
 				2D26D29D2D976945006DC2D2 /* Color+Hex.swift in Sources */,
 				2D9BCB9D2D74C9A200FF088F /* GeoView.swift in Sources */,
 				2D1CCE4A2DA01721002A6493 /* OnboardingManager.swift in Sources */,
-				2D7C14052D9C4D090090D615 /* AuthManager.swift in Sources */,
 				2D1BBBD72D75FF6C002A6DC8 /* EnhancedOnboardingOverlayView.swift in Sources */,
 				2DDFF9E52D9E01A300C14E23 /* UserProfileView.swift in Sources */,
 				CF1A11B2B69D96500123456 /* TestViewModel.swift in Sources */,

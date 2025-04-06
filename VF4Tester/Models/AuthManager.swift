@@ -6,10 +6,21 @@ class AuthManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var errorMessage: String?
     
+    // ADD: Store auth state handle
+    private var stateHandle: AuthStateDidChangeListenerHandle?
+    
     init() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        // CHANGE: Store the listener handle
+        stateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.user = user
             self?.isAuthenticated = user != nil
+        }
+    }
+    
+    // ADD: Cleanup when AuthManager is deinitialized
+    deinit {
+        if let handle = stateHandle {
+            Auth.auth().removeStateDidChangeListener(handle)
         }
     }
     
