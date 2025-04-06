@@ -134,14 +134,13 @@ struct TestResult: Codable, Identifiable {
     
     var isPassing: Bool {
         let acc = reading.accuracy
-        // Determine the min/max tolerance based on meterModel and testType
         let (minTol, maxTol): (Double, Double) = {
             switch meterModel {
             case MeterModel.positiveDisplacement.rawValue,
                  MeterModel.singleJet.rawValue:
                 switch testType {
                 case .lowFlow:
-                    return (95.0, 101.5)
+                    return (95.0, 101.0)
                 case .midFlow, .highFlow:
                     return (98.5, 101.5)
                 }

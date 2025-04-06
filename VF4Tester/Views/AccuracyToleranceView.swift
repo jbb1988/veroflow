@@ -11,7 +11,8 @@ struct AccuracyToleranceView: View {
     
     // MARK: - Properties
     private let largeMeterData: [ToleranceData] = [
-        .init(meterType: "Positive Displacement & Single-Jet", lowFlow: "95% - 101.5%", midHighFlow: "98.5% - 101.5%"),
+        // CHANGE: Fixed low flow range for PD & Single-Jet to show 95% - 101%
+        .init(meterType: "Positive Displacement & Single-Jet", lowFlow: "95% - 101%", midHighFlow: "98.5% - 101.5%"),
         .init(meterType: "Multi-Jet", lowFlow: "97% - 103%", midHighFlow: "98.5% - 101.5%"),
         .init(meterType: "Turbine (Class II)", lowFlow: "98.5% - 101.5%", midHighFlow: "98.5% - 101.5%"),
         .init(meterType: "Electromagnetic/Ultrasonic", lowFlow: "95% - 105%", midHighFlow: "98.5% - 101.5%"),
@@ -20,7 +21,8 @@ struct AccuracyToleranceView: View {
     ]
     
     private let smallMeterData: [ToleranceData] = [
-        .init(meterType: "Positive Displacement & Single-Jet", lowFlow: "95% - 101.5%", midHighFlow: "98.5% - 101.5%")
+        // CHANGE: Fixed low flow range for PD & Single-Jet to show 95% - 101%
+        .init(meterType: "Positive Displacement & Single-Jet", lowFlow: "95% - 101%", midHighFlow: "98.5% - 101.5%")
     ]
     
     // MARK: - Body

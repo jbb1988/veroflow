@@ -349,12 +349,26 @@ struct HelpView: View {
 
                         VStack(spacing: 20) {
                             VideoCard(
-                                title: "Getting Started",
+                                title: "Part I: Overview",
                                 description: "Learn the basics of VEROflow testing",
                                 url: URL(string: "https://player.vimeo.com/video/1061388492")!,
                                 thumbnailName: "getting-started-thumb"
                             )
 
+                            VideoCard(
+                                title: "Part II: Live Demo",
+                                description: "See a live demo with the VEROflow-4 Touch Unit",
+                                url: URL(string: "https://player.vimeo.com/video/1072707987")!,
+                                thumbnailName: "getting-started-thumb"
+                            )
+                            
+                            VideoCard(
+                                title: "Part III: Accuracies & Running Tests",
+                                description: "Understand the nuances of the numbers",
+                                url: URL(string: "https://player.vimeo.com/video/1072709943")!,
+                                thumbnailName: "getting-started-thumb"
+                            )
+                            
                             VideoCard(
                                 title: "VEROflow App Overview",
                                 description: "Overview of the VEROflow App features",
@@ -1033,29 +1047,34 @@ struct VideoCard: View {
 
     var body: some View {
         Button(action: { showingVideo = true }) {
-            HStack {
+            HStack(spacing: 16) {
                 Image(systemName: "play.circle.fill")
-                    .font(.title)
+                    .font(.system(size: 24))
                     .foregroundColor(.blue)
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.headline)
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
+                    
                     Text(description)
-                        .font(.subheadline)
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.gray)
+                        .lineLimit(1)
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.gray)
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
             .background(glassmorphicBackground)
             .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                    .blur(radius: 0.5)
-            )
         }
         .sheet(isPresented: $showingVideo) {
             WebView(url: url)
@@ -1283,7 +1302,7 @@ struct MeterToleranceData {
 
 // MARK: - tolerance arrays
 let largeMeterTolerances = [
-    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Turbine (Class II)", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
@@ -1292,7 +1311,7 @@ let largeMeterTolerances = [
 ]
 
 let smallMeterTolerances = [
-    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101.5%", highFlow: "98.5% – 101.5%"),
+    MeterToleranceData(type: "Positive Displacement & Single-Jet", lowFlow: "95% – 101%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Multi-Jet", lowFlow: "97% – 103%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Turbine", lowFlow: "98.5% – 101.5%", highFlow: "98.5% – 101.5%"),
     MeterToleranceData(type: "Electromagnetic/Ultrasonic", lowFlow: "95% – 105%", highFlow: "98.5% – 101.5%"),
